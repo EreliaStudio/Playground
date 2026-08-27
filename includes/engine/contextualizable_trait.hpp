@@ -2,24 +2,16 @@
 
 #include <sparkle.hpp>
 
-#include <concepts>
-#include <functional>
-#include <utility>
+#include "concept.hpp"
 
 namespace spk
 {
-	template <typename T>
-	concept Hashable =
-		std::equality_comparable<T> &&
-		requires(const T &value) {
-			{ std::hash<T>{}(value) } -> std::convertible_to<std::size_t>;
-		};
-
 	template <typename TContext>
 		requires Hashable<TContext>
 	class ContextualizableTrait
 	{
 	public:
+		using Context = TContext;
 		using OnContextEditionContractProvider = ContractProvider<const TContext &, const TContext &>;
 		using OnContextEditionContract = typename OnContextEditionContractProvider::Contract;
 		using OnContextEditionCallback = typename OnContextEditionContractProvider::callback_type;

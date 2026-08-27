@@ -43,7 +43,7 @@ namespace spk
 
 		template <typename TComponentType>
 			requires std::derived_from<TComponentType, Component>
-		[[nodiscard]] TComponentType *getComponent(const std::string &regex)
+		[[nodiscard]] TComponentType *getComponent(const std::string &regex = ".*")
 		{
 			const std::regex expression(regex);
 
