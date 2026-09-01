@@ -1,6 +1,7 @@
 #include "engine/engine.hpp"
 
 #include "core/context/update_context.hpp"
+#include "rendering/render_snapshot.hpp"
 
 namespace spk
 {
@@ -38,6 +39,7 @@ namespace spk
 
 		entity->changeContext(this);
 		entity->setParent(&_root);
+		entity->handleGeometryChange(_geometry);
 	}
 
 	void Engine::removeEntity(Entity *entity)
@@ -65,6 +67,22 @@ namespace spk
 	const Entity &Engine::root() const noexcept
 	{
 		return _root;
+	}
+
+	void Engine::handleGeometryChange(const spk::Rect2D &geometry)
+	{
+		_geometry = geometry;
+		_root.handleGeometryChange(_geometry);
+	}
+
+	const spk::Rect2D &Engine::geometry() const noexcept
+	{
+		return _geometry;
+	}
+
+	void Engine::buildRenderSnapshot(spk::RenderSnapshot::Builder &builder)
+	{
+		_root.buildRenderSnapshot(builder);
 	}
 
 	void Engine::updateState(UpdateContext &context)

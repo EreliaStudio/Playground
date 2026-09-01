@@ -13,9 +13,14 @@ namespace spk
 	class Behaviour : public EntityAttachment,
 					  public EventDispatcher
 	{
+	private:
+		spk::Rect2D _geometry{};
+
 	protected:
 		[[nodiscard]] bool _isAcceptingInteraction() const override;
 
+		virtual void _onGeometryChange(const spk::Rect2D &geometry);
+		virtual void _buildRenderSnapshot(spk::RenderSnapshot::Builder &builder);
 		virtual void _updateState(UpdateContext &context);
 
 	public:
@@ -26,6 +31,9 @@ namespace spk
 
 		~Behaviour() override = default;
 
+		void handleGeometryChange(const spk::Rect2D &geometry);
+		[[nodiscard]] const spk::Rect2D &geometry() const noexcept;
+		void buildRenderSnapshot(spk::RenderSnapshot::Builder &builder);
 		void updateState(UpdateContext &context);
 	};
 }

@@ -23,6 +23,7 @@ namespace spk
 		using SystemCollection::unregisterSystem;
 
 		Entity _root;
+		spk::Rect2D _geometry{};
 
 		[[nodiscard]] bool _isAcceptingInteraction() const override;
 		void _propagateInteraction(
@@ -53,6 +54,9 @@ namespace spk
 		[[nodiscard]] Entity &root() noexcept;
 		[[nodiscard]] const Entity &root() const noexcept;
 
+		void handleGeometryChange(const spk::Rect2D &geometry);
+		[[nodiscard]] const spk::Rect2D &geometry() const noexcept;
+		void buildRenderSnapshot(spk::RenderSnapshot::Builder &builder);
 		void updateState(UpdateContext &context);
 	};
 }

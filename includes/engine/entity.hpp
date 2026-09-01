@@ -28,14 +28,19 @@ namespace spk
 				   public EventDispatcher
 	{
 	private:
-		using SystemParticipantCollection::registerParticipant;
-		using SystemParticipantCollection::unregisterParticipant;
 		using BehaviourCollection::registerBehaviour;
 		using BehaviourCollection::unregisterBehaviour;
+		using SystemParticipantCollection::registerParticipant;
+		using SystemParticipantCollection::unregisterParticipant;
+		spk::Rect2D _geometry{};
 
 		[[nodiscard]] bool _isAcceptingInteraction() const override;
 		void _propagateInteraction(
 			const std::function<void(EventDispatcher *)> &callback) override;
+
+	protected:
+		virtual void _onGeometryChange(const spk::Rect2D &geometry);
+		virtual void _buildRenderSnapshot(spk::RenderSnapshot::Builder &builder);
 
 	public:
 		Entity(const std::string &name, Entity *parent = nullptr);
@@ -50,6 +55,7 @@ namespace spk
 			TParticipantType &result = *participant;
 			result.attach(this);
 			registerParticipant(std::move(participant));
+			result.handleGeometryChange(_geometry);
 
 			return result;
 		}
@@ -69,6 +75,7 @@ namespace spk
 			TBehaviourType &result = *behaviour;
 			result.attach(this);
 			registerBehaviour(std::move(behaviour));
+			result.handleGeometryChange(_geometry);
 
 			return result;
 		}
@@ -78,6 +85,9 @@ namespace spk
 			unregisterBehaviour(behaviour);
 		}
 
+		void handleGeometryChange(const spk::Rect2D &geometry);
+		[[nodiscard]] const spk::Rect2D &geometry() const noexcept;
+		void buildRenderSnapshot(spk::RenderSnapshot::Builder &builder);
 		void updateState(UpdateContext &context);
 	};
 }
