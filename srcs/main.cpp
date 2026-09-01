@@ -9,7 +9,7 @@
 #include "engine/entity2d.hpp"
 #include "engine/sprite_renderer2d.hpp"
 #include "engine/transform2d.hpp"
-#include "widget/engine_widget.hpp"
+#include "ui/widget/engine_widget.hpp"
 
 namespace
 {

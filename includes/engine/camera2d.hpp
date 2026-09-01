@@ -4,6 +4,7 @@
 
 #include "engine/registry.hpp"
 #include "engine/system_participant2d.hpp"
+#include "math/matrix.hpp"
 
 namespace spk
 {
