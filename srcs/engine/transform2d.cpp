@@ -8,7 +8,7 @@
 namespace spk
 {
 	Transform2D::Transform2D(const std::string &name) :
-		Component2D(name),
+		System::Participant2D(name),
 		_worldPosition(
 			[this]() {
 				const Transform2D *parentTransform = _parentTransform();
@@ -86,7 +86,7 @@ namespace spk
 
 	const Transform2D *Transform2D::_parentTransform() const
 	{
-		const Entity *currentOwner = Component::owner();
+		const Entity *currentOwner = System::Participant::owner();
 
 		if (currentOwner == nullptr)
 		{
@@ -107,7 +107,7 @@ namespace spk
 			return &castedParent->transform();
 		}
 
-		return parent->getComponent<Transform2D>(".*");
+		return parent->getParticipant<Transform2D>();
 	}
 
 	void Transform2D::_clearWorldCaches()
@@ -128,7 +128,7 @@ namespace spk
 
 	void Transform2D::_clearWorldCachesRecursively(Entity &entity)
 	{
-		Transform2D *transform = entity.getComponent<Transform2D>(".*");
+		Transform2D *transform = entity.getParticipant<Transform2D>();
 
 		if (transform != nullptr)
 		{
@@ -146,7 +146,7 @@ namespace spk
 
 	void Transform2D::_clearDescendantWorldCaches()
 	{
-		Entity *currentOwner = Component::owner();
+		Entity *currentOwner = System::Participant::owner();
 
 		if (currentOwner == nullptr)
 		{

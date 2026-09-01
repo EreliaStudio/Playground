@@ -2,16 +2,19 @@
 
 #include <string>
 
+#include <sparkle>
+
+#include "engine/entity.hpp"
+
 namespace spk
 {
 	class Engine
 	{
 	private:
-		std::string _name;
+		Entity _root;
 
 	public:
-		explicit Engine(std::string name);
-
-		[[nodiscard]] const std::string &name() const;
+		void addEntity(Entity *entity);
+		void removeEntity(Entity *entity);
 	};
 }

@@ -1,22 +1,24 @@
-#include "engine/component.hpp"
+#include "engine/entity_attachment.hpp"
 
 #include "engine/entity.hpp"
 
 namespace spk
 {
-	Component::Component(const std::string &name, Entity *owner) :
+	EntityAttachment::EntityAttachment(
+		const std::string &name,
+		Entity *owner) :
 		NameTrait(name)
 	{
 		activate();
 		attach(owner);
 	}
 
-	Component::Component(Entity *owner) :
-		Component("Unnamed component", owner)
+	EntityAttachment::EntityAttachment(Entity *owner) :
+		EntityAttachment("Unnamed entity attachment", owner)
 	{
 	}
 
-	void Component::attach(Entity *owner)
+	void EntityAttachment::attach(Entity *owner)
 	{
 		if (_owner == owner)
 		{
@@ -33,19 +35,18 @@ namespace spk
 		}
 
 		changeContext(_owner->context());
-
 		_onOwnerContextEditionContract = _owner->subscribeToContextEdition(
 			[this](Engine *const &, Engine *const &newContext) {
 				changeContext(newContext);
 			});
 	}
 
-	Entity *Component::owner()
+	Entity *EntityAttachment::owner()
 	{
 		return _owner;
 	}
 
-	const Entity *Component::owner() const
+	const Entity *EntityAttachment::owner() const
 	{
 		return _owner;
 	}

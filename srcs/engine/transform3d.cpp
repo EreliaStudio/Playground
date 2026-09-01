@@ -8,7 +8,7 @@
 namespace spk
 {
 	Transform3D::Transform3D(const std::string &name) :
-		Component3D(name),
+		System::Participant3D(name),
 		_worldPosition(
 			[this]() {
 				const Transform3D *parentTransform = _parentTransform();
@@ -87,7 +87,7 @@ namespace spk
 
 	const Transform3D *Transform3D::_parentTransform() const
 	{
-		const Entity *currentOwner = Component::owner();
+		const Entity *currentOwner = System::Participant::owner();
 
 		if (currentOwner == nullptr)
 		{
@@ -108,7 +108,7 @@ namespace spk
 			return &castedParent->transform();
 		}
 
-		return parent->getComponent<Transform3D>(".*");
+		return parent->getParticipant<Transform3D>();
 	}
 
 	void Transform3D::_clearWorldCaches()
@@ -129,7 +129,7 @@ namespace spk
 
 	void Transform3D::_clearWorldCachesRecursively(Entity &entity)
 	{
-		Transform3D *transform = entity.getComponent<Transform3D>(".*");
+		Transform3D *transform = entity.getParticipant<Transform3D>();
 
 		if (transform != nullptr)
 		{
@@ -147,7 +147,7 @@ namespace spk
 
 	void Transform3D::_clearDescendantWorldCaches()
 	{
-		Entity *currentOwner = Component::owner();
+		Entity *currentOwner = System::Participant::owner();
 
 		if (currentOwner == nullptr)
 		{

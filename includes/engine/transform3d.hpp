@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/component3d.hpp"
 #include "engine/reference_frame.hpp"
 #include "engine/registry.hpp"
+#include "engine/system_participant3d.hpp"
 
 #include <sparkle.hpp>
 
@@ -13,7 +13,7 @@ namespace spk
 	class Entity;
 	class Entity3D;
 
-	class Transform3D : public Component3D,
+	class Transform3D : public System::Participant3D,
 						public Registry<Engine *, Transform3D>::Object
 	{
 		friend class Entity3D;

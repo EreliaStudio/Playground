@@ -4,13 +4,13 @@
 
 namespace spk
 {
-	Engine::Engine(std::string name) :
-		_name(std::move(name))
+	void Engine::addEntity(Entity *entity)
 	{
+		_root.addChild(entity);
 	}
 
-	const std::string &Engine::name() const
+	void Engine::removeEntity(Entity *entity)
 	{
-		return _name;
+		_root.removeChild(entity);
 	}
 }

@@ -11,9 +11,9 @@ namespace spk
 	class Engine;
 	class Entity;
 
-	class Component : public ContextualizableTrait<Engine *>,
-					  public ActivableTrait,
-					  public NameTrait
+	class EntityAttachment : public ContextualizableTrait<Engine *>,
+							 public ActivableTrait,
+							 public NameTrait
 	{
 	private:
 		using OwnerContextualizableTrait = ContextualizableTrait<Engine *>;
@@ -22,10 +22,12 @@ namespace spk
 		OwnerContextualizableTrait::OnContextEditionContract _onOwnerContextEditionContract;
 
 	public:
-		Component(const std::string &name = "Unnamed component", Entity *owner = nullptr);
-		explicit Component(Entity *owner);
+		EntityAttachment(
+			const std::string &name = "Unnamed entity attachment",
+			Entity *owner = nullptr);
+		explicit EntityAttachment(Entity *owner);
 
-		virtual ~Component() = default;
+		virtual ~EntityAttachment() = default;
 
 		virtual void attach(Entity *owner);
 

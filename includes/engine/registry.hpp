@@ -3,10 +3,8 @@
 #include "engine/contextualizable_trait.hpp"
 
 #include <concepts>
-#include <functional>
 #include <set>
 #include <unordered_map>
-#include <utility>
 
 namespace spk
 {
@@ -16,6 +14,11 @@ namespace spk
 	{
 	public:
 		using ElementSet = std::set<TType *>;
+		using OnEditionContractProvider = spk::ContractProvider<const TContext &, TType *>;
+		using OnEditionCallback = typename OnEditionContractProvider::callback_type;
+		using OnEditionContract = typename OnEditionContractProvider::Contract;
+
+		class Query;
 
 		class Object
 		{
@@ -56,47 +59,79 @@ namespace spk
 			Object(Object &&) = delete;
 			Object &operator=(Object &&) = delete;
 		};
-		
+
 	private:
-		static inline std::unordered_map<TContext, ElementSet> _elementsByContext;
+		struct Entry
+		{
+			OnEditionContractProvider onAdditionContractProvider;
+			OnEditionContractProvider onRemovalContractProvider;
+			ElementSet elements;
+		};
+
+		static inline std::unordered_map<TContext, Entry> _entries;
 
 		static bool add(const TContext &context, TType *element)
 		{
-			return _elementsByContext[context].insert(element).second;
+			Entry &entry = _entries[context];
+
+			const bool inserted = entry.elements.insert(element).second;
+
+			if (inserted)
+			{
+				entry.onAdditionContractProvider.trigger(context, element);
+			}
+
+			return inserted;
 		}
 
 		static bool remove(const TContext &context, TType *element)
 		{
-			auto it = _elementsByContext.find(context);
+			auto it = _entries.find(context);
 
-			if (it == _elementsByContext.end())
+			if (it == _entries.end())
 			{
 				return false;
 			}
 
-			const bool result = it->second.erase(element) != 0;
+			const bool removed = it->second.elements.erase(element) != 0;
 
-			if (it->second.empty())
+			if (removed)
 			{
-				_elementsByContext.erase(it);
+				it->second.onRemovalContractProvider.trigger(context, element);
 			}
 
-			return result;
+			return removed;
 		}
 
 	public:
+		static OnEditionContract subscribeToAddition(
+			const TContext &context,
+			OnEditionCallback callback)
+		{
+			return _entries[context].onAdditionContractProvider.subscribe(callback);
+		}
+
+		static OnEditionContract subscribeToRemoval(
+			const TContext &context,
+			OnEditionCallback callback)
+		{
+			return _entries[context].onRemovalContractProvider.subscribe(callback);
+		}
+
 		[[nodiscard]] static const ElementSet &elements(const TContext &context)
 		{
 			static const ElementSet empty;
 
-			auto it = _elementsByContext.find(context);
+			auto it = _entries.find(context);
 
-			if (it == _elementsByContext.end())
+			if (it == _entries.end())
 			{
 				return empty;
 			}
 
-			return it->second;
+			return it->second.elements;
 		}
+
+		[[nodiscard]] static Query query();
 	};
 }

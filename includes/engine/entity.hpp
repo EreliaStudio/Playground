@@ -1,16 +1,15 @@
 #pragma once
 
-#include "engine/component.hpp"
-#include "engine/registry.hpp"
-
 #include <sparkle.hpp>
 
 #include <concepts>
 #include <memory>
-#include <regex>
 #include <string>
 #include <utility>
-#include <vector>
+
+#include "engine/behaviour_collection.hpp"
+#include "engine/registry.hpp"
+#include "engine/system_participant_collection.hpp"
 
 namespace spk
 {
@@ -20,83 +19,93 @@ namespace spk
 				   public Registry<Engine *, Entity>::Object,
 				   public InherenceTrait<Entity>,
 				   public ActivableTrait,
-				   public NameTrait
+				   public NameTrait,
+				   public SystemParticipantCollection,
+				   public BehaviourCollection
 	{
+	public:
+		using OnParticipantEditionContractProvider = spk::ContractProvider<Entity *, System::Participant &>;
+		using OnParticipantEditionCallback = OnParticipantEditionContractProvider::callback_type;
+		using OnParticipantEditionContract = OnParticipantEditionContractProvider::Contract;
+
+		using OnBehaviourEditionContractProvider = spk::ContractProvider<Entity *, Behaviour &>;
+		using OnBehaviourEditionCallback = OnBehaviourEditionContractProvider::callback_type;
+		using OnBehaviourEditionContract = OnBehaviourEditionContractProvider::Contract;
+
 	private:
-		std::vector<std::unique_ptr<Component>> _components;
+		using SystemParticipantCollection::registerParticipant;
+		using SystemParticipantCollection::unregisterParticipant;
+		using BehaviourCollection::registerBehaviour;
+		using BehaviourCollection::unregisterBehaviour;
+
+		OnParticipantEditionContractProvider _onParticipantAdditionContractProvider;
+		OnParticipantEditionContractProvider _onParticipantRemovalContractProvider;
+		OnBehaviourEditionContractProvider _onBehaviourAdditionContractProvider;
+		OnBehaviourEditionContractProvider _onBehaviourRemovalContractProvider;
 
 	public:
 		Entity(const std::string &name, Entity *parent = nullptr);
 
-		template <typename TComponentType, typename... TArgs>
-			requires std::derived_from<TComponentType, Component>
-		TComponentType &addComponent(TArgs &&...args)
+		OnParticipantEditionContract subscribeToParticipantAddition(OnParticipantEditionCallback callback)
 		{
-			std::unique_ptr<TComponentType> newComponent = std::make_unique<TComponentType>(std::forward<TArgs>(args)...);
+			return _onParticipantAdditionContractProvider.subscribe(callback);
+		}
 
-			TComponentType &result = *newComponent;
+		OnParticipantEditionContract subscribeToParticipantRemoval(OnParticipantEditionCallback callback)
+		{
+			return _onParticipantRemovalContractProvider.subscribe(callback);
+		}
+
+		OnBehaviourEditionContract subscribeToBehaviourAddition(OnBehaviourEditionCallback callback)
+		{
+			return _onBehaviourAdditionContractProvider.subscribe(callback);
+		}
+
+		OnBehaviourEditionContract subscribeToBehaviourRemoval(OnBehaviourEditionCallback callback)
+		{
+			return _onBehaviourRemovalContractProvider.subscribe(callback);
+		}
+
+		template <typename TParticipantType, typename... TArgs>
+			requires std::derived_from<TParticipantType, System::Participant>
+		TParticipantType &addParticipant(TArgs &&...args)
+		{
+			std::unique_ptr<TParticipantType> participant =
+				std::make_unique<TParticipantType>(std::forward<TArgs>(args)...);
+
+			TParticipantType &result = *participant;
 			result.attach(this);
-			_components.push_back(std::move(newComponent));
+			registerParticipant(std::move(participant));
+			_onParticipantAdditionContractProvider.trigger(this, result);
 
 			return result;
 		}
 
-		template <typename TComponentType>
-			requires std::derived_from<TComponentType, Component>
-		[[nodiscard]] TComponentType *getComponent(const std::string &regex = ".*")
+		void removeParticipant(System::Participant &participant)
 		{
-			const std::regex expression(regex);
-
-			for (auto &component : _components)
-			{
-				TComponentType *castedComponent = dynamic_cast<TComponentType *>(component.get());
-
-				if (castedComponent != nullptr && std::regex_search(component->name(), expression))
-				{
-					return castedComponent;
-				}
-			}
-
-			return nullptr;
+			_onParticipantRemovalContractProvider.trigger(this, participant);
+			unregisterParticipant(participant);
 		}
 
-		template <typename TComponentType>
-			requires std::derived_from<TComponentType, Component>
-		[[nodiscard]] const TComponentType *getComponent(const std::string &regex) const
+		template <typename TBehaviourType, typename... TArgs>
+			requires std::derived_from<TBehaviourType, Behaviour>
+		TBehaviourType &addBehaviour(TArgs &&...args)
 		{
-			const std::regex expression(regex);
+			std::unique_ptr<TBehaviourType> behaviour =
+				std::make_unique<TBehaviourType>(std::forward<TArgs>(args)...);
 
-			for (const auto &component : _components)
-			{
-				const TComponentType *castedComponent = dynamic_cast<const TComponentType *>(component.get());
-
-				if (castedComponent != nullptr && std::regex_search(component->name(), expression))
-				{
-					return castedComponent;
-				}
-			}
-
-			return nullptr;
-		}
-
-		template <typename TComponentType>
-			requires std::derived_from<TComponentType, Component>
-		[[nodiscard]] std::vector<TComponentType *> getComponents(const std::string &regex)
-		{
-			std::vector<TComponentType *> result;
-			const std::regex expression(regex);
-
-			for (auto &component : _components)
-			{
-				TComponentType *castedComponent = dynamic_cast<TComponentType *>(component.get());
-
-				if (castedComponent != nullptr && std::regex_search(component->name(), expression))
-				{
-					result.push_back(castedComponent);
-				}
-			}
+			TBehaviourType &result = *behaviour;
+			result.attach(this);
+			registerBehaviour(std::move(behaviour));
+			_onBehaviourAdditionContractProvider.trigger(this, result);
 
 			return result;
+		}
+
+		void removeBehaviour(Behaviour &behaviour)
+		{
+			_onBehaviourRemovalContractProvider.trigger(this, behaviour);
+			unregisterBehaviour(behaviour);
 		}
 	};
 }
