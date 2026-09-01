@@ -24,6 +24,25 @@ namespace spk
 		}
 
 	public:
+		using OnParticipantEditionContractProvider =
+			typename Base::OnAttachmentEditionContractProvider;
+		using OnParticipantEditionCallback =
+			typename Base::OnAttachmentEditionCallback;
+		using OnParticipantEditionContract =
+			typename Base::OnAttachmentEditionContract;
+
+		[[nodiscard]] OnParticipantEditionContract subscribeToParticipantAddition(
+			OnParticipantEditionCallback callback)
+		{
+			return Base::subscribeToAttachmentAddition(callback);
+		}
+
+		[[nodiscard]] OnParticipantEditionContract subscribeToParticipantRemoval(
+			OnParticipantEditionCallback callback)
+		{
+			return Base::subscribeToAttachmentRemoval(callback);
+		}
+
 		template <typename TParticipantType, typename TPredicate>
 			requires std::derived_from<TParticipantType, System::Participant>
 		[[nodiscard]] TParticipantType *getParticipant(const TPredicate &predicate)

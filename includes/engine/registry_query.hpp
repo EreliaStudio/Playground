@@ -383,7 +383,7 @@ namespace spk
 
 			subscription.onAdditionContract =
 				entity->subscribeToParticipantAddition(
-					[this, context](Entity *, System::Participant &participant) {
+					[this, context](System::Participant &participant) {
 						if (dynamic_cast<TParticipantType *>(&participant) != nullptr)
 						{
 							this->invalidate(context);
@@ -392,7 +392,7 @@ namespace spk
 
 			subscription.onRemovalContract =
 				entity->subscribeToParticipantRemoval(
-					[this, context](Entity *, System::Participant &participant) {
+					[this, context](System::Participant &participant) {
 						if (dynamic_cast<TParticipantType *>(&participant) != nullptr)
 						{
 							this->invalidate(context);
@@ -512,7 +512,7 @@ namespace spk
 
 			subscription.onAdditionContract =
 				entity->subscribeToBehaviourAddition(
-					[this, context](Entity *, Behaviour &behaviour) {
+					[this, context](Behaviour &behaviour) {
 						if (dynamic_cast<TBehaviourType *>(&behaviour) != nullptr)
 						{
 							this->invalidate(context);
@@ -521,7 +521,7 @@ namespace spk
 
 			subscription.onRemovalContract =
 				entity->subscribeToBehaviourRemoval(
-					[this, context](Entity *, Behaviour &behaviour) {
+					[this, context](Behaviour &behaviour) {
 						if (dynamic_cast<TBehaviourType *>(&behaviour) != nullptr)
 						{
 							this->invalidate(context);

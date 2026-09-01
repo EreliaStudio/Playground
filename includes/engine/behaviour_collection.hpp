@@ -23,7 +23,38 @@ namespace spk
 			Base::unregisterAttachment(behaviour);
 		}
 
+		[[nodiscard]]
+		std::vector<std::unique_ptr<Behaviour>> &behaviours() noexcept
+		{
+			return Base::attachments();
+		}
+
+		[[nodiscard]]
+		const std::vector<std::unique_ptr<Behaviour>> &behaviours() const noexcept
+		{
+			return Base::attachments();
+		}
+
 	public:
+		using OnBehaviourEditionContractProvider =
+			typename Base::OnAttachmentEditionContractProvider;
+		using OnBehaviourEditionCallback =
+			typename Base::OnAttachmentEditionCallback;
+		using OnBehaviourEditionContract =
+			typename Base::OnAttachmentEditionContract;
+
+		[[nodiscard]] OnBehaviourEditionContract subscribeToBehaviourAddition(
+			OnBehaviourEditionCallback callback)
+		{
+			return Base::subscribeToAttachmentAddition(callback);
+		}
+
+		[[nodiscard]] OnBehaviourEditionContract subscribeToBehaviourRemoval(
+			OnBehaviourEditionCallback callback)
+		{
+			return Base::subscribeToAttachmentRemoval(callback);
+		}
+
 		template <typename TBehaviourType, typename TPredicate>
 			requires std::derived_from<TBehaviourType, Behaviour>
 		[[nodiscard]] TBehaviourType *getBehaviour(const TPredicate &predicate)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/event/event_dispatcher.hpp"
 #include "engine/contextualizable_trait.hpp"
 
 #include <sparkle.hpp>
@@ -8,12 +9,19 @@
 
 namespace spk
 {
+	struct UpdateContext;
 	class Engine;
 
 	class System : public ContextualizableTrait<Engine *>,
 				   public ActivableTrait,
-				   public NameTrait
+				   public NameTrait,
+				   public EventDispatcher
 	{
+	protected:
+		[[nodiscard]] bool _isAcceptingInteraction() const override;
+
+		virtual void _updateState(UpdateContext &context);
+
 	public:
 		class Participant;
 		class Participant2D;
@@ -30,5 +38,7 @@ namespace spk
 
 		[[nodiscard]] Engine *engine();
 		[[nodiscard]] const Engine *engine() const;
+
+		void updateState(UpdateContext &context);
 	};
 }

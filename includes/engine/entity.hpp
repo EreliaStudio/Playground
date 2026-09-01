@@ -3,16 +3,19 @@
 #include <sparkle.hpp>
 
 #include <concepts>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
 
+#include "core/event/event_dispatcher.hpp"
 #include "engine/behaviour_collection.hpp"
 #include "engine/registry.hpp"
 #include "engine/system_participant_collection.hpp"
 
 namespace spk
 {
+	struct UpdateContext;
 	class Engine;
 
 	class Entity : public ContextualizableTrait<Engine *>,
@@ -21,50 +24,21 @@ namespace spk
 				   public ActivableTrait,
 				   public NameTrait,
 				   public SystemParticipantCollection,
-				   public BehaviourCollection
+				   public BehaviourCollection,
+				   public EventDispatcher
 	{
-	public:
-		using OnParticipantEditionContractProvider = spk::ContractProvider<Entity *, System::Participant &>;
-		using OnParticipantEditionCallback = OnParticipantEditionContractProvider::callback_type;
-		using OnParticipantEditionContract = OnParticipantEditionContractProvider::Contract;
-
-		using OnBehaviourEditionContractProvider = spk::ContractProvider<Entity *, Behaviour &>;
-		using OnBehaviourEditionCallback = OnBehaviourEditionContractProvider::callback_type;
-		using OnBehaviourEditionContract = OnBehaviourEditionContractProvider::Contract;
-
 	private:
 		using SystemParticipantCollection::registerParticipant;
 		using SystemParticipantCollection::unregisterParticipant;
 		using BehaviourCollection::registerBehaviour;
 		using BehaviourCollection::unregisterBehaviour;
 
-		OnParticipantEditionContractProvider _onParticipantAdditionContractProvider;
-		OnParticipantEditionContractProvider _onParticipantRemovalContractProvider;
-		OnBehaviourEditionContractProvider _onBehaviourAdditionContractProvider;
-		OnBehaviourEditionContractProvider _onBehaviourRemovalContractProvider;
+		[[nodiscard]] bool _isAcceptingInteraction() const override;
+		void _propagateInteraction(
+			const std::function<void(EventDispatcher *)> &callback) override;
 
 	public:
 		Entity(const std::string &name, Entity *parent = nullptr);
-
-		OnParticipantEditionContract subscribeToParticipantAddition(OnParticipantEditionCallback callback)
-		{
-			return _onParticipantAdditionContractProvider.subscribe(callback);
-		}
-
-		OnParticipantEditionContract subscribeToParticipantRemoval(OnParticipantEditionCallback callback)
-		{
-			return _onParticipantRemovalContractProvider.subscribe(callback);
-		}
-
-		OnBehaviourEditionContract subscribeToBehaviourAddition(OnBehaviourEditionCallback callback)
-		{
-			return _onBehaviourAdditionContractProvider.subscribe(callback);
-		}
-
-		OnBehaviourEditionContract subscribeToBehaviourRemoval(OnBehaviourEditionCallback callback)
-		{
-			return _onBehaviourRemovalContractProvider.subscribe(callback);
-		}
 
 		template <typename TParticipantType, typename... TArgs>
 			requires std::derived_from<TParticipantType, System::Participant>
@@ -76,14 +50,12 @@ namespace spk
 			TParticipantType &result = *participant;
 			result.attach(this);
 			registerParticipant(std::move(participant));
-			_onParticipantAdditionContractProvider.trigger(this, result);
 
 			return result;
 		}
 
 		void removeParticipant(System::Participant &participant)
 		{
-			_onParticipantRemovalContractProvider.trigger(this, participant);
 			unregisterParticipant(participant);
 		}
 
@@ -97,15 +69,15 @@ namespace spk
 			TBehaviourType &result = *behaviour;
 			result.attach(this);
 			registerBehaviour(std::move(behaviour));
-			_onBehaviourAdditionContractProvider.trigger(this, result);
 
 			return result;
 		}
 
 		void removeBehaviour(Behaviour &behaviour)
 		{
-			_onBehaviourRemovalContractProvider.trigger(this, behaviour);
 			unregisterBehaviour(behaviour);
 		}
+
+		void updateState(UpdateContext &context);
 	};
 }

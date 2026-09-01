@@ -1,5 +1,7 @@
 #include "engine/system.hpp"
 
+#include "core/context/update_context.hpp"
+
 namespace spk
 {
 	System::System(const std::string &name, Engine *engine) :
@@ -11,6 +13,15 @@ namespace spk
 
 	System::System(Engine *engine) :
 		System("Unnamed system", engine)
+	{
+	}
+
+	bool System::_isAcceptingInteraction() const
+	{
+		return isActive();
+	}
+
+	void System::_updateState(UpdateContext &)
 	{
 	}
 
@@ -27,5 +38,15 @@ namespace spk
 	const Engine *System::engine() const
 	{
 		return context();
+	}
+
+	void System::updateState(UpdateContext &context)
+	{
+		if (!isActive())
+		{
+			return;
+		}
+
+		_updateState(context);
 	}
 }
