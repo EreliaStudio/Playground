@@ -58,6 +58,12 @@ target_include_directories(Playground PRIVATE
 )
 target_link_libraries(Playground PRIVATE sparkle::sparkle)
 
+add_custom_command(TARGET Playground POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_CURRENT_SOURCE_DIR}/resources"
+		"$<TARGET_FILE_DIR:Playground>/resources"
+)
+
 set_target_properties(Playground PROPERTIES
     CXX_EXTENSIONS OFF
 )

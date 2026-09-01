@@ -24,12 +24,6 @@ namespace spk
 		}
 
 		[[nodiscard]]
-		std::vector<std::unique_ptr<Behaviour>> &behaviours() noexcept
-		{
-			return Base::attachments();
-		}
-
-		[[nodiscard]]
 		const std::vector<std::unique_ptr<Behaviour>> &behaviours() const noexcept
 		{
 			return Base::attachments();

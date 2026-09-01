@@ -18,6 +18,14 @@ namespace spk
 	class Engine : public EventDispatcher,
 				   public SystemCollection
 	{
+	public:
+		static inline const spk::RenderPass::Key SceneRenderPassKey{
+			.name = "engine.Scene",
+			.order = -100};
+		static inline const spk::RenderPass::Key PreSceneRenderPassKey{
+			.name = "engine.PreScene",
+			.order = -200};
+
 	private:
 		using SystemCollection::registerSystem;
 		using SystemCollection::unregisterSystem;

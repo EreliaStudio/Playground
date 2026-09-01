@@ -24,12 +24,6 @@ namespace spk
 		}
 
 		[[nodiscard]]
-		std::vector<std::unique_ptr<System::Participant>> &participants() noexcept
-		{
-			return Base::attachments();
-		}
-
-		[[nodiscard]]
 		const std::vector<std::unique_ptr<System::Participant>> &participants() const noexcept
 		{
 			return Base::attachments();

@@ -1,4 +1,4 @@
-#include "widget/game_engine_widget.hpp"
+#include "widget/engine_widget.hpp"
 
 #include <utility>
 
@@ -9,9 +9,10 @@ namespace spk
 	EngineWidget::EngineWidget(std::string name, Widget *parent) :
 		Widget(std::move(name), parent)
 	{
+		setTargetRenderPass(Engine::SceneRenderPassKey);
 	}
 
-	void EngineWidget::setGameEngine(Engine *engine) noexcept
+	void EngineWidget::setEngine(Engine *engine) noexcept
 	{
 		_engine = engine;
 		if (_engine != nullptr)
@@ -20,12 +21,12 @@ namespace spk
 		}
 	}
 
-	Engine *EngineWidget::gameEngine() noexcept
+	Engine *EngineWidget::engine() noexcept
 	{
 		return _engine;
 	}
 
-	const Engine *EngineWidget::gameEngine() const noexcept
+	const Engine *EngineWidget::engine() const noexcept
 	{
 		return _engine;
 	}

@@ -46,9 +46,20 @@ namespace spk
 
 				return parentTransform->rotation(ReferenceFrame::World) + _rotation;
 			}),
+		_worldDepth(
+			[this]() {
+				const Transform2D *parentTransform = _parentTransform();
+
+				if (parentTransform == nullptr)
+				{
+					return _depth;
+				}
+
+				return parentTransform->depth(ReferenceFrame::World) + _depth;
+			}),
 		_localModelMatrix(
 			[this]() {
-				return Matrix4x4::translation(_position.x, _position.y, 0.0f) * Matrix4x4::rotation(0.0f, 0.0f, _rotation) * Matrix4x4::scale(_scale.x, _scale.y, 1.0f);
+				return Matrix4x4::translation(_position.x, _position.y, _depth) * Matrix4x4::rotation(0.0f, 0.0f, _rotation) * Matrix4x4::scale(_scale.x, _scale.y, 1.0f);
 			}),
 		_inverseLocalModelMatrix(
 			[this]() {
@@ -57,7 +68,7 @@ namespace spk
 					throw std::runtime_error("Can't invert a Transform2D containing a zero-scaled axis");
 				}
 
-				return Matrix4x4::scale(1.0f / _scale.x, 1.0f / _scale.y, 1.0f) * Matrix4x4::rotation(0.0f, 0.0f, -_rotation) * Matrix4x4::translation(-_position.x, -_position.y, 0.0f);
+				return Matrix4x4::scale(1.0f / _scale.x, 1.0f / _scale.y, 1.0f) * Matrix4x4::rotation(0.0f, 0.0f, -_rotation) * Matrix4x4::translation(-_position.x, -_position.y, -_depth);
 			}),
 		_modelMatrix(
 			[this]() {
@@ -115,6 +126,7 @@ namespace spk
 		_worldPosition.invalidate();
 		_worldScale.invalidate();
 		_worldRotation.invalidate();
+		_worldDepth.invalidate();
 		_modelMatrix.invalidate();
 		_inverseModelMatrix.invalidate();
 	}
@@ -213,6 +225,19 @@ namespace spk
 		throw std::runtime_error("Invalid Transform2D reference frame");
 	}
 
+	float Transform2D::depth(ReferenceFrame referenceFrame) const
+	{
+		switch (referenceFrame)
+		{
+		case ReferenceFrame::Local:
+			return _depth;
+		case ReferenceFrame::World:
+			return _worldDepth.get();
+		}
+
+		throw std::runtime_error("Invalid Transform2D reference frame");
+	}
+
 	void Transform2D::place(const Vector2 &position)
 	{
 		if (_position == position)
@@ -254,6 +279,22 @@ namespace spk
 	void Transform2D::rotate(float delta)
 	{
 		setRotation(_rotation + delta);
+	}
+
+	void Transform2D::setDepth(float depth)
+	{
+		if (_depth == depth)
+		{
+			return;
+		}
+
+		_depth = depth;
+		_notifyEdition();
+	}
+
+	void Transform2D::elevate(float delta)
+	{
+		setDepth(_depth + delta);
 	}
 
 	const Matrix4x4 &Transform2D::localModelMatrix() const

@@ -11,7 +11,7 @@ namespace spk
 	 * @brief Widget that forwards update and interaction events to an Engine.
 	 *
 	 * The engine is not owned by the widget and must outlive it, or be detached
-	 * with setGameEngine(nullptr) before it is destroyed.
+	 * with setEngine(nullptr) before it is destroyed.
 	 */
 	class EngineWidget : public Widget
 	{
@@ -47,8 +47,8 @@ namespace spk
 	public:
 		EngineWidget(std::string name, Widget *parent);
 
-		void setGameEngine(Engine *engine) noexcept;
-		[[nodiscard]] Engine *gameEngine() noexcept;
-		[[nodiscard]] const Engine *gameEngine() const noexcept;
+		void setEngine(Engine *engine) noexcept;
+		[[nodiscard]] Engine *engine() noexcept;
+		[[nodiscard]] const Engine *engine() const noexcept;
 	};
 }

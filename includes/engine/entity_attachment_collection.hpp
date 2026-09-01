@@ -52,11 +52,6 @@ namespace spk
 			Base::unregisterElement(attachment);
 		}
 
-		[[nodiscard]] std::vector<std::unique_ptr<TAttachmentBase>> &attachments() noexcept
-		{
-			return Base::elements();
-		}
-
 		[[nodiscard]] const std::vector<std::unique_ptr<TAttachmentBase>> &attachments() const noexcept
 		{
 			return Base::elements();

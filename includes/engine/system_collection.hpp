@@ -38,11 +38,6 @@ namespace spk
 			Base::unregisterElement(system);
 		}
 
-		[[nodiscard]] std::vector<std::unique_ptr<System>> &systems() noexcept
-		{
-			return Base::elements();
-		}
-
 		[[nodiscard]] const std::vector<std::unique_ptr<System>> &systems() const noexcept
 		{
 			return Base::elements();

@@ -27,6 +27,7 @@ namespace spk
 		Vector2 _position = {0.0f, 0.0f};
 		Vector2 _scale = {1.0f, 1.0f};
 		float _rotation = 0.0f;
+		float _depth = 0.0f;
 
 		OnEditionContractProvider _onEditionContractProvider;
 
@@ -35,6 +36,7 @@ namespace spk
 		CachedData<Vector2> _worldPosition;
 		CachedData<Vector2> _worldScale;
 		CachedData<float> _worldRotation;
+		CachedData<float> _worldDepth;
 		CachedData<Matrix4x4> _localModelMatrix;
 		CachedData<Matrix4x4> _inverseLocalModelMatrix;
 		CachedData<Matrix4x4> _modelMatrix;
@@ -55,12 +57,15 @@ namespace spk
 		[[nodiscard]] const Vector2 &position(ReferenceFrame referenceFrame = ReferenceFrame::Local) const;
 		[[nodiscard]] const Vector2 &scale(ReferenceFrame referenceFrame = ReferenceFrame::Local) const;
 		[[nodiscard]] float rotation(ReferenceFrame referenceFrame = ReferenceFrame::Local) const;
+		[[nodiscard]] float depth(ReferenceFrame referenceFrame = ReferenceFrame::Local) const;
 
 		void place(const Vector2 &position);
 		void move(const Vector2 &delta);
 		void rescale(const Vector2 &scale);
 		void setRotation(float rotation);
 		void rotate(float delta);
+		void setDepth(float depth);
+		void elevate(float delta);
 
 		[[nodiscard]] const Matrix4x4 &localModelMatrix() const;
 		[[nodiscard]] const Matrix4x4 &inverseLocalModelMatrix() const;
