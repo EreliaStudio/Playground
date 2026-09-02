@@ -8,6 +8,7 @@ project(
 )
 
 include(GNUInstallDirs)
+include(CTest)
 
 find_package(sparkle CONFIG REQUIRED)
 
@@ -67,6 +68,52 @@ add_custom_command(TARGET Playground POST_BUILD
 set_target_properties(Playground PROPERTIES
     CXX_EXTENSIONS OFF
 )
+
+if(BUILD_TESTING)
+    set(VOXEL_WORLD_TEST_SOURCES
+        srcs/voxel/chunk.cpp
+        srcs/voxel/chunk_bake_scheduler.cpp
+        srcs/voxel/chunk_baker.cpp
+        srcs/voxel/chunk_baker_occlusion.cpp
+        srcs/voxel/chunk_collection.cpp
+        srcs/voxel/chunk_coordinate_hash.cpp
+        srcs/voxel/chunk_editor.cpp
+        srcs/voxel/chunk_generator.cpp
+        srcs/voxel/chunk_requester.cpp
+        srcs/voxel/debug_chunk_generator.cpp
+        srcs/voxel/voxel_catalog.cpp
+        srcs/voxel/voxel_transform.cpp
+    )
+    add_executable(voxel_world_tests
+        tests/voxel_world_tests.cpp
+        ${VOXEL_WORLD_TEST_SOURCES}
+    )
+    target_compile_features(voxel_world_tests PRIVATE cxx_std_23)
+    target_include_directories(voxel_world_tests PRIVATE ${PLAYGROUND_INCLUDE_DIR})
+    target_link_libraries(voxel_world_tests PRIVATE sparkle::sparkle)
+    target_compile_definitions(voxel_world_tests PRIVATE
+        VOXEL_TEST_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/voxels"
+    )
+    add_test(NAME voxel_world_tests COMMAND voxel_world_tests)
+
+	add_executable(first_person_controller_tests
+		tests/first_person_controller_tests.cpp
+		srcs/behaviour/first_person_controller.cpp
+	)
+	target_compile_features(first_person_controller_tests PRIVATE cxx_std_23)
+	target_include_directories(first_person_controller_tests PRIVATE ${PLAYGROUND_INCLUDE_DIR})
+	target_link_libraries(first_person_controller_tests PRIVATE sparkle::sparkle)
+	add_test(NAME first_person_controller_tests COMMAND first_person_controller_tests)
+
+	add_executable(camera_tests
+		tests/camera_tests.cpp
+		srcs/engine/camera.cpp
+	)
+	target_compile_features(camera_tests PRIVATE cxx_std_23)
+	target_include_directories(camera_tests PRIVATE ${PLAYGROUND_INCLUDE_DIR})
+	target_link_libraries(camera_tests PRIVATE sparkle::sparkle)
+	add_test(NAME camera_tests COMMAND camera_tests)
+endif()
 
 install(
     TARGETS Playground
