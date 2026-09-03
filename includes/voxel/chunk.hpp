@@ -36,7 +36,13 @@ namespace voxel
 		class View;
 		class ViewCollection;
 
+	private:
+		Coordinate _coordinate;
+		std::array<Voxel::Cell, CellCount> _cells{};
+
+	public:
 		explicit Chunk(Coordinate coordinate);
+
 		[[nodiscard]] Coordinate coordinate() const noexcept
 		{
 			return _coordinate;
@@ -46,16 +52,15 @@ namespace voxel
 		{
 			return _cells;
 		}
+
 		[[nodiscard]] Editor edit();
+
 		[[nodiscard]] static bool contains(spk::Vector3Int local) noexcept;
 		[[nodiscard]] static std::size_t index(spk::Vector3Int local);
+
 		[[nodiscard]] static Coordinate worldToChunk(spk::Vector3Int world) noexcept;
 		[[nodiscard]] static spk::Vector3Int worldToLocal(spk::Vector3Int world) noexcept;
 		[[nodiscard]] static spk::Vector3Int worldOrigin(Coordinate coordinate) noexcept;
-
-	private:
-		Coordinate _coordinate;
-		std::array<Voxel::Cell, CellCount> _cells{};
 	};
 }
 

@@ -9,12 +9,6 @@ namespace voxel
 {
 	class Chunk::DebugGenerator final : public Generator
 	{
-	public:
-		DebugGenerator(Collection &collection, const Voxel::Catalog &catalog, std::uint64_t seed);
-
-	protected:
-		std::unique_ptr<Chunk> generate(Coordinate coordinate) const override;
-
 	private:
 		const Voxel::Catalog &_catalog;
 		std::uint64_t _seed;
@@ -25,5 +19,11 @@ namespace voxel
 		Voxel::ID _slab;
 		Voxel::ID _slope;
 		Voxel::ID _stair;
+
+	protected:
+		std::unique_ptr<Chunk> generate(Coordinate coordinate) const override;
+
+	public:
+		DebugGenerator(Collection &collection, const Voxel::Catalog &catalog, std::uint64_t seed);
 	};
 }

@@ -48,20 +48,19 @@ namespace spk
 			const Vector2UInt &viewportSize);
 
 	public:
-		[[nodiscard]] static Camera *mainCamera(Engine *engine);
-		[[nodiscard]] static const Camera *mainCamera(const Engine *engine);
-
 		Camera();
+
 		~Camera();
 
-		void setAsMain(Engine &engine);
+		[[nodiscard]] static Camera *mainCamera(Engine *engine);
+		[[nodiscard]] static const Camera *mainCamera(const Engine *engine);
 		[[nodiscard]] bool isMain() const;
+		[[nodiscard]] const Vector2UInt &viewportSize() const noexcept;
+		[[nodiscard]] Matrix4x4 projection() const noexcept;
 
+		void setAsMain(Engine &engine);
 		void configure(const PerspectiveConfiguration &configuration);
 		void configure(const OrthographicConfiguration &configuration);
 		void setViewportSize(const Vector2UInt &viewportSize);
-
-		[[nodiscard]] const Vector2UInt &viewportSize() const noexcept;
-		[[nodiscard]] Matrix4x4 projection() const noexcept;
 	};
 }

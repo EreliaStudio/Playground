@@ -11,8 +11,15 @@ namespace voxel::Voxel
 {
 	class Catalog final
 	{
+	private:
+		spk::Vector2UInt _atlasSize{};
+		std::unordered_map<std::string, Shape> _shapes;
+		std::vector<Definition> _definitions{1};
+		std::unordered_map<std::string, ID> _ids;
+
 	public:
 		static Catalog load(const std::filesystem::path &shapesFile, const std::filesystem::path &definitionsFile, spk::Vector2UInt atlasSize);
+
 		[[nodiscard]] const Definition &definition(ID id) const;
 		[[nodiscard]] const Definition &definition(const std::string &name) const;
 		[[nodiscard]] ID id(const std::string &name) const;
@@ -24,11 +31,5 @@ namespace voxel::Voxel
 		{
 			return _definitions.size() - 1;
 		}
-
-	private:
-		spk::Vector2UInt _atlasSize{};
-		std::unordered_map<std::string, Shape> _shapes;
-		std::vector<Definition> _definitions{1};
-		std::unordered_map<std::string, ID> _ids;
 	};
 }

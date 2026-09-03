@@ -24,8 +24,10 @@ namespace spk
 			Entity3D *owner = nullptr);
 
 		void attach(Entity *owner) override;
-		void setCamera(Camera *camera);
+
 		[[nodiscard]] Camera *camera() noexcept;
 		[[nodiscard]] const Camera *camera() const noexcept;
+
+		void setCamera(Camera *camera);
 	};
 }

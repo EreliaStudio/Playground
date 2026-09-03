@@ -11,10 +11,14 @@ namespace voxel::Voxel
 	class Cell final
 	{
 	public:
-		static constexpr std::uint32_t IDMask = 0b0001'1111'1111'1111'1111'1111'1111'1111u;
 		static constexpr std::uint32_t OrientationMask = 0b0110'0000'0000'0000'0000'0000'0000'0000u;
 		static constexpr std::uint32_t FlipMask = 0b1000'0000'0000'0000'0000'0000'0000'0000u;
+		static constexpr std::uint32_t IDMask = ~(OrientationMask | FlipMask);
 
+	private:
+		std::uint32_t _value = 0;
+
+	public:
 		constexpr Cell() noexcept = default;
 		constexpr Cell(ID id, Orientation orientation = Orientation::PositiveZ, Flip flip = Flip::PositiveY) :
 			_value((id & IDMask) | static_cast<std::uint32_t>(orientation) | static_cast<std::uint32_t>(flip))
@@ -45,16 +49,15 @@ namespace voxel::Voxel
 		{
 			return _value;
 		}
+
 		[[nodiscard]] static constexpr Cell fromPacked(std::uint32_t value) noexcept
 		{
 			Cell result;
 			result._value = value;
 			return result;
 		}
-		constexpr bool operator==(const Cell &) const noexcept = default;
 
-	private:
-		std::uint32_t _value = 0;
+		constexpr bool operator==(const Cell &) const noexcept = default;
 	};
 
 	static_assert(sizeof(Cell) == sizeof(std::uint32_t));

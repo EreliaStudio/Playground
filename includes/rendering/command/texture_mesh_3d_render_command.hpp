@@ -18,13 +18,13 @@ namespace spk
 		static constexpr std::size_t ModelBindingPoint = 4;
 		static constexpr std::size_t TextureBindingPoint = 0;
 
-		static Program &_sharedProgram();
-		static UniformBuffer &_sharedModelBuffer();
-
 		const Texture *_texture;
 		TextureMesh3D _mesh;
 		Matrix4x4 _modelMatrix;
 		Sampler _sampler;
+
+		static Program &_sharedProgram();
+		static UniformBuffer &_sharedModelBuffer();
 
 	public:
 		TextureMesh3DRenderCommand(const Texture *texture, TextureMesh3D mesh, Matrix4x4 modelMatrix);

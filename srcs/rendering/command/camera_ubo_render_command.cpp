@@ -14,7 +14,6 @@ namespace spk
 		_projection(projection),
 		_view(view)
 	{
-
 	}
 
 	void CameraUBORenderCommand::activate(RenderContext &renderContext)
@@ -25,7 +24,7 @@ namespace spk
 	void CameraUBORenderCommand::execute(RenderContext &renderContext) const
 	{
 		UniformBuffer &buffer = _sharedBuffer();
-		auto& castedBuffer = buffer.cast<spk::Matrix4x4[2]>();
+		auto &castedBuffer = buffer.cast<spk::Matrix4x4[2]>();
 		castedBuffer[0] = _view;
 		castedBuffer[1] = _projection;
 

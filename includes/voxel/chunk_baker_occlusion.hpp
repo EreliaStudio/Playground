@@ -10,13 +10,6 @@ namespace voxel
 {
 	class Chunk::Baker::OcclusionCache final
 	{
-	public:
-		[[nodiscard]] const std::vector<Voxel::Shape::Polygon> &visibleRemnants(
-			const Voxel::Shape::Polygon &polygon,
-			Voxel::Cell cell,
-			const Voxel::Shape &occludingShape,
-			Voxel::Cell occludingCell);
-
 	private:
 		struct Key
 		{
@@ -32,12 +25,19 @@ namespace voxel
 			[[nodiscard]] std::size_t operator()(const Key &key) const noexcept;
 		};
 
+		std::unordered_map<Key, std::vector<Voxel::Shape::Polygon>, KeyHash> _visibleRemnants;
+
 		[[nodiscard]] static std::vector<Voxel::Shape::Polygon> _computeVisibleRemnants(
 			const Voxel::Shape::Polygon &polygon,
 			Voxel::Cell cell,
 			const Voxel::Shape &occludingShape,
 			Voxel::Cell occludingCell);
 
-		std::unordered_map<Key, std::vector<Voxel::Shape::Polygon>, KeyHash> _visibleRemnants;
+	public:
+		[[nodiscard]] const std::vector<Voxel::Shape::Polygon> &visibleRemnants(
+			const Voxel::Shape::Polygon &polygon,
+			Voxel::Cell cell,
+			const Voxel::Shape &occludingShape,
+			Voxel::Cell occludingCell);
 	};
 }
