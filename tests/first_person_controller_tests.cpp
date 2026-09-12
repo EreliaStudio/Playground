@@ -19,7 +19,7 @@ int main()
 	auto &controller = entity.addBehaviour<playground::FirstPersonController>();
 	spk::Keyboard keyboard;
 	spk::Mouse mouse;
-	entity.handleGeometryChange({.anchor = {0, 0}, .size = {800, 600}});
+	entity.setGeometry({.anchor = {0, 0}, .size = {800, 600}});
 	mouse.position = {400, 300};
 	keyboard[spk::Keyboard::Z] = spk::InputState::Down;
 	spk::UpdateContext context{

@@ -8,7 +8,7 @@
 namespace spk
 {
 	TextureMeshRenderer3D::TextureMeshRenderer3D(const std::string &name, Entity3D *owner) :
-		System::Participant3D(name, owner)
+		Component3D(name, owner)
 	{
 	}
 	TextureMeshRenderer3D::TextureMeshRenderer3D(Entity3D *owner) :

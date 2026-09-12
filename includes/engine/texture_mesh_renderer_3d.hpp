@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/registry.hpp"
-#include "engine/system_participant3d.hpp"
+#include "engine/component3d.hpp"
 #include "geometry/texture_mesh_3d.hpp"
 #include "math/matrix.hpp"
 
@@ -9,7 +9,7 @@ namespace spk
 {
 	class Texture;
 
-	class TextureMeshRenderer3D : public System::Participant3D
+	class TextureMeshRenderer3D : public spk::Component3D
 	{
 	private:
 		const Texture *_texture = nullptr;

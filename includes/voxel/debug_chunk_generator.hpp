@@ -10,7 +10,7 @@ namespace voxel
 	class Chunk::DebugGenerator final : public Generator
 	{
 	private:
-		const Voxel::Catalog &_catalog;
+		const Voxel::Catalog<Voxel::Definition> &_catalog;
 		std::uint64_t _seed;
 		Voxel::ID _grass;
 		Voxel::ID _dirt;
@@ -24,6 +24,6 @@ namespace voxel
 		std::unique_ptr<Chunk> generate(Coordinate coordinate) const override;
 
 	public:
-		DebugGenerator(Collection &collection, const Voxel::Catalog &catalog, std::uint64_t seed);
+		DebugGenerator(Collection &collection, const Voxel::Catalog<Voxel::Definition> &catalog, std::uint64_t seed);
 	};
 }

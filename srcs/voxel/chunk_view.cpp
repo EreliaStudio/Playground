@@ -9,7 +9,7 @@ namespace voxel
 	Chunk::View::View(spk::Engine &engine, const spk::Texture *atlas, Coordinate coordinate) :
 		_engine(engine),
 		_entity("Voxel chunk"),
-		_renderer(&_entity.addParticipant<spk::TextureMeshRenderer3D>("Chunk renderer"))
+		_renderer(&_entity.addComponent<spk::TextureMeshRenderer3D>("Chunk renderer"))
 	{
 		_renderer->setTexture(atlas);
 		const auto origin = Chunk::worldOrigin(coordinate);

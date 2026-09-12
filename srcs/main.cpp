@@ -16,13 +16,12 @@ int main()
 
 	spk::Engine engine;
 	spk::EngineWidget engineWidget("Voxel view", &window.root());
-	engineWidget.setGeometry(spk::Rect2D{spk::Vector2Int{0, 0}, spk::Vector2UInt{1280, 720}});
+	engineWidget.setGeometry(window.root().geometry());
 	engineWidget.setEngine(&engine);
 	engineWidget.activate();
 
 	const auto resourceRoot = std::filesystem::path("resources");
-	auto catalog = voxel::Voxel::Catalog::load(resourceRoot / "voxels" / "shapes.json", resourceRoot / "voxels" / "definitions.json", {4, 4});
-	spk::SpriteSheet atlas = spk::SpriteSheet::open(resourceRoot / "textures" / "meshSpriteSheet.png", {4, 4});
+	auto catalog = voxel::Voxel::Catalog<voxel::Voxel::Definition>::load(resourceRoot / "catalog_config.json");
 
 	spk::Camera camera;
 	spk::Entity3D cameraEntity("Voxel camera");
@@ -38,7 +37,7 @@ int main()
 	voxel::Chunk::Collection chunks;
 	voxel::Chunk::DebugGenerator generator(chunks, catalog, 0xE7E11AULL);
 	voxel::Chunk::Baker baker(catalog, chunks);
-	voxel::Chunk::ViewCollection views(engine, &atlas, chunks);
+	voxel::Chunk::ViewCollection views(engine, &catalog.atlas(), chunks);
 	voxel::Chunk::BakeScheduler scheduler(chunks, baker);
 	auto bakedChunks = scheduler.subscribeToBakeCompletion([&views](voxel::Chunk::Coordinate coordinate, const spk::TextureMesh3D &mesh) {
 		views.setMesh(coordinate, mesh);

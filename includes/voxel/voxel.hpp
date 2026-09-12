@@ -34,5 +34,6 @@ namespace voxel::Voxel
 	class Cell;
 	struct Shape;
 	struct Definition;
+	template <typename TDefinition>
 	class Catalog;
 }

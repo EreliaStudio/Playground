@@ -2,7 +2,7 @@
 
 namespace voxel
 {
-	Chunk::DebugGenerator::DebugGenerator(Collection &collection, const Voxel::Catalog &catalog, std::uint64_t seed) :
+	Chunk::DebugGenerator::DebugGenerator(Collection &collection, const Voxel::Catalog<Voxel::Definition> &catalog, std::uint64_t seed) :
 		Generator(collection),
 		_catalog(catalog),
 		_seed(seed),

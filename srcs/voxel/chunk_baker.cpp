@@ -8,7 +8,7 @@
 
 namespace voxel
 {
-	Chunk::Baker::Baker(const Voxel::Catalog &catalog, const Collection &chunks) :
+	Chunk::Baker::Baker(const Voxel::Catalog<Voxel::Definition> &catalog, const Collection &chunks) :
 		_catalog(catalog),
 		_chunks(chunks),
 		_occlusionCache(std::make_unique<OcclusionCache>())
@@ -96,7 +96,7 @@ namespace voxel
 		bool mirrored) const
 	{
 		const auto atlas = definition.textures.at(polygon.materialSlot);
-		const spk::Vector2 atlasUnit{1.0f / _catalog.atlasSize().x, 1.0f / _catalog.atlasSize().y};
+		const spk::Vector2 atlasUnit{1.0f / static_cast<float>(_catalog.atlas().nbSprite().x), 1.0f / static_cast<float>(_catalog.atlas().nbSprite().y)};
 		std::vector<spk::TextureMesh3D::Index> indices;
 		indices.reserve(polygon.vertices.size());
 		for (const auto &vertex : polygon.vertices)

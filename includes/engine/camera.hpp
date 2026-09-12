@@ -12,7 +12,7 @@ namespace spk
 	class Engine;
 
 	class Camera : public ContextualizableTrait<Engine *>,
-				   public Registry<Engine *, Camera>::Object
+				   public Registry<Camera, Engine *>::Object
 	{
 	public:
 		struct PerspectiveConfiguration

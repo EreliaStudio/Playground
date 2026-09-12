@@ -7,10 +7,10 @@
 
 namespace
 {
-	voxel::Voxel::Catalog catalog()
+	voxel::Voxel::Catalog<voxel::Voxel::Definition> catalog()
 	{
 		const std::filesystem::path root = VOXEL_TEST_RESOURCE_DIR;
-		return voxel::Voxel::Catalog::load(root / "shapes.json", root / "definitions.json", {4, 4});
+		return voxel::Voxel::Catalog<voxel::Voxel::Definition>::load(root / "catalog_config.json");
 	}
 
 	void assertCounterClockwise(const spk::TextureMesh3D &mesh)
