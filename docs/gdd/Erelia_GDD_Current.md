@@ -50,6 +50,8 @@ Combat does not load an unrelated arena. The tactical battlefield is derived fro
 
 ![Three Heroes surveying the voxel wilderness beyond a permanent settlement](images/01_frontier_expedition.png "The Frontier Expedition")
 
+*Three Heroes prepare to leave a permanent settlement and explore the voxel frontier.*
+
 ---
 
 # 2. Core Player Loop
@@ -111,6 +113,8 @@ All players on the same server therefore observe the same base World geometry.
 Two servers may deliberately use the same `ServerSeed` to reproduce equivalent generated Worlds while maintaining separate progression and runtime state.
 
 ![Identical generated terrain on two servers with different outpost and portal states](images/02_same_seed_different_state.png "Same Seed, Different Server State")
+
+*The same seed produces matching terrain, while each server maintains its own outpost and portal state.*
 
 ## 3.3 Immutable voxel environment
 
@@ -175,6 +179,8 @@ A player does not need to personally defeat every previous Grand Dungeon if the 
 
 ![The same World portal before and after permanent server-wide activation](images/04_world_portal_activation.png "Grand Dungeon Portal Unlock")
 
+*The first Grand Dungeon victory permanently opens the next-World portal for everyone on the server.*
+
 ## 4.3 Sparse permanent civilization
 
 Permanent towns should not necessarily exist in every World.
@@ -196,6 +202,8 @@ World 4 — Permanent Town
 The exact spacing is content dependent.
 
 ![Four portal-linked Worlds with permanent towns separated by wilderness Worlds](images/03_sparse_world_civilization.png "Sparse Civilization Across Worlds")
+
+*Portal-linked Worlds separate permanent towns with stretches of wilderness, making frontier travel an expedition.*
 
 ## 4.4 Vertical World progression
 
@@ -238,6 +246,8 @@ Alchemist I → II → III
 Players collectively decide what to prioritize by choosing where to contribute resources.
 
 ![A permanent town with buildings at different stages of independent development](images/05_independent_town_buildings.png "Independent Town Building Progression")
+
+*Town buildings advance independently as players contribute to each facility's shared upgrade requirements.*
 
 ## 5.2 Server-wide upgrades
 
@@ -326,6 +336,8 @@ Outposts are public. Any player may use an active outpost regardless of who orig
 
 ![The same crystal site dormant, active with public services, and dormant again after upkeep runs out](images/06_outpost_lifecycle.png "Temporary Outpost Lifecycle")
 
+*A predefined crystal site provides public outpost services while upkeep lasts, then returns to dormancy.*
+
 ## 6.3 Upkeep
 
 An active outpost consumes resources over time through its crystal.
@@ -375,6 +387,8 @@ At a Guild Center, a player may create and manage as many blank Heroes as desire
 
 ![A larger Hero roster beside exactly three portraits selected for the active squad](images/07_roster_active_squad.png "Roster and Active Squad")
 
+*An unlimited Hero roster supplies a selected active squad of exactly three Heroes.*
+
 While adventuring, the player uses an active squad of **three Heroes**.
 
 In multiplayer, each player contributes their own squad.
@@ -388,6 +402,8 @@ In multiplayer, each player contributes their own squad.
 A larger multiplayer party therefore increases the total number of units rather than replacing one player's Hero slots.
 
 ![Two players each contributing three owned Heroes to the same six-Hero tactical encounter](images/30_multiplayer_squad_ownership.png "Multiplayer Squad Ownership")
+
+*Each player retains ownership of three Heroes when their squads join a shared tactical encounter.*
 
 ## 7.3 No equipment proficiency gates
 
@@ -558,6 +574,8 @@ Removing the only item satisfying a spell requirement makes the loadout invalid 
 
 ![A classless Hero whose equipment Types and Tags enable spells in an eight-slot loadout](images/08_classless_loadout_logic.png "Classless Loadout Logic")
 
+*Equipment Types and Tags enable spells in an eight-slot loadout, allowing roles to emerge without classes.*
+
 ## 9.4 Data-driven formulas
 
 Spells should not rely only on fixed damage numbers.
@@ -635,6 +653,8 @@ Follower AI does not initially reason intelligently about enemy vision cones or 
 
 ![Three physical Heroes following in a loose formation on open terrain and compressing into single file in a narrow passage](images/09_physical_followers_formation.png "Physical Followers and Formation")
 
+*Physical followers maintain a preferred formation in open areas and compress through narrow passages.*
+
 ## 10.3 Formation
 
 A preferred formation defines relative placement for following Heroes.
@@ -657,6 +677,8 @@ Enemy reaches engagement condition → encounter begins
 Detection does not immediately teleport the player into combat. The enemy chases in real time, allowing the player to flee, reposition or intentionally pull enemies toward favorable terrain.
 
 ![An enemy first unaware of the Hero party, then detecting a Hero and physically chasing the party through the wilderness](images/10_detection_chase.png "Detection and Real-Time Chase")
+
+*Enemy vision leads to a real-time chase before engagement begins a tactical encounter.*
 
 Later versions may add:
 
@@ -701,6 +723,8 @@ Entering top-down targeting during exploration does **not** create another simul
 Enemies continue patrolling or chasing while the player selects a target.
 
 ![Third-person exploration switching to destination-cell targeting for a Jump and returning to exploration while a nearby enemy continues moving](images/11_exploration_action_targeting.png "Exploration Action Targeting")
+
+*A Jump uses top-down destination targeting while the surrounding World continues to run.*
 
 ## 11.3 Followers reproduce special traversal when possible
 
@@ -751,6 +775,8 @@ This permits multiple traversable surfaces in the same horizontal column, such a
 - balconies and caves.
 
 ![Walking connections across cubes, slabs, stairs and slopes, with distinct standing surfaces beneath and above a bridge](images/12_voxel_traversal_surfaces.png "Voxel Traversal Surfaces")
+
+*Voxel shapes determine walking connections; ground and bridge surfaces remain separate navigation positions.*
 
 ## 12.3 Navigation responsibilities
 
@@ -808,6 +834,8 @@ This allows players unlimited tactical thinking time without freezing the entire
 
 ![Two local encounters inside one continuously running voxel region, with only Encounter A paused for a player decision](images/13_world_encounter_simulation.png "World and Encounter Simulation")
 
+*A player decision pauses only its local Encounter Clock; the World and other encounters continue independently.*
+
 ---
 
 # 14. Encounter Creation and Handoff
@@ -838,6 +866,8 @@ Encounter begins
 Both player and enemy participants follow the same synchronization rule.
 
 ![Initial participants finishing a committed action, freezing at their final positions, and entering tactical combat on the same terrain](images/14_encounter_handoff.png "Encounter Handoff Synchronization")
+
+*Initial participants finish committed actions and freeze before their final positions become the tactical battlefield.*
 
 ## 14.2 Late arrivals are reinforcements
 
@@ -914,6 +944,8 @@ Outside reinforcements therefore naturally extend the battle toward their approa
 
 ![An approaching reinforcement joining an existing battle and extending its combat area, with a fresh empty readiness bar](images/15_reinforcement_elastic_area.png "Reinforcement and Elastic Combat Area")
 
+*An arriving reinforcement extends the combat area and begins with zero readiness progress.*
+
 ---
 
 # 17. Readiness, Turns, AP and MP
@@ -948,6 +980,8 @@ Exact UI terminology (`Readiness`, `Ready in X seconds`, etc.) can be refined la
 
 ![Shorter and longer readiness tracks advancing together, with an inset showing the surprising side ready at encounter start](images/16_readiness_turn_interval.png "Readiness, Turn Interval and Surprise")
 
+*A shorter Turn Interval means more frequent activations; the surprising side starts ready to act.*
+
 ## 17.3 AP and MP
 
 All Heroes share common base AP and MP values.
@@ -963,7 +997,7 @@ There is no default Mana, Energy or Rage resource.
 
 ![A proposed tactical interface combining a selected Hero, HP, AP and MP, readiness, eight spell slots and cell-based movement and targeting](images/26_complete_tactical_turn.png "A Complete Tactical Turn")
 
-*Interface proposal; point counts are illustrative and do not establish balance defaults.*
+*Tactical interface proposal showing HP, AP, MP, readiness and eight spell slots; point counts are illustrative.*
 
 ---
 
@@ -1049,6 +1083,8 @@ Possible AoE shapes include:
 - custom authored patterns.
 
 ![Cell-based spell range and line of sight on elevated voxel terrain, with line, cross and cone area-of-effect patterns](images/17_spell_targeting_geometry.png "Tactical Targeting Geometry")
+
+*Spell targeting combines cell range, line of sight and authored area-of-effect shapes.*
 
 ## 19.2 Modifiable range
 
@@ -1139,7 +1175,7 @@ A status can subscribe to several hooks if necessary.
 
 ![Poison dealing damage on turn starts, Burning dealing damage each encounter simulation second, and Blood Pact causing HP loss when AP is spent](images/31_status_triggers.png "Status Triggers")
 
-*Trigger diagram: Burning advances with encounter simulation time, which pauses during tactical decisions.*
+*Poison reacts to turn starts, Burning to encounter simulation seconds and Blood Pact to AP use; simulation time pauses during tactical decisions.*
 
 ## 20.3 Shared effect vocabulary
 
@@ -1197,6 +1233,8 @@ Initially, a player-controlled summon may simply receive a normal controllable t
 
 ![The same immutable terrain before combat, during combat with a temporary barrier, trap and summon, and after those entities disappear](images/29_temporary_combat_objects.png "Temporary Combat Objects")
 
+*Temporary barriers, traps and summons disappear at encounter end, leaving permanent terrain unchanged.*
+
 ---
 
 # 22. Fleeing, Defeat and Recovery
@@ -1227,6 +1265,8 @@ Only then does that player's surviving escaped team regain World control.
 If the encounter is still active because other players are fighting, the escaped player may later approach and re-enter as a normal Reinforcement, starting with fresh/zero readiness.
 
 ![A separated Hero leaving tactical combat and waiting motionlessly nearby while the same player's other two Heroes continue fighting](images/18_flee_wait_outside_encounter.png "Fleeing an Encounter")
+
+*A Hero who flees waits outside the encounter while the same player's other Heroes continue fighting.*
 
 ## 22.3 Defeat
 
@@ -1304,6 +1344,8 @@ Goblin Archer
 
 ![The same enemy archer retreating from a nearby Hero, firing within its preferred range, and approaching a distant Hero](images/19_gambit_spatial_behavior.png "Gambit AI in Space")
 
+*An enemy archer uses ordered Gambit rules to retreat, attack or approach according to distance and castability.*
+
 Reusable conditions can inspect data such as:
 
 - distance;
@@ -1366,6 +1408,8 @@ World generation should therefore create many resource spawn points so scarcity 
 Resource locations are not automatically recorded on the player's map in the first version. Learning where valuable gathering zones exist is part of player knowledge.
 
 ![Two players observing the same ore node before gathering and its shared depletion afterward, with permanent ground unchanged](images/20_shared_resource_node.png "Shared Resource Node State")
+
+*Gathering depletes a shared resource node for every player without changing the permanent voxel terrain.*
 
 ## 25.3 Wilderness danger
 
@@ -1431,6 +1475,8 @@ Success result:
 The resulting Tag/stat transformation is not randomly selected.
 
 ![A known enchantment succeeding with a Flame Tag and stat tradeoff, or failing with the original item unchanged and costs spent](images/21_enchantment_result.png "Enchantment Result and Failure")
+
+*An enchantment has a known result; a basic failure spends its costs and leaves the item unchanged.*
 
 ## 27.2 Success chance
 
@@ -1536,6 +1582,8 @@ The bank is intentionally global to avoid turning the first version into a logis
 
 ![Three Heroes sharing one player's expedition inventory, with two towns and an active outpost connecting to the same global bank](images/28_inventory_global_bank.png "Expedition Inventory and Global Bank")
 
+*Each player's three Heroes share one expedition inventory and one bank accessible from towns and active outposts.*
+
 ---
 
 # 30. Normal Dungeons
@@ -1601,6 +1649,8 @@ Possible entrance types include:
 - entrance requiring a key or traversal capability.
 
 ![A main gate, hidden passage and NPC-guided approach leading to different starting rooms within one connected dungeon](images/22_dungeon_multiple_entrances.png "Multiple Dungeon Entrances")
+
+*Multiple entrances offer different routes and starting locations within the same dungeon instance.*
 
 Different entrances lead into the same dungeon instance but can produce different starting locations.
 
@@ -1674,6 +1724,8 @@ A new rotation produces a new deterministic layout.
 
 ![The same modular dungeon layout on re-entry within one rotation, refreshed runtime state, and a different layout in the next rotation](images/23_dungeon_rotation.png "Deterministic Dungeon Rotation")
 
+*Re-entry preserves the layout within a rotation and resets runtime state; the next rotation changes the layout.*
+
 ---
 
 # 33. Dungeon Completion and Vaults
@@ -1734,6 +1786,8 @@ This preserves the rule that finished equipment/spells originate from player pro
 The game purchase creates gold and must therefore be balanced alongside other gold sources.
 
 ![A player-crafted marketplace item moving into a dungeon vault while procurement gold flows back to its seller](images/24_marketplace_pve_reward.png "Marketplace-Funded PvE Reward")
+
+*PvE rewards purchase player-crafted marketplace items for a vault, while the sellers receive procurement gold.*
 
 ## 34.3 Price manipulation protection
 
@@ -1796,6 +1850,8 @@ Camp defeated
 This keeps the wilderness dynamic while guaranteeing camps only appear in valid authored/generated locations.
 
 ![The same predefined wilderness camp sites before and after one camp is cleared, leaving a reward chest and activating another site](images/25_rotating_enemy_camps.png "Rotating Enemy Camp Sites")
+
+*Clearing an active camp leaves a reward chest and activates another predefined wilderness site.*
 
 Camp reward chests can use the same marketplace-funded reward-budget system as dungeons, with appropriately smaller budgets.
 
