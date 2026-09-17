@@ -28,6 +28,8 @@ images/01_frontier_expedition.png
 images/02_same_seed_different_state.png
 ...
 images/25_rotating_enemy_camps.png
+...
+images/34_dungeon_room_kit.png
 ```
 
 The GDD can then embed an illustration with Markdown such as:
@@ -63,6 +65,25 @@ The GDD can then embed an illustration with Markdown such as:
 - `23_dungeon_rotation.md` — Deterministic Dungeon Rotation
 - `24_marketplace_pve_reward.md` — Marketplace-Funded PvE Reward
 - `25_rotating_enemy_camps.md` — Rotating Enemy Camp Sites
+- `26_complete_tactical_turn.md` — A Complete Tactical Turn
+- `27_equipment_lifecycle.md` — Equipment Lifecycle
+- `28_inventory_global_bank.md` — Expedition Inventory and Global Bank
+- `29_temporary_combat_objects.md` — Temporary Combat Objects
+- `30_multiplayer_squad_ownership.md` — Multiplayer Squad Ownership
+- `31_status_triggers.md` — Status Triggers
+- `32_hero_equipment_proportions.md` — Hero and Equipment Proportions
+- `33_first_world_gameplay_scale.md` — First World at Gameplay Scale
+- `34_dungeon_room_kit.md` — Dungeon Room Kit
+
+## Second-pass illustrations and concept sheets
+
+All 34 numbered illustrations have a corresponding PNG in this directory and are embedded in `../Erelia_GDD_Current.md`. The Markdown briefs retain the generation prompts; artwork was generated with the built-in image-generation tool.
+
+Illustrations 26–31 explain the complete tactical interface, equipment replacement, shared inventory and bank access, temporary Encounter entities, multiplayer ownership and status triggers.
+
+Illustrations 32–34 are visual proposals for Hero proportions, a first-World exploration view and a reusable dungeon room kit. Their appearances do not establish final character anatomy, biome selection or dungeon content. Interface point counts in illustration 26 are examples rather than balance defaults.
+
+The new sketches continue the grayscale pencil presentation and use the block-bodied Hero silhouettes of the later illustrations. The GDD's character art direction remains open.
 
 ## Recommended first-pass set
 

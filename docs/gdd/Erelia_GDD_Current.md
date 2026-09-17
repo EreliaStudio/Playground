@@ -149,6 +149,10 @@ A World may contain:
 
 Not every World must contain a permanent town.
 
+![Three Heroes exploring the first World from a practical third-person camera, with terrain, resources, a roaming enemy and distant landmarks shown at gameplay scale](images/33_first_world_gameplay_scale.png "First World at Gameplay Scale")
+
+*First-World visual proposal, showing a practical exploration camera and relative scale.*
+
 ## 4.2 World portals
 
 Each World has a dedicated portal location connecting it to the previous World. The arrival location in the next World is located near a return portal leading back.
@@ -383,6 +387,8 @@ In multiplayer, each player contributes their own squad.
 
 A larger multiplayer party therefore increases the total number of units rather than replacing one player's Hero slots.
 
+![Two players each contributing three owned Heroes to the same six-Hero tactical encounter](images/30_multiplayer_squad_ownership.png "Multiplayer Squad Ownership")
+
 ## 7.3 No equipment proficiency gates
 
 If a player obtains a high-tier item, a blank Hero may use it immediately as long as its equipment-slot rules are valid.
@@ -413,6 +419,10 @@ The baseline equipment layout is:
 - Accessories.
 
 The exact number of accessory slots remains tunable.
+
+![Hero front, side and back proportions, equipment attachment pieces and three loadouts using the same character identity](images/32_hero_equipment_proportions.png "Hero and Equipment Proportions")
+
+*Visual proposal: Hero proportions and equipment attachment; character art direction remains open.*
 
 ## 8.2 Hand occupancy
 
@@ -493,6 +503,10 @@ Use eventually reduces durability to zero, at which point the item **breaks and 
 Durability is a core economic sink. Powerful items remain valuable but do not accumulate permanently in the economy.
 
 Repair services may delay breakage but do not remove the long-term need for replacement items.
+
+![Equipment being crafted, equipped and worn through use, with repair delaying breakage and an empty equipment slot after permanent destruction](images/27_equipment_lifecycle.png "Equipment Lifecycle")
+
+*Repair delays item loss; an item disappears when durability reaches zero. Bar lengths are illustrative.*
 
 ---
 
@@ -947,6 +961,10 @@ When a Hero becomes ready, its turn begins with the appropriate AP/MP available 
 
 There is no default Mana, Energy or Rage resource.
 
+![A proposed tactical interface combining a selected Hero, HP, AP and MP, readiness, eight spell slots and cell-based movement and targeting](images/26_complete_tactical_turn.png "A Complete Tactical Turn")
+
+*Interface proposal; point counts are illustrative and do not establish balance defaults.*
+
 ---
 
 # 18. Combat Stats and Damage
@@ -1119,6 +1137,10 @@ Expiration: defined by status
 
 A status can subscribe to several hooks if necessary.
 
+![Poison dealing damage on turn starts, Burning dealing damage each encounter simulation second, and Blood Pact causing HP loss when AP is spent](images/31_status_triggers.png "Status Triggers")
+
+*Trigger diagram: Burning advances with encounter simulation time, which pauses during tactical decisions.*
+
 ## 20.3 Shared effect vocabulary
 
 Spells and statuses should reuse the same effect vocabulary where possible, including:
@@ -1172,6 +1194,8 @@ A summon can have:
 - combat-cell position.
 
 Initially, a player-controlled summon may simply receive a normal controllable turn like a Hero. Automatic summon behaviors can be added later.
+
+![The same immutable terrain before combat, during combat with a temporary barrier, trap and summon, and after those entities disappear](images/29_temporary_combat_objects.png "Temporary Combat Objects")
 
 ---
 
@@ -1510,6 +1534,8 @@ Items deposited in one town can therefore be withdrawn from another town/outpost
 
 The bank is intentionally global to avoid turning the first version into a logistics/transport inventory game.
 
+![Three Heroes sharing one player's expedition inventory, with two towns and an active outpost connecting to the same global bank](images/28_inventory_global_bank.png "Expedition Inventory and Global Bank")
+
 ---
 
 # 30. Normal Dungeons
@@ -1618,6 +1644,10 @@ A room asset can expose data such as:
 - semantic anchors as needed.
 
 The room format should be data-driven enough to support a separate content-authoring/editor workflow later.
+
+![A modular dungeon concept kit with an entrance chamber, connecting passage, stair chamber and encounter room using compatible doorway dimensions](images/34_dungeon_room_kit.png "Dungeon Room Kit")
+
+*Room-kit visual proposal; architecture and contents are examples for future authored modules.*
 
 ## 32.3 Deterministic rotation
 
