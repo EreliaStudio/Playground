@@ -17,6 +17,7 @@ namespace voxel
 	private:
 		Collection &_chunks;
 		const Baker &_baker;
+		spk::Profiler *_profiler = nullptr;
 		BakeCompletionProvider _bakeCompletions;
 		std::set<Coordinate> _dirty;
 		Collection::ChunkProvider::Contract _available;
@@ -27,7 +28,7 @@ namespace voxel
 		void _invalidateNeighbors(Coordinate coordinate);
 
 	public:
-		BakeScheduler(Collection &chunks, const Baker &baker);
+		BakeScheduler(Collection &chunks, const Baker &baker, spk::Profiler *profiler = nullptr);
 
 		[[nodiscard]] std::size_t pendingCount() const noexcept
 		{

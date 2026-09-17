@@ -1,12 +1,14 @@
 #include "voxel/chunk_bake_scheduler.hpp"
 
 #include <utility>
+#include <memory>
 
 namespace voxel
 {
-	Chunk::BakeScheduler::BakeScheduler(Collection &chunks, const Baker &baker) :
+	Chunk::BakeScheduler::BakeScheduler(Collection &chunks, const Baker &baker, spk::Profiler *profiler) :
 		_chunks(chunks),
 		_baker(baker),
+		_profiler(profiler),
 		_available(chunks.subscribeToAvailability([this](Chunk &chunk) {
 			_observe(chunk);
 			invalidate(chunk.coordinate());
@@ -49,6 +51,9 @@ namespace voxel
 
 	std::size_t Chunk::BakeScheduler::process(std::size_t budget)
 	{
+		std::unique_ptr<spk::Profiler::TimeMeasurement::Scope> group;
+		if (_profiler != nullptr)
+			group = std::make_unique<spk::Profiler::TimeMeasurement::Scope>(_profiler->timeMeasurement("Chunks/bake group"));
 		std::size_t count = 0;
 		while (count < budget && !_dirty.empty())
 		{
@@ -56,6 +61,9 @@ namespace voxel
 			_dirty.erase(_dirty.begin());
 			if (auto *chunk = _chunks.find(coordinate))
 			{
+				std::unique_ptr<spk::Profiler::TimeMeasurement::Scope> chunkTimer;
+				if (_profiler != nullptr)
+					chunkTimer = std::make_unique<spk::Profiler::TimeMeasurement::Scope>(_profiler->timeMeasurement("Chunks/bake chunk"));
 				const spk::TextureMesh3D mesh = _baker.bake(*chunk);
 				_bakeCompletions.trigger(coordinate, mesh);
 				++count;

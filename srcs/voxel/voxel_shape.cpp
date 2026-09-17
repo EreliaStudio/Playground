@@ -88,7 +88,7 @@ namespace voxel::Voxel
 			spk::Vector2(reader.value().at("uv"))};
 
 		if (!_isNormalized(result.position))
-			throw spk::JSON::Error(reader.file(), reader.path(), "shape '" + shapeName + "' has a vertex outside normalized cell space");
+			throw spk::Exception(reader.file().generic_string() + ":" + reader.path() + ": shape '" + shapeName + "' has a vertex outside normalized cell space");
 		return result;
 	}
 
@@ -135,7 +135,7 @@ namespace voxel::Voxel
 			_appendPolygon(_loadPolygon(polygonReader, name));
 
 		if (polygons.empty())
-			throw spk::JSON::Error(reader.file(), reader.path(), "shape '" + name + "' has no polygons");
+			throw spk::Exception(reader.file().generic_string() + ":" + reader.path() + ": shape '" + name + "' has no polygons");
 	}
 
 	Shape::Shape(const spk::JSON::Reader &reader)
@@ -143,7 +143,7 @@ namespace voxel::Voxel
 		reader.forbidUnknown({"id", "polygons"});
 		name = reader.require<std::string>("id");
 		if (name.empty())
-			throw spk::JSON::Error(reader.file(), reader.pathFor("id"), "voxel shape id cannot be empty");
+			throw spk::Exception(reader.file().generic_string() + ":" + reader.pathFor("id") + ": voxel shape id cannot be empty");
 		_loadPolygons(reader);
 	}
 }

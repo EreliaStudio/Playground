@@ -55,7 +55,7 @@ namespace voxel::Voxel
 
 	[[noreturn]] void Definition::_throw(const std::string &message) const
 	{
-		throw spk::JSON::Error(_sourceFile, _sourcePath, message);
+		throw spk::Exception(_sourceFile.generic_string() + ":" + _sourcePath + ": " + message);
 	}
 
 	Definition::Definition(const spk::JSON::Reader &reader) :

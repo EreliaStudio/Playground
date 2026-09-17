@@ -2,7 +2,7 @@
 
 #include <sparkle>
 
-#include "engine/texture_mesh_renderer_3d.hpp"
+#include "voxel/chunk_renderer.hpp"
 #include "voxel/chunk.hpp"
 
 namespace voxel
@@ -12,7 +12,7 @@ namespace voxel
 	private:
 		spk::Engine &_engine;
 		spk::Entity3D _entity;
-		spk::TextureMeshRenderer3D *_renderer;
+		ChunkRenderer *_renderer;
 
 	public:
 		View(spk::Engine &engine, const spk::Texture *atlas, Coordinate coordinate);

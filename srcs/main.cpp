@@ -5,8 +5,10 @@
 #include "behaviour/first_person_controller.hpp"
 #include "engine/camera.hpp"
 #include "engine/camera_holder_3d.hpp"
+#include "engine/chunk_render_system.hpp"
 #include "voxel/chunk_views.hpp"
 #include "voxel/voxel_world.hpp"
+#include "ui/chunk_debug_screen.hpp"
 
 int main()
 {
@@ -19,6 +21,10 @@ int main()
 	engineWidget.setGeometry(window.root().geometry());
 	engineWidget.setEngine(&engine);
 	engineWidget.activate();
+	engine.addSystem<playground::ChunkRenderSystem>(window.profiler());
+	playground::ChunkDebugScreen debugScreen(&window.root());
+	debugScreen.setGeometry(spk::Rect2D{spk::Vector2Int{20, 20}, spk::Vector2UInt{760, 180}});
+	debugScreen.activate();
 
 	const auto resourceRoot = std::filesystem::path("resources");
 	auto catalog = voxel::Voxel::Catalog<voxel::Voxel::Definition>::load(resourceRoot / "catalog_config.json");
@@ -38,7 +44,7 @@ int main()
 	voxel::Chunk::DebugGenerator generator(chunks, catalog, 0xE7E11AULL);
 	voxel::Chunk::Baker baker(catalog, chunks);
 	voxel::Chunk::ViewCollection views(engine, &catalog.atlas(), chunks);
-	voxel::Chunk::BakeScheduler scheduler(chunks, baker);
+	voxel::Chunk::BakeScheduler scheduler(chunks, baker, &window.profiler());
 	auto bakedChunks = scheduler.subscribeToBakeCompletion([&views](voxel::Chunk::Coordinate coordinate, const spk::TextureMesh3D &mesh) {
 		views.setMesh(coordinate, mesh);
 	});
