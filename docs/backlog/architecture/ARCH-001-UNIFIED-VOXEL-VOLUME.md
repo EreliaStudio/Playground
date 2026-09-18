@@ -1,0 +1,108 @@
+# ARCH-001 — Unified Multi-Scale Voxel Volume
+
+## Decision
+
+Erelia uses **one fundamental voxel-volume representation** for persistent terrain chunks and voxel-authored models. `Chunk` and `VoxelModel` are semantic users of the same cell/grid contract, not separate graphics formats.
+
+The exact class/API names remain implementation decisions. Conceptually a volume exposes:
+
+```text
+dimensions
+voxel cells
+coordinate/index access
+local bounds
+uniform voxelSize
+```
+
+The cell representation remains based on the existing `Voxel::Cell → Voxel::Definition → Voxel::Shape` chain unless measured implementation evidence requires change.
+
+## Scale
+
+A normalized Shape remains approximately inside `[0,1]^3`. Geometry mapping is:
+
+```text
+volumeLocalPosition = (voxelCoordinate + shapeLocalVertex) × voxelSize
+```
+
+Examples:
+
+```text
+Chunk: 16×16×16, voxelSize = 1.0
+→ 16×16×16 world-unit local extent
+
+Model: 8×8×16, voxelSize = 0.1
+→ 0.8×0.8×1.6 local extent
+```
+
+Start with one uniform scalar size. Entity/world transforms may scale the resulting object separately. Independent X/Y/Z cell dimensions are a later decision only if real content requires them.
+
+## Shape and cell reuse
+
+The current Shape system is valuable because normalized cube/slab/slope/stair/cross geometry automatically works at any volume scale. Orientation, vertical flip and material-slot semantics must remain usable for every volume.
+
+Do not introduce `TerrainVoxel` versus `ModelVoxel` merely because ownership differs. A model may use a normal cube Definition most of the time but may also use slab/slope/stair Definitions if useful.
+
+## Chunk specialization
+
+A Chunk retains world-specific responsibilities outside the generic volume contract:
+
+- fixed 16³ dimensions and optimized storage;
+- chunk coordinate and world/local conversion;
+- `Chunk::Collection` membership;
+- deterministic generation;
+- streaming/request lifecycle;
+- versioning/editing;
+- cross-chunk neighbor access;
+- bake scheduling.
+
+The generic volume must not absorb these responsibilities.
+
+## VoxelModel specialization
+
+A VoxelModel uses the same cell semantics with:
+
+- arbitrary runtime dimensions;
+- smaller configurable voxel size;
+- imported/authored asset source;
+- entity/prop/equipment lifetime;
+- transform-based placement instead of chunk coordinates.
+
+The model's detailed cells are visual data unless explicit gameplay systems say otherwise.
+
+## One mesher
+
+Target architecture:
+
+```text
+VoxelVolume + NeighborResolver + DefinitionCatalog
+                    ↓
+                VoxelMesher
+                    ↓
+          indexed mesh + material refs
+```
+
+The mesher is independent of `Chunk::Collection`. A standalone model resolver returns empty outside its volume. A Chunk resolver can map out-of-bounds local neighbors through the surrounding collection.
+
+The mesher must preserve the current behavior for shape transforms, hidden-face elimination, partial neighbor exposure/occlusion supported by the existing implementation and material assignment.
+
+## Articulated characters
+
+A Hero is an assembly of independently meshed rigid volumes. Hierarchy/pivot transforms animate parts; animation must not edit cells or remesh by default. Equipment is independent VoxelModel assets attached to hierarchy points.
+
+## Editing and cache invalidation
+
+Only voxel-data change invalidates a volume mesh:
+
+```text
+edit cells → increment/version or dirty flag → remesh affected volume
+```
+
+Entity transform, camera movement, animation transforms, palette changes and ordinary material parameter changes do not remesh geometry.
+
+## Authoritative boundary
+
+Visual voxels are not implicitly simulation units. Chunks feed navigation/world collision through explicit world systems. Entity assemblies use explicit collision/occupancy data. Rendering buffers and Material effects are never authoritative gameplay truth.
+
+## Migration constraint
+
+The first refactor keeps the existing textured/atlas output so old and new meshers can be compared. Material/palette migration occurs only after terrain parity is automated.

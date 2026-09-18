@@ -1,5 +1,7 @@
 # Voxel Engine Reimplementation — Feature Design
 
+> Historical terrain-engine plan. The current implementation direction is maintained in [docs/backlog](docs/backlog/README.md), including the unified volume/mesher architecture for terrain and models. Where plans differ, use the current backlog; retain this document as context for the existing terrain implementation.
+
 ## 1. Document purpose
 
 This document describes the voxel feature we want to build for Playground. It is intended

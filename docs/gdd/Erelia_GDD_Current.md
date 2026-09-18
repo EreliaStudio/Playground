@@ -1,11 +1,13 @@
 # Erelia — Game Design Document
 
 **Status:** Working design baseline  
-**Revision:** 17 September 2026  
+**Revision:** 18 September 2026  
 **Project:** Erelia  
 **Genre:** Persistent online voxel fantasy RPG with third-person exploration and tactical turn-based combat  
 
 > This document consolidates the current design decisions for the new version of Erelia. Exact numeric values are intentionally left configurable unless they have already become part of the design. Systems described as future extensions are not required for the first playable version.
+
+Implementation planning: [Erelia implementation backlog](../backlog/README.md). The GDD defines gameplay and visual intent; the backlog records implementation sequencing, architecture and acceptance criteria.
 
 ---
 
@@ -51,6 +53,18 @@ Combat does not load an unrelated arena. The tactical battlefield is derived fro
 ![Three Heroes surveying the voxel wilderness beyond a permanent settlement](images/01_frontier_expedition.png "The Frontier Expedition")
 
 *Three Heroes prepare to leave a permanent settlement and explore the voxel frontier.*
+
+## 1.2 Unified multi-scale voxel visual identity
+
+Terrain, Heroes, creatures, equipment and props share one voxel visual language and the same fundamental voxel-volume representation. Terrain uses world-scale cells; models use finer cells with independently defined volume dimensions and scale.
+
+A terrain Chunk contains 16×16×16 cells at one world unit per cell. A model can contain an arbitrary runtime-sized grid, such as 8×8×16 cells, with a smaller configurable uniform cell size. Grid resolution and displayed size are distinct: an 8×8×16 model at 0.1 unit per cell occupies 0.8×0.8×1.6 local units before its object transform.
+
+Both use the same voxel Definitions, normalized Shapes and material system. Cubes, slabs, slopes and stairs remain available at either scale; a voxel visual identity does not require every surface to be a full cube.
+
+Heroes and other animated characters are assemblies of rigid voxel-volume parts connected through a transform hierarchy. Animation moves and rotates those parts; it does not normally rewrite their cells or rebuild their meshes. Visible equipment uses separate voxel models attached to the character. Proportions, palettes and the final visual treatment remain subject to the visual-validation milestone in Section 42.
+
+The initial material direction is palette/color-based, with stable variation across terrain boundaries and patterns that remain attached to moving models. More advanced material effects are later extensions. Existing texture-atlas rendering remains supported during migration and visual comparison.
 
 ---
 
@@ -438,7 +452,7 @@ The exact number of accessory slots remains tunable.
 
 ![Hero front, side and back proportions, equipment attachment pieces and three loadouts using the same character identity](images/32_hero_equipment_proportions.png "Hero and Equipment Proportions")
 
-*Visual proposal: Hero proportions and equipment attachment; character art direction remains open.*
+*Visual proposal: proportions and equipment attachment remain exploratory; the selected representation is an articulated assembly of voxel-volume parts (Section 1.2).*
 
 ## 8.2 Hand occupancy
 
@@ -789,6 +803,8 @@ The walking graph is primarily used for:
 
 Directly controlled third-person movement remains continuous and collision-based.
 
+Navigation derives from authoritative world terrain. Fine visual cells in Hero, equipment and prop models do not automatically become traversal nodes, collision primitives or combat cells. Dynamic obstacles and entity occupancy require explicit gameplay data independent of their animated visual parts.
+
 ---
 
 # 13. Encounter Time Model
@@ -908,7 +924,7 @@ Surprise therefore rewards vision management, scouting and positioning without n
 
 ## 16.1 Combat cells
 
-A tactical combat cell represents one traversable voxel surface with a one-voxel horizontal footprint.
+A tactical combat cell represents one traversable terrain-voxel surface with a one-world-unit horizontal footprint (1×1). Smaller visual voxels in models do not subdivide this tactical grid.
 
 The cell retains a 3D standing position so stacked walkable surfaces remain distinct.
 
@@ -1919,11 +1935,19 @@ The server should be authoritative for important shared state such as:
 
 Voxel chunk geometry can remain deterministic from seeds while dynamic entity state is synchronized separately.
 
-The current voxel architecture direction — headless chunk data separated from graphical surfaces, deterministic chunk generation, and interchangeable local/network chunk sources — is compatible with this model.
+The target voxel architecture keeps headless volume data separate from graphical surfaces. Terrain Chunks and runtime-sized models share one volume/Definition/Shape contract and one mesher, with neighbor resolution supplied separately for streamed terrain and standalone models. Chunk generation and streaming remain world responsibilities.
+
+Authoritative simulation determines movement, collision, combat occupancy and effect timing. Animation and material effects present those outcomes; animation keyframes and rendered geometry do not determine damage or other gameplay results. Dynamic replication uses explicit entity state rather than treating every visual voxel as a networked object.
+
+This direction is first validated in Playground using Sparkle Version0.1.1. Generic components may move into Sparkle after their reuse is demonstrated; that extraction is not a prerequisite for the visual prototype. The detailed migration and regression requirements live in the [implementation backlog](../backlog/README.md).
+
+A local authoritative host may support early validation while preserving the same command boundary required by a later dedicated server. This is an implementation stage, not a change to the persistent online game target.
 
 ---
 
 # 39. Future Content Editor
+
+Initial voxel assets are authored with mature external voxel/3D tools and imported into the shared volume representation. Character hierarchy, pivots, attachments and transform animations may use external tooling or lightweight declarative metadata. The exact tool and interchange format remain open decisions. A custom voxel-modeling or animation application is not required for the visual prototype or first playable.
 
 A separate editor application may eventually allow players/community creators to propose custom content such as:
 
@@ -1944,6 +1968,9 @@ The editor, moderation, publishing, security and distribution workflow are expli
 The following are considered current baseline decisions:
 
 - persistent online voxel Worlds;
+- one multi-scale voxel representation for terrain, characters, equipment and props;
+- rigid voxel-part character animation with separately attached equipment;
+- external asset authoring/import and early material/visual validation;
 - deterministic server-rooted World generation;
 - immutable base voxel terrain;
 - server-wide World portal progression;
@@ -2070,7 +2097,15 @@ No PvP design is currently part of the established GDD. It should not be assumed
 
 # 42. First Playable Scope Recommendation
 
-A useful first vertical slice does not need the entire MMO progression.
+## 42.1 Visual validation prerequisite
+
+Before broad gameplay/content production, [VS-000 — Unified Voxel Visual Validation](../backlog/milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) proves one scene containing generated terrain Chunks, cubes/slabs/slopes/stairs, a palette-material prototype, an imported small-scale barrel, an articulated Hero and an attached voxel weapon.
+
+All voxel geometry uses the same volume-to-mesh path. The scene must preserve existing terrain behavior, demonstrate stable materials, animate rigid parts without remeshing, and capture performance measurements. Record visual acceptance or required revisions before expanding the art catalog. Tool selection, precise material sampling and entity collision primitives remain implementation decision gates.
+
+## 42.2 First playable gameplay slice
+
+A useful first vertical slice does not need the entire MMO progression. It builds on the accepted visual prototype; [VS-001 — First Playable](../backlog/milestones/VS-001-FIRST-PLAYABLE.md) provides its system acceptance criteria.
 
 A focused prototype can validate the core loop with:
 
