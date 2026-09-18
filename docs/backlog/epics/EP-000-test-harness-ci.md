@@ -99,9 +99,26 @@ Provide fixed workloads and reporting for regressions, leaks, lifecycle loops, a
 - [ ] Identical deterministic inputs produce identical observable results.
 - [ ] The behavior is testable without rendering unless the story is explicitly presentation-only.
 
+### ST-000-05 — Export Sparkle test utilities for downstream projects
+
+**Implementation repository/branch:** Sparkle `Version0.1.1`  
+**Implementation PR:** [Sparkle #1](https://github.com/EreliaStudio/Sparkle/pull/1) (draft; Windows package/GPU validation pending)  
+**Blocks:** ST-001-01 textured Chunk reference-image gate.
+
+Publish the existing image-comparison, path and framebuffer helpers as an optional installed `Sparkle::TestLibrary` target. Downstream projects must consume the installed package without building SparkleTestSuite, depending on GTest, or accessing Sparkle's checkout. Keep existing GPU capture's Windows/WGL requirement explicit.
+
+**Acceptance cases**
+
+- [ ] Utilities build/install with `SPARKLE_BUILD_TEST_LIBRARY=ON` and `SPARKLE_BUILD_TESTS=OFF`, without GTest or Sparkle's test executables.
+- [ ] A separate consumer resolves `find_package(sparkle CONFIG REQUIRED COMPONENTS TestLibrary)` and links `Sparkle::TestLibrary` using only installed headers/targets, including after prefix relocation.
+- [ ] A default install omits the optional component; a required-component lookup fails clearly when it is absent.
+- [ ] Consumers configure their own reference/result roots; installed binaries embed no Sparkle test source/build paths, and invalid empty roots preserve prior configuration.
+- [ ] The installed consumer verifies matching images, differing images and generated diff artifacts without initializing OpenGL; Windows capture and Sparkle's existing GPU tests pass on the supported runner.
+- [ ] The vcpkg `test-library` feature enables the export, and Playground documents/enables this dependency before accepting ST-001-01 as Done.
+
 ## Textured Chunk visual-test support
 
-Provide the SparkleTestLibrary capture/compare workflow required by ST-001-01, including a supported Windows/OpenGL test job, explicit Playground reference/result paths, and failure image artifacts. Verify build/link availability of `Sparkle::TestLibrary`; its in-source CMake alias does not by itself establish installed-package availability. Keep CPU-only execution independent. A skipped/unavailable GPU job does not satisfy the image-regression gate. Detailed fixture, tolerance and baseline rules are in [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#textured-chunk-image-regression-gate).
+Provide the SparkleTestLibrary capture/compare workflow required by ST-001-01, including a supported Windows/OpenGL test job, explicit Playground reference/result paths, and failure image artifacts. Complete ST-000-05 to provide installed-package availability of `Sparkle::TestLibrary`, then consume it from Playground. Keep CPU-only execution independent. A skipped/unavailable GPU job does not satisfy the image-regression gate. Detailed fixture, tolerance and baseline rules are in [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#textured-chunk-image-regression-gate).
 
 ## Epic Exit Criteria
 

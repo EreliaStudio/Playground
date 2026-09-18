@@ -15,7 +15,7 @@ See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the reposit
 The current Playground implementation already provides normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker` coupled to chunk-neighbor lookup. Those are the migration baseline, not disposable prototypes.
 
 
-Current package: **34 epics, 136 candidate stories, 546 integration cases, 822 story acceptance cases, 9 capability/root meta-epics and 64 Markdown files.**
+Current package: **34 epics, 137 candidate stories, 546 integration cases, 828 story acceptance cases, 9 capability/root meta-epics and 64 Markdown files.**
 
 ## Central architecture principle
 

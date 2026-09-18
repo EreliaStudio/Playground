@@ -3,7 +3,7 @@
 **Meta-epic:** ME-001  
 **Horizon:** H0  
 **GDD / architecture coverage:** Unified multi-scale voxel architecture supporting existing world and future model content  
-**Dependencies:** EP-000
+**Dependencies:** EP-000, specifically ST-000-05 for the installed SparkleTestLibrary visual-test utilities
 
 ## Goal
 
