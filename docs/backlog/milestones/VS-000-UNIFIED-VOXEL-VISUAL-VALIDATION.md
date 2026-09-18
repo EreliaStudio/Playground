@@ -24,7 +24,8 @@ VoxelVolume → NeighborResolver → VoxelMesher → Mesh + Materials → render
 
 ## Entry gates
 
-- Current Chunk mesh semantic regression fixtures exist.
+- Current Chunk mesh semantic regression fixtures and reviewed pre-refactor textured PNG references exist.
+- EP-001/EP-032 pass both semantic and image parity before material changes; any palette/non-textured image-baseline transition follows the explicit review/versioning gate in [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#later-non-textured-rendering-migration).
 - EP-001 volume contract can adapt current Chunk and own runtime-sized model storage.
 - EP-032 has old/new Chunk parity on representative fixtures.
 - EP-030 can import at least one external model source without custom authoring software.

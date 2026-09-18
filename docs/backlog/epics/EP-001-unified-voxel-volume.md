@@ -22,6 +22,7 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 - Voxel scale is a uniform scalar initially and belongs to the volume contract.
 - Do not widen/change packed `Voxel::Cell` orientation/flip during this refactor unless a separate requirement proves necessary.
 - Current texture/UV fields remain valid until the later Material migration.
+- Before structural changes, approve current textured Chunk PNG references and require image comparison to keep passing through this epic; follow [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#textured-chunk-image-regression-gate).
 - Generic volume code owns no streaming, generation, world coordinate or entity gameplay semantics.
 
 ## Integration Test Catalogue
@@ -36,6 +37,8 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 6. Empty/minimum dimensions and invalid coordinates follow the chosen explicit validation policy without aliasing valid storage.
 7. Existing packed Cell ID/orientation/flip round-trips byte-for-byte.
 8. Volume access and scale/bounds calculations run headlessly and without Definition catalog/GPU ownership.
+9. Fixed current-texture Chunk scenes match approved pre-refactor PNG references after volume adaptation; failures expose expected/actual/difference images.
+10. A controlled texture/UV change fails the visual comparison; missing references or an unavailable GPU run cannot count as visual parity.
 
 ### Common integration invariants
 
@@ -52,13 +55,18 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 
 ### ST-001-01 — Current Chunk regression characterization
 
-Capture stable fixtures around the existing 16³ storage/indexing and Cell semantics before extraction.
+Capture stable fixtures around the existing 16³ storage/indexing and Cell semantics **and approve reference images from the current textured Chunk renderer before extraction**. This story has both headless data checks and a required GPU presentation gate using SparkleTestLibrary; see [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#textured-chunk-image-regression-gate).
 
 **Acceptance cases**
 
 - [ ] Fixtures cover first/last valid coordinate and representative negative world-to-local conversion through Chunk helpers.
 - [ ] Packed Cell fixtures cover empty, oriented and vertically flipped cells.
 - [ ] Regression fixture records current semantic output rather than relying on implementation-private addresses.
+- [ ] Reviewed pre-refactor PNGs cover current textures/UVs on cube/slab/slope/stair/cross geometry, orientation/flip, partial occlusion and Chunk boundaries, plus a seeded scene.
+- [ ] Fixed camera/render state and completed uploads produce repeatable comparisons on the documented Windows/OpenGL runner.
+- [ ] References and provenance are committed separately from actual/difference artifacts; missing references fail without automatic regeneration.
+- [ ] Unchanged output passes; a controlled texture/UV alteration fails and publishes reviewable image differences.
+- [ ] The same references pass after Chunk adaptation; later non-textured migration must visibly fail against them before explicit review/versioning of a new baseline.
 - [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
 - [ ] Identical deterministic inputs produce identical observable results.
 - [ ] The behavior is testable without rendering unless the story is explicitly presentation-only.
@@ -102,6 +110,7 @@ Add a simple owning volume suitable for imported props/parts with arbitrary dime
 
 ## Epic Exit Criteria
 
+- [ ] Approved current-texture image comparisons pass on the supported GPU runner with the original references and tolerances unchanged.
 - [ ] All activated stories meet their acceptance cases.
 - [ ] Epic-specific and common integration cases are automated and passing.
 - [ ] Invalid/corrupt content or commands cannot leave impossible partial state.

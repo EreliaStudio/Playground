@@ -99,6 +99,10 @@ Capture images/profiling and decide whether the multi-scale voxel/Material direc
 - [ ] The behavior is testable without rendering unless the story is explicitly presentation-only.
 
 
+## Visual baseline migration gate
+
+The non-textured/palette path must be compared with EP-001's original textured Chunk references and expose the expected visual failures. Review expected/actual/difference images before accepting separately versioned new references; do not overwrite the old baseline or relax tolerances silently. Preserve the atlas compatibility comparisons while that path is supported, and require the new active baseline to pass before completion. See [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#later-non-textured-rendering-migration).
+
 ## Epic Exit Criteria
 
 - [ ] All activated stories meet their acceptance cases.

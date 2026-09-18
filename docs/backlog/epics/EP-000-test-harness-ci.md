@@ -99,6 +99,10 @@ Provide fixed workloads and reporting for regressions, leaks, lifecycle loops, a
 - [ ] Identical deterministic inputs produce identical observable results.
 - [ ] The behavior is testable without rendering unless the story is explicitly presentation-only.
 
+## Textured Chunk visual-test support
+
+Provide the SparkleTestLibrary capture/compare workflow required by ST-001-01, including a supported Windows/OpenGL test job, explicit Playground reference/result paths, and failure image artifacts. Verify build/link availability of `Sparkle::TestLibrary`; its in-source CMake alias does not by itself establish installed-package availability. Keep CPU-only execution independent. A skipped/unavailable GPU job does not satisfy the image-regression gate. Detailed fixture, tolerance and baseline rules are in [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#textured-chunk-image-regression-gate).
+
 ## Epic Exit Criteria
 
 - [ ] All activated stories meet their acceptance cases.

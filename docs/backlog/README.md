@@ -15,7 +15,7 @@ See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the reposit
 The current Playground implementation already provides normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker` coupled to chunk-neighbor lookup. Those are the migration baseline, not disposable prototypes.
 
 
-Current package: **34 epics, 136 candidate stories, 544 integration cases, 816 story acceptance cases, 9 capability/root meta-epics and 64 Markdown files.**
+Current package: **34 epics, 136 candidate stories, 546 integration cases, 822 story acceptance cases, 9 capability/root meta-epics and 64 Markdown files.**
 
 ## Central architecture principle
 
@@ -54,15 +54,15 @@ The exact C++ names, ownership model and template signatures remain implementati
 
 Do **not** rewrite the working world renderer and material system in one step.
 
-1. Characterize current chunk output with regression fixtures.
+1. Characterize current chunk output with semantic fixtures and manually approved textured PNG references using SparkleTestLibrary image comparison.
 2. Extract generic volume access from `Chunk` without changing current output.
 3. Extract neighbor resolution from `Chunk::Baker` while preserving cross-chunk behavior.
 4. Generalize the baker into one `VoxelMesher` while continuing to emit the current textured mesh representation.
-5. Prove terrain output/behavior parity.
+5. Prove terrain output/behavior parity, including unchanged textured PNG comparisons on the supported GPU runner.
 6. Add voxel scale and runtime-sized/imported `VoxelModel` volumes.
 7. Mesh a small prop through the exact same mesher.
 8. Introduce the new Material abstraction alongside the current atlas path.
-9. Validate palette/material rendering visually, then migrate content incrementally.
+9. Compare non-textured/palette output against the old textured references, review the resulting failures, and explicitly version approved new visual baselines before migrating content incrementally.
 10. Assemble the first articulated Hero from cached rigid voxel-volume parts.
 
 ## Character direction

@@ -21,6 +21,7 @@ Extract the current Chunk baking logic into one generalized, headless, scale-awa
 - Voxel scale multiplies positions only; visibility remains discrete-grid logic.
 - Shape normalization, current orientation and vertical flip semantics remain unchanged.
 - Current partial-neighbor/occlusion behavior is regression-locked before any improvement.
+- EP-001 current-texture PNG references must pass unchanged after mesher extraction, alongside semantic mesh parity; see [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#textured-chunk-image-regression-gate).
 - A fixed-size Chunk optimization may exist behind the common read contract but must not create a second mesher.
 - Meshing is CPU/headless data transformation; GPU upload is EP-003.
 
@@ -59,6 +60,7 @@ Capture current mesh semantics before code extraction and build comparison helpe
 - [ ] Fixtures include cube/slab/slope/stair/cross and chunk boundary cases.
 - [ ] Comparison checks positions/normals/material/UV or slot semantics and visible topology.
 - [ ] Old Baker remains available in test path until parity gate passes.
+- [ ] The new mesher rendered through the existing shader/atlas path matches EP-001 approved PNGs; no reference regeneration is allowed for this structural refactor.
 - [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
 - [ ] Identical deterministic inputs produce identical observable results.
 - [ ] The behavior is testable without rendering unless the story is explicitly presentation-only.
