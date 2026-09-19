@@ -96,6 +96,8 @@ VS-001 first playable                              🔭
 - ✅ Focused Chunk tests cover the fixed constructor specialization and Chunk-owned coordinate/index behavior; inherited storage, access, editor, versioning, and diagnostics remain covered once by the VoxelVolume suites.
 - ✅ BakeScheduler coverage proves an edited Chunk queues itself and every available face-neighbor for rebuild.
 - ✅ Implementation commit: [`27c095f`](https://github.com/EreliaStudio/Playground/commit/27c095f467cdb4bd1525aa5be81bccfab889b5fb).
+- ✅ Test-ownership refinement commit: [`f3f855b`](https://github.com/EreliaStudio/Playground/commit/f3f855b71c67bfb96100bb09a3e52fbedd14683b).
+- ✅ PR #4 [CI run 35467461734](https://github.com/EreliaStudio/Playground/actions/runs/35467461734) passed both `CPU/headless tests` and `Windows/OpenGL golden candidates` for commit `f3f855b`.
 - ✅ No approved reference, comparison tolerance, texture, UV, or intended rendering output changed.
 
 ## Current implementation checkpoint

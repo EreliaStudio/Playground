@@ -54,4 +54,5 @@ No intentional visual impact. The existing 20-reference suite is mandatory regre
 - Focused Chunk specialization/index tests in `tests/chunk_storage_tests.cpp`, with inherited behavior covered by the VoxelVolume test families.
 - Chunk-owned neighbor rebuild coverage in `tests/chunk_bake_scheduler_tests.cpp`.
 - Implementation commit [`27c095f`](https://github.com/EreliaStudio/Playground/commit/27c095f467cdb4bd1525aa5be81bccfab889b5fb).
-- The complete CPU/headless and supported Windows/OpenGL golden suite pass without reference or tolerance changes; the exact CI run is recorded in `CURRENT-STATUS.md`.
+- Test-ownership refinement commit [`f3f855b`](https://github.com/EreliaStudio/Playground/commit/f3f855b71c67bfb96100bb09a3e52fbedd14683b).
+- PR #4 [CI run 35467461734](https://github.com/EreliaStudio/Playground/actions/runs/35467461734) passed the complete CPU/headless and supported Windows/OpenGL golden suites without reference or tolerance changes.
