@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: pwsh
+
+env:
+  VCPKG_DEFAULT_TRIPLET: x64-windows-static
+  VCPKG_DEFAULT_HOST_TRIPLET: x64-windows-static
+  GALLIUM_DRIVER: llvmpipe
+  MESA_GL_VERSION_OVERRIDE: '4.6'
+  MESA_GLSL_VERSION_OVERRIDE: '460'
+
+jobs:
+  cpu-tests:
+    name: CPU/headless tests
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: Playground
+      - uses: actions/checkout@v4
+        with:
+          repository: EreliaStudio/Sparkle
+          ref: Version0.1.1
+          path: Sparkle
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Clean configure with installed Sparkle TestLibrary feature
+        working-directory: Playground
+        run: >-
+          cmake -S . -B build/ci -G Ninja
+          -DCMAKE_CXX_COMPILER=clang-cl
+          -DCMAKE_BUILD_TYPE=Release
+          '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          -DBUILD_TESTING=ON
+      - name: Build CPU/headless tests
+        working-directory: Playground
+        run: cmake --build build/ci --target PlaygroundTest --parallel 4
+      - name: Run without OpenGL initialization
+        working-directory: Playground
+        run: ctest --test-dir build/ci --output-on-failure --no-tests=error -L cpu --output-junit cpu-results.xml
+      - name: Prove no Sparkle source/build path is embedded
+        working-directory: Playground
+        run: |
+          $matches = Get-ChildItem build/ci -Recurse -File -Include *.exe,*.dll,*.lib |
+            Select-String -SimpleMatch "$env:GITHUB_WORKSPACE\Sparkle" -ErrorAction SilentlyContinue
+          if ($matches) { throw 'Sparkle source/build path was embedded in a Playground binary' }
+      - name: Upload CPU diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-headless-results
+          path: |
+            Playground/build/ci/Testing
+            Playground/build/ci/cpu-results.xml
+            Playground/build/ci/CMakeFiles/CMakeConfigureLog.yaml
+
+  gpu-golden-tests:
+    name: Windows/OpenGL golden candidates
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: Playground
+      - uses: actions/checkout@v4
+        with:
+          repository: EreliaStudio/Sparkle
+          ref: Version0.1.1
+          path: Sparkle
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Clean configure
+        working-directory: Playground
+        run: >-
+          cmake -S . -B build/ci -G Ninja
+          -DCMAKE_CXX_COMPILER=clang-cl
+          -DCMAKE_BUILD_TYPE=Release
+          '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          -DBUILD_TESTING=ON
+      - name: Build GPU test
+        working-directory: Playground
+        run: cmake --build build/ci --target PlaygroundTest --parallel 4
+      - name: Install canonical software OpenGL
+        run: ./Sparkle/tools/ci/install-mesa.ps1 -Destination Playground/build/ci/tests
+      - name: Run GPU capture, comparison, and sensitivity gate
+        working-directory: Playground
+        run: ctest --test-dir build/ci --output-on-failure --no-tests=error -L gpu --output-junit gpu-results.xml
+      - name: Upload candidates and differences
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-chunk-visual-results
+          path: |
+            Playground/build/ci/tests/results
+            Playground/build/ci/Testing
+            Playground/build/ci/gpu-results.xml
+            Playground/build/ci/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: error
+          retention-days: 30

@@ -41,6 +41,8 @@ Use Sparkle Version0.1.1's [SparkleTestLibrary](https://github.com/EreliaStudio/
 - Run these presentation tests on a supported Windows/OpenGL runner separately from CPU/headless tests. An unavailable GPU gate is reported as not run/blocked, not accepted as visual parity.
 - Prove test sensitivity with a controlled texture/UV alteration: the unchanged renderer passes, the altered output fails, and restoring it passes again.
 
+For the initial Playground baseline, [OD-024](../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) resolves the fixture family and canonical runner and records why the installed component's fixed `640 x 480` framebuffer supersedes the generic `512 x 512` convention for ST-001-01.
+
 ### Later non-textured rendering migration
 
 The textured references remain unchanged through EP-001 and EP-032. In EP-003/EP-033, switching the same fixtures to non-textured/palette rendering must produce visible comparison failures against those old references. Do not silently regenerate the expected images, disable the tests, mark arbitrary mismatches as expected failures, or broaden tolerance to make that migration green.
