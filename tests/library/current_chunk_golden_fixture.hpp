@@ -2,12 +2,16 @@
 
 #include "voxel/voxel_world.hpp"
 
+#include <array>
+#include <cstddef>
 #include <filesystem>
 #include <string_view>
 #include <vector>
 
 namespace playground_test::golden
 {
+	inline constexpr std::size_t ViewCount = 4;
+
 	struct Camera
 	{
 		spk::Vector3 position;
@@ -29,14 +33,15 @@ namespace playground_test::golden
 	struct Scene
 	{
 		std::string_view name;
-		Camera camera;
+		std::array<Camera, ViewCount> cameras;
 		std::vector<Cell> cells;
 	};
 
 	[[nodiscard]] const Scene &scene(std::string_view name);
+	[[nodiscard]] const std::array<Camera, ViewCount> &seededSceneCameras();
 	void configureTestPaths();
-	void renderScene(const Scene &scene, const std::filesystem::path &path, bool alterFirstUv = false);
-	void renderSeededScene(const std::filesystem::path &path);
+	void renderScene(const Scene &scene, std::size_t viewIndex, const std::filesystem::path &path, bool alterFirstUv = false);
+	void renderSeededScene(std::size_t viewIndex, const std::filesystem::path &path);
 	[[nodiscard]] bool compareScene(std::string_view name);
 	[[nodiscard]] bool compareSeededScene();
 	void proveUvSensitivity();
