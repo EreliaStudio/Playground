@@ -8,7 +8,7 @@ These fixtures characterize the pre-refactor `Chunk -> Chunk::Baker -> TextureMe
 - Sparkle: `Version0.1.1` revision `c1158dc228c8f8cbe674ac4510ad148f02b519d6`, installed `TestLibrary` component.
 - Framebuffer/viewport: `640 x 480`, the fixed size supported by the exported `OpenGLTestContext`.
 - Projection: perspective; each fixture records field of view and clipping planes in `chunk_golden_tests.cpp`.
-- Camera orientation: `spk::Quaternion::lookAt(position, target, {0, 1, 0})`.
+- Camera orientation: `spk::Quaternion::lookAt(position, target, {0, 1, 0})`. Each fixture is captured from four deterministic viewpoints separated by 90-degree rotations around the same target; the original reviewed camera remains view 1.
 - Background: RGBA `(0.30, 0.48, 0.72, 1.0)`.
 - Render state: the state established by `OpenGLTestContext::reset`; depth test `LEQUAL`, back-face culling with counter-clockwise fronts, alpha blending, full color/depth writes.
 - Lighting: the unchanged hard-coded directional-light calculation in `resources/shaders/texture_mesh/vertex.glsl`.
@@ -25,7 +25,7 @@ These fixtures characterize the pre-refactor `Chunk -> Chunk::Baker -> TextureMe
 
 ## Fixtures
 
-Exact cells, Definition IDs by stable catalog name, transforms, and camera values live in the declarative `Scene` records in `tests/chunk_golden_tests.cpp`.
+Exact cells, Definition IDs by stable catalog name, transforms, and primary camera values live in the declarative `Scene` records in `tests/library/current_chunk_golden_scenes.cpp`. The primary image keeps the fixture's base name; additional viewpoints use `_view_2`, `_view_3`, and `_view_4` suffixes.
 
 - `solid_cube_boundary`: solid-neighborhood face occlusion across the boundary between Chunk `(0,0,0)` and `(1,0,0)`.
 - `slab_partial_occlusion`: slab against a cube, an empty neighbor, and a vertically flipped slab.
@@ -33,4 +33,4 @@ Exact cells, Definition IDs by stable catalog name, transforms, and camera value
 - `materials_and_vegetation`: grass/dirt/stone atlas slots and crossed vegetation planes, including horizontal orientation.
 - `seeded_debug_chunks`: four generated Chunks at `(-1,0,-1)`, `(0,0,-1)`, `(-1,0,0)`, `(0,0,0)` using seed `0xE7E11A`.
 
-The sensitivity sequence uses `solid_cube_boundary`, changes only the first baked vertex's U coordinate by `+0.25` in a test-owned mesh copy, verifies a mismatch and preserved actual/difference artifacts, then renders the unmodified production output again and verifies a match.
+The sensitivity sequence uses view 1 of `solid_cube_boundary`, collapses all UVs of the first baked Chunk mesh to `(0,0)` in a test-owned mesh copy, verifies a mismatch and preserved actual/difference artifacts, then renders the unmodified production output again and verifies a match.
