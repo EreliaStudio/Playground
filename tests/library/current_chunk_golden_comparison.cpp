@@ -36,6 +36,12 @@ namespace playground_test::golden
 			std::cerr << "Proposed expected image: " << candidate << '\n';
 		}
 
+		std::string viewName(std::string_view name, std::size_t viewIndex)
+		{
+			if (viewIndex == 0) return std::string(name);
+			return std::string(name) + "_view_" + std::to_string(viewIndex + 1);
+		}
+
 		bool compareCandidate(std::string_view name, const std::filesystem::path &actual)
 		{
 			const auto expected = sparkle_test::expectedImagePath(Category, std::string(name));
@@ -59,16 +65,29 @@ namespace playground_test::golden
 
 	bool compareScene(std::string_view name)
 	{
-		const auto actual = sparkle_test::resultImagePath(Category, std::string(name) + "_actual");
-		renderScene(scene(name), actual);
-		return compareCandidate(name, actual);
+		const auto &fixture = scene(name);
+		bool matches = true;
+		for (std::size_t viewIndex = 0; viewIndex < ViewCount; ++viewIndex)
+		{
+			const std::string candidateName = viewName(name, viewIndex);
+			const auto actual = sparkle_test::resultImagePath(Category, candidateName + "_actual");
+			renderScene(fixture, viewIndex, actual);
+			if (!compareCandidate(candidateName, actual)) matches = false;
+		}
+		return matches;
 	}
 
 	bool compareSeededScene()
 	{
-		const auto actual = sparkle_test::resultImagePath(Category, "seeded_debug_chunks_actual");
-		renderSeededScene(actual);
-		return compareCandidate("seeded_debug_chunks", actual);
+		bool matches = true;
+		for (std::size_t viewIndex = 0; viewIndex < ViewCount; ++viewIndex)
+		{
+			const std::string candidateName = viewName("seeded_debug_chunks", viewIndex);
+			const auto actual = sparkle_test::resultImagePath(Category, candidateName + "_actual");
+			renderSeededScene(viewIndex, actual);
+			if (!compareCandidate(candidateName, actual)) matches = false;
+		}
+		return matches;
 	}
 
 	void proveUvSensitivity()
@@ -79,18 +98,18 @@ namespace playground_test::golden
 		const auto altered = sparkle_test::resultImagePath("sensitivity", "altered_uv_actual");
 		const auto restored = sparkle_test::resultImagePath("sensitivity", "restored_actual");
 		const auto difference = sparkle_test::resultImagePath("sensitivity", "altered_uv_difference");
-		renderScene(fixture, unchanged);
+		renderScene(fixture, 0, unchanged);
 		std::filesystem::create_directories(temporaryReference.parent_path());
 		std::filesystem::copy_file(unchanged, temporaryReference, std::filesystem::copy_options::overwrite_existing);
 		require(sparkle_test::compareImages(unchanged, temporaryReference,
 			sparkle_test::resultImagePath("sensitivity", "unchanged_difference"), comparisonOptions()).matches,
 			"unchanged sensitivity fixture did not match");
-		renderScene(fixture, altered, true);
+		renderScene(fixture, 0, altered, true);
 		require(!sparkle_test::compareImages(altered, temporaryReference, difference, comparisonOptions()).matches,
 			"controlled UV alteration was not detected");
 		require(std::filesystem::is_regular_file(altered) && std::filesystem::is_regular_file(difference),
 			"UV mismatch artifacts were not preserved");
-		renderScene(fixture, restored);
+		renderScene(fixture, 0, restored);
 		require(sparkle_test::compareImages(restored, temporaryReference,
 			sparkle_test::resultImagePath("sensitivity", "restored_difference"), comparisonOptions()).matches,
 			"restored sensitivity fixture did not match");
