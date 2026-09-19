@@ -68,7 +68,10 @@ namespace playground_test::golden
 		{
 			std::vector<voxel::Chunk::Coordinate> result;
 			for (const auto &cell : fixture.cells)
-				if (std::ranges::find(result, cell.chunk) == result.end()) result.push_back(cell.chunk);
+			{
+				const auto matchingCoordinate = [&cell](const voxel::Chunk::Coordinate &coordinate) { return coordinate == cell.chunk; };
+				if (std::ranges::find_if(result, matchingCoordinate) == result.end()) result.push_back(cell.chunk);
+			}
 			return result;
 		}
 
