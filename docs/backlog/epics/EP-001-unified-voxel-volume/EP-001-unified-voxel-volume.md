@@ -105,7 +105,7 @@ Additional integration invariants:
 
 ## Rendering validation
 
-Graphical tickets use deterministic `512 × 512` Sparkle TestLibrary comparisons. Structural refactors preserve reviewed baselines. Intentional visual migrations retain old references until actual/difference images receive human approval, then create a versioned baseline.
+Graphical tickets use deterministic `512 × 512` Sparkle TestLibrary comparisons unless a resolved fixture decision records a component limitation. [OD-024](../../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) fixes ST-001-01 at the installed context's `640 × 480`. Structural refactors preserve reviewed baselines. Intentional visual migrations retain old references until actual/difference images receive human approval, then create a versioned baseline.
 
 ## Required user-provided inputs
 

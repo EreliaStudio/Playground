@@ -116,54 +116,7 @@ add_custom_command(TARGET Playground POST_BUILD
 #
 
 if(BUILD_TESTING)
-    add_executable(voxel_world_tests
-        tests/voxel_world_tests.cpp
-    )
-
-    target_link_libraries(voxel_world_tests PRIVATE
-        PlaygroundCore
-    )
-
-    target_compile_definitions(voxel_world_tests PRIVATE
-        VOXEL_TEST_RESOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/voxels"
-    )
-
-    configure_debug_symbols(voxel_world_tests)
-
-    add_test(
-        NAME voxel_world_tests
-        COMMAND voxel_world_tests
-    )
-
-    add_executable(first_person_controller_tests
-        tests/first_person_controller_tests.cpp
-    )
-
-    target_link_libraries(first_person_controller_tests PRIVATE
-        PlaygroundCore
-    )
-
-    configure_debug_symbols(first_person_controller_tests)
-
-    add_test(
-        NAME first_person_controller_tests
-        COMMAND first_person_controller_tests
-    )
-
-    add_executable(camera_tests
-        tests/camera_tests.cpp
-    )
-
-    target_link_libraries(camera_tests PRIVATE
-        PlaygroundCore
-    )
-
-    configure_debug_symbols(camera_tests)
-
-    add_test(
-        NAME camera_tests
-        COMMAND camera_tests
-    )
+    add_subdirectory(tests)
 endif()
 
 #

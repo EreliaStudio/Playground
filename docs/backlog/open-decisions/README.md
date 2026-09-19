@@ -27,3 +27,4 @@ Decision records are persistent architecture/design history. Resolve a decision 
 | [OD-021](OD-021-serialized-derivative-mesh-cache-versus-rebuild-on-load.md) | Open | Serialized derivative mesh cache versus rebuild on load. |
 | [OD-022](OD-022-assembly-anchor-and-animation-authoring-source.md) | Open | Assembly anchor and animation authoring source. |
 | [OD-023](OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) | Open | Whether Cell orientation and flip must be expanded. |
+| [OD-024](OD-024-current-chunk-golden-fixtures-and-runner.md) | Resolved | Current Chunk golden fixtures, capture size, and canonical runner. |

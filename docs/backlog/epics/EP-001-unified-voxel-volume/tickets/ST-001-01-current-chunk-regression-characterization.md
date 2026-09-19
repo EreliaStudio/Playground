@@ -79,7 +79,7 @@ The operation validates identity, ownership, bounds, and dependency precondition
 
 ### Rendering / golden images
 
-- [ ] Render the deterministic fixture at `512 × 512`; compare against its reviewed PNG with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
+- [ ] Render the deterministic fixtures at `640 × 480` as resolved by OD-024; compare against their reviewed PNGs with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
 - [ ] Assert semantic geometry/material/transform values independently of the PNG comparison.
 
 ## Rendering impact
@@ -90,6 +90,7 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 
 - [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
 - [OD-023](../../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-024](../../../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) — Resolved: several focused scenes plus one seeded multi-Chunk scene, the installed component's fixed `640 × 480` framebuffer, and GitHub Actions `windows-2025`.
 
 ## Completion evidence
 
