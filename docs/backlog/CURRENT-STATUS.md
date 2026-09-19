@@ -2,9 +2,9 @@
 
 **Last updated:** 19 September 2026
 
-**Baseline branch/state:** `main` at `610b41ab988654494c38312c30cac70f9ce6dd07`
+**Implementation base:** `main` at `610b41ab988654494c38312c30cac70f9ce6dd07`
 
-**Active implementation branch:** `feat/chunk-voxel-volume-migration`
+**Delivery:** [PR #4](https://github.com/EreliaStudio/Playground/pull/4) from `feat/chunk-voxel-volume-migration`
 
 **Current horizon:** H0 — Foundations and visual validation
 
