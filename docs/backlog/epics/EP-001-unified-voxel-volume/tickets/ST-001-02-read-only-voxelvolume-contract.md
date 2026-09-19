@@ -1,6 +1,6 @@
 # ST-001-02 — Read-only VoxelVolume contract
 
-**Status:** In implementation until focused tests and the existing regression suite pass
+**Status:** Complete
 
 ## Intent
 
@@ -38,17 +38,17 @@ Introduce the smallest common owning volume and read contract required by later 
 
 ## Behavioral acceptance
 
-- [ ] Runtime dimensions and uniform voxel size are returned exactly.
-- [ ] A valid first, interior, and last coordinate returns the expected `Voxel::Cell`.
-- [ ] Every negative and one-step-past coordinate is rejected with `std::out_of_range` and cannot alias valid storage.
-- [ ] The read-only span contains exactly `x × y × z` cells in the documented order.
-- [ ] Zero in any dimension is rejected with `std::invalid_argument`.
-- [ ] Zero, negative, infinite, and NaN voxel sizes are rejected with `std::invalid_argument`.
-- [ ] Local minimum is zero and local maximum equals `dimensions × voxelSize`.
-- [ ] Changing voxel size changes physical bounds without changing dimensions, topology, or packed cell IDs.
-- [ ] All focused tests run without creating a Window or OpenGL context.
-- [ ] Existing CPU/headless tests remain green.
-- [ ] Existing current-Chunk golden tests remain green on the supported runner; no reference or tolerance is changed.
+- [x] Runtime dimensions and uniform voxel size are returned exactly.
+- [x] A valid first, interior, and last coordinate returns the expected `Voxel::Cell`.
+- [x] Every negative and one-step-past coordinate is rejected with `std::out_of_range` and cannot alias valid storage.
+- [x] The read-only span contains exactly `x × y × z` cells in the documented order.
+- [x] Zero in any dimension is rejected with `std::invalid_argument`.
+- [x] Zero, negative, infinite, and NaN voxel sizes are rejected with `std::invalid_argument`.
+- [x] Local minimum is zero and local maximum equals `dimensions × voxelSize`.
+- [x] Changing voxel size changes physical bounds without changing dimensions, topology, or packed cell IDs.
+- [x] All focused tests run without creating a Window or OpenGL context.
+- [x] Existing CPU/headless tests remain green.
+- [x] Existing current-Chunk golden tests remain green on the supported runner; no reference or tolerance is changed.
 
 ## Rendering impact
 
@@ -61,7 +61,10 @@ None. This ticket adds headless data behavior only. The existing GPU suite is a 
 
 ## Completion evidence
 
-- Focused GoogleTest files grouped into metadata/validation and access/topology behavior.
-- Passing CPU/headless suite and supported Windows/OpenGL golden suite.
-- No modified PNG references or broadened comparison tolerances.
-- OD-011/OD-023 provenance and current project status updated in the implementation commit.
+- `tests/voxel_volume_metadata_tests.cpp`: dimensions, scale, default empty storage, bounds, and invalid construction.
+- `tests/voxel_volume_access_tests.cpp`: first/interior/last access, span order, out-of-range rejection, and scale-independent topology/IDs.
+- Local focused run: 6/6 GoogleTests passed without Window/OpenGL initialization.
+- Remote implementation commit: `d00e467c29ac907c1ef2e8f2cf41aaf081454624`.
+- [CI run 35460049379](https://github.com/EreliaStudio/Playground/actions/runs/35460049379): `CPU/headless tests` and `Windows/OpenGL golden candidates` both passed.
+- No PNG reference, comparison tolerance, texture, UV, Chunk implementation, or rendering code changed.
+- OD-011/OD-023 provenance and current project status were updated with the implementation.

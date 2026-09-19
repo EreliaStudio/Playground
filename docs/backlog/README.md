@@ -1,6 +1,6 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
-> **Current position:** The installed test harness and reviewed current textured Chunk baseline are complete. ST-001-02 implements the read-only `VoxelVolume` contract; see [Erelia Implementation Status](CURRENT-STATUS.md).
+> **Current position:** The installed test harness, reviewed current textured Chunk baseline, and ST-001-02 `VoxelVolume` contract are complete. ST-001-03 Chunk inheritance/storage migration is next; see [Erelia Implementation Status](CURRENT-STATUS.md).
 
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 

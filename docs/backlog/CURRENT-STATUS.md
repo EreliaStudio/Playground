@@ -8,7 +8,7 @@
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** ST-001-02 — Read-only VoxelVolume contract.
+**Current checkpoint:** ST-001-03 — Chunk inheritance/storage migration.
 
 This is the living answer to:
 
@@ -34,8 +34,8 @@ Sparkle::TestLibrary export                        ✅
 Playground TestLibrary consumption                 ✅
 Prebuilt Sparkle package consumption               ✅
 Current Chunk semantic + golden baseline           ✅
-Read-only VoxelVolume contract                     🟡 CURRENT
-Chunk inheritance / storage migration              ⬜ NEXT
+Read-only VoxelVolume contract                     ✅
+Chunk inheritance / storage migration              🟡 CURRENT
 Runtime-sized VoxelModel                           ⬜
 VoxelMesher structural extraction                  ⬜
 Palette rendering migration                        ⬜
@@ -74,34 +74,35 @@ VS-001 first playable                              🔭
 - ✅ OD-011 selects one concrete vector-owning `VoxelVolume` base and explicitly accepts replacing Chunk's fixed array during ST-001-03.
 - ✅ OD-023 preserves the existing packed Cell orientation/vertical-flip representation until evidence justifies a separate expansion decision.
 
+### ST-001-02 — Read-only VoxelVolume contract
+
+- ✅ `VoxelVolume` owns runtime-sized, zero-initialized `std::vector<Voxel::Cell>` storage.
+- ✅ Runtime dimensions, finite positive uniform voxel size, checked coordinate access, read-only span access, and origin-based local bounds are implemented.
+- ✅ Public access is read-only; protected checked mutation is available to later semantic derived types.
+- ✅ Six focused headless GoogleTests cover metadata/validation and access/topology behavior.
+- ✅ Branch [CI run 35460049379](https://github.com/EreliaStudio/Playground/actions/runs/35460049379) passed both complete lanes for remote commit `d00e467`.
+- ✅ No approved golden reference, tolerance, texture, UV, Chunk implementation, or rendering output changed.
+
 ## Current implementation checkpoint
 
-### 🟡 ST-001-02 — Read-only VoxelVolume contract
+### 🟡 ST-001-03 — Chunk adapter/specialization
 
-The active branch introduces the concrete owner selected in OD-011:
+The next implementation must:
 
-- runtime dimensions and finite positive uniform voxel size;
-- vector-owned, zero-initialized `Voxel::Cell` storage;
-- checked `at(Vector3Int)` and read-only `cells()` span;
-- origin-based local bounds;
-- protected checked mutation for later semantic derived types;
-- focused headless access, validation, bounds, and topology tests.
+- derive/adapt `Chunk` to `VoxelVolume` and construct the base as `16×16×16` at scale `1.0`;
+- remove Chunk's duplicate fixed array and use the base-owned vector approved in OD-011;
+- adapt `Chunk::Editor` to protected checked mutation;
+- preserve current coordinate/index order, version invalidation, Collection, generator, baker, scheduler, and renderer behavior;
+- pass the complete CPU/headless suite and all 20 approved golden comparisons without changing references or tolerances.
 
-### Exit condition for the current checkpoint
-
-- [ ] Focused VoxelVolume tests compile and pass.
-- [ ] The complete CPU/headless suite remains green.
-- [ ] The supported Windows/OpenGL suite passes all 20 existing references.
-- [ ] No approved PNG or comparison tolerance changes.
-- [x] OD-011 and OD-023 contain the selected decisions and provenance.
-- [x] EP-001 ticket responsibilities and acceptance criteria match the selected architecture.
+No unresolved decision currently blocks this ticket. Any new observable ambiguity becomes an Open Decision rather than an improvised implementation.
 
 ## Next implementation sequence
 
 | Order | Status | Work | Why it comes here |
 |---:|---|---|---|
-| 1 | 🟡 | [ST-001-02](epics/EP-001-unified-voxel-volume/tickets/ST-001-02-read-only-voxelvolume-contract.md) — owning VoxelVolume/read contract | Establishes common validated storage and access. |
-| 2 | ⬜ | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage migration | Makes Chunk construct VoxelVolume as 16³ at scale 1.0, removes duplicate storage, and proves unchanged output. |
+| 1 | ✅ | [ST-001-02](epics/EP-001-unified-voxel-volume/tickets/ST-001-02-read-only-voxelvolume-contract.md) — owning VoxelVolume/read contract | Common validated storage and access are implemented and passing. |
+| 2 | 🟡 | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage migration | Makes Chunk construct VoxelVolume as 16³ at scale 1.0, removes duplicate storage, and proves unchanged output. |
 | 3 | ⬜ | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel semantic type | Adds the model-specific construction/editing boundary over common storage. |
 | 4 | ⬜ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) through ST-032-03 | Extracts semantic parity, Shape expansion, and generic OcclusionResolver. |
 | 5 | ⬜ | [ST-004-02](epics/EP-004-chunk-world-generation/tickets/ST-004-02-chunk-occlusion-resolver.md) and Chunk mesher integration | Restores cross-Chunk occlusion outside the generic mesher. |
