@@ -21,6 +21,7 @@ namespace voxel
 	}
 
 	Chunk::Chunk(Coordinate coordinate) :
+		VoxelVolume({Size, Size, Size}, 1.0f),
 		_coordinate(coordinate)
 	{
 	}
@@ -37,15 +38,6 @@ namespace voxel
 			throw std::out_of_range("chunk local coordinate is out of range");
 		}
 		return static_cast<std::size_t>((local.y * Size + local.z) * Size + local.x);
-	}
-
-	Voxel::Cell Chunk::at(spk::Vector3Int local) const
-	{
-		return _cells[index(local)];
-	}
-	Chunk::Editor Chunk::edit()
-	{
-		return Editor(*this);
 	}
 
 	Chunk::Coordinate Chunk::worldToChunk(spk::Vector3Int world) noexcept

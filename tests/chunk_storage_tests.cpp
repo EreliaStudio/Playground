@@ -1,6 +1,8 @@
 #include "voxel/chunk.hpp"
 
+#include <exception.hpp>
 #include <gtest/gtest.h>
+#include <type_traits>
 
 TEST(ChunkStorageTest, HasFixedDimensionsAndCoordinateIndexing)
 {
@@ -11,6 +13,19 @@ TEST(ChunkStorageTest, HasFixedDimensionsAndCoordinateIndexing)
 	EXPECT_EQ(voxel::Chunk::index({0, 0, 1}), 16);
 	EXPECT_EQ(voxel::Chunk::index({0, 1, 0}), 256);
 	EXPECT_EQ(voxel::Chunk::index({15, 15, 15}), 4095);
+}
+
+TEST(ChunkStorageTest, ExposesFixedVolumeMetadata)
+{
+	static_assert(std::is_base_of_v<voxel::VoxelVolume, voxel::Chunk>);
+	const voxel::Chunk chunk({2, -1, 3});
+	const auto bounds = chunk.localBounds();
+
+	EXPECT_EQ(chunk.dimensions(), spk::Vector3UInt(16, 16, 16));
+	EXPECT_FLOAT_EQ(chunk.voxelSize(), 1.0f);
+	EXPECT_EQ(chunk.cells().size(), voxel::Chunk::CellCount);
+	EXPECT_EQ(bounds.minimum, spk::Vector3());
+	EXPECT_EQ(bounds.maximum, spk::Vector3(16.0f, 16.0f, 16.0f));
 }
 
 TEST(ChunkStorageTest, RejectsCoordinatesOutsideChunk)
@@ -34,6 +49,9 @@ TEST(ChunkStorageTest, RetrievesFirstAndLastCellsAndRejectsOutsideAccess)
 	}
 	EXPECT_EQ(chunk.at({0, 0, 0}), first);
 	EXPECT_EQ(chunk.at({15, 15, 15}), last);
+	EXPECT_EQ(chunk.cells().front(), first);
 	EXPECT_EQ(chunk.cells()[voxel::Chunk::index({15, 15, 15})], last);
-	EXPECT_THROW(static_cast<void>(chunk.at({16, 0, 0})), std::out_of_range);
+	EXPECT_EQ(chunk.cells().back(), last);
+	EXPECT_EQ(chunk.at({15, 15, 15}).packed(), last.packed());
+	EXPECT_THROW(static_cast<void>(chunk.at({16, 0, 0})), spk::Exception);
 }
