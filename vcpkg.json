@@ -4,12 +4,8 @@
   "version-string": "0.1.0",
   "description": "Playground executable consuming the installed Sparkle package",
   "dependencies": [
+    "glew",
     "gtest",
-    {
-      "name": "sparkle",
-      "features": [
-        "test-library"
-      ]
-    }
+    "opengl"
   ]
 }

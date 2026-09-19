@@ -17,7 +17,7 @@ defaults:
     shell: pwsh
 
 env:
-  VCPKG_DEFAULT_TRIPLET: x64-windows-static
+  VCPKG_DEFAULT_TRIPLET: x64-windows-static-release
   VCPKG_DEFAULT_HOST_TRIPLET: x64-windows-static
   GALLIUM_DRIVER: llvmpipe
   MESA_GL_VERSION_OVERRIDE: '4.6'
@@ -32,28 +32,35 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: Playground
-      - uses: actions/checkout@v4
-        with:
-          repository: EreliaStudio/Sparkle
-          ref: Version0.1.1
-          path: Sparkle
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
+      - name: Download pinned Sparkle package
+        working-directory: Playground
+        run: ./tools/ci/install-sparkle-package.ps1 -Destination build/dependencies/sparkle
       - name: Clean configure with installed Sparkle TestLibrary feature
         working-directory: Playground
-        run: >-
-          cmake -S . -B build/ci -G Ninja
-          -DCMAKE_CXX_COMPILER=clang-cl
-          -DCMAKE_BUILD_TYPE=Release
-          '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
-          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static
-          -DVCPKG_OVERLAY_PORTS="$env:GITHUB_WORKSPACE/Sparkle/ports"
-          -DBUILD_TESTING=ON
+        run: |
+          & cmake -S . -B build/ci -G Ninja `
+            -DCMAKE_CXX_COMPILER=clang-cl `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static-release `
+            -DVCPKG_OVERLAY_TRIPLETS="$pwd/tools/ci/triplets" `
+            -DCMAKE_PREFIX_PATH="$env:SPARKLE_PREFIX" `
+            -DBUILD_TESTING=ON 2>&1 | Tee-Object ci-configure.log
+          if ($LASTEXITCODE -ne 0) { throw 'Playground configure failed' }
       - name: Build CPU/headless tests
         working-directory: Playground
         run: cmake --build build/ci --target PlaygroundTest --parallel 4
+      - name: Verify prebuilt Sparkle consumption
+        working-directory: Playground
+        run: >-
+          ./tools/ci/verify-prebuilt-sparkle.ps1
+          -BuildDirectory build/ci
+          -Prefix $env:SPARKLE_PREFIX
+          -ConfigureLog ci-configure.log
       - name: Run without OpenGL initialization
         working-directory: Playground
         run: ctest --test-dir build/ci --output-on-failure --no-tests=error -L cpu --output-junit cpu-results.xml
@@ -77,6 +84,7 @@ jobs:
           path: |
             Playground/build/ci/Testing
             Playground/build/ci/cpu-results.xml
+            Playground/ci-configure.log
             Playground/build/ci/CMakeFiles/CMakeConfigureLog.yaml
 
   gpu-golden-tests:
@@ -87,30 +95,37 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: Playground
-      - uses: actions/checkout@v4
-        with:
-          repository: EreliaStudio/Sparkle
-          ref: Version0.1.1
-          path: Sparkle
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
+      - name: Download pinned Sparkle package
+        working-directory: Playground
+        run: ./tools/ci/install-sparkle-package.ps1 -Destination build/dependencies/sparkle
       - name: Clean configure
         working-directory: Playground
-        run: >-
-          cmake -S . -B build/ci -G Ninja
-          -DCMAKE_CXX_COMPILER=clang-cl
-          -DCMAKE_BUILD_TYPE=Release
-          '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
-          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static
-          -DVCPKG_OVERLAY_PORTS="$env:GITHUB_WORKSPACE/Sparkle/ports"
-          -DBUILD_TESTING=ON
+        run: |
+          & cmake -S . -B build/ci -G Ninja `
+            -DCMAKE_CXX_COMPILER=clang-cl `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static-release `
+            -DVCPKG_OVERLAY_TRIPLETS="$pwd/tools/ci/triplets" `
+            -DCMAKE_PREFIX_PATH="$env:SPARKLE_PREFIX" `
+            -DBUILD_TESTING=ON 2>&1 | Tee-Object ci-configure.log
+          if ($LASTEXITCODE -ne 0) { throw 'Playground configure failed' }
       - name: Build GPU test
         working-directory: Playground
         run: cmake --build build/ci --target PlaygroundTest --parallel 4
+      - name: Verify prebuilt Sparkle consumption
+        working-directory: Playground
+        run: >-
+          ./tools/ci/verify-prebuilt-sparkle.ps1
+          -BuildDirectory build/ci
+          -Prefix $env:SPARKLE_PREFIX
+          -ConfigureLog ci-configure.log
       - name: Install canonical software OpenGL
-        run: ./Sparkle/tools/ci/install-mesa.ps1 -Destination Playground/build/ci/tests
+        run: ./Playground/tools/ci/install-mesa.ps1 -Destination Playground/build/ci/tests
       - name: Run GPU capture, comparison, and sensitivity gate
         working-directory: Playground
         run: ctest --test-dir build/ci --output-on-failure --no-tests=error -L gpu --output-junit gpu-results.xml
@@ -131,6 +146,7 @@ jobs:
             Playground/build/ci/tests/results
             Playground/build/ci/Testing
             Playground/build/ci/gpu-results.xml
+            Playground/ci-configure.log
             Playground/build/ci/CMakeFiles/CMakeConfigureLog.yaml
           if-no-files-found: error
           retention-days: 30
