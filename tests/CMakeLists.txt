@@ -66,6 +66,7 @@ target_compile_definitions(PlaygroundTestLibrary PRIVATE
     VOXEL_TEST_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/resources"
     PLAYGROUND_TEST_RESOURCE_DIR="${PLAYGROUND_TEST_SOURCE_DIR}/resources"
     PLAYGROUND_TEST_RESULT_DIR="${CMAKE_CURRENT_BINARY_DIR}/results"
+    PLAYGROUND_TEST_EXPECTED_CANDIDATE_DIR="${CMAKE_CURRENT_BINARY_DIR}/expectedImages"
 )
 
 set_target_properties(PlaygroundTestLibrary PROPERTIES
