@@ -57,12 +57,84 @@ jobs:
       - name: Run without OpenGL initialization
         working-directory: Playground
         run: ctest --test-dir build/ci --output-on-failure --no-tests=error -L cpu --output-junit cpu-results.xml
-      - name: Prove no Sparkle source/build path is embedded
+      - name: Prove Sparkle has no runtime DLL dependency
         working-directory: Playground
         run: |
-          $matches = Get-ChildItem build/ci -Recurse -File -Include *.exe,*.dll,*.lib |
-            Select-String -SimpleMatch "$env:GITHUB_WORKSPACE\Sparkle" -ErrorAction SilentlyContinue
-          if ($matches) { throw 'Sparkle source/build path was embedded in a Playground binary' }
+          $executables = Get-ChildItem build/ci -Recurse -File -Filter *.exe
+          if (-not $executables) { throw 'No Playground executable was produced' }
+          foreach ($executable in $executables) {
+            $dependencies = (& dumpbin /dependents $executable.FullName | Out-String)
+            if ($LASTEXITCODE -ne 0) { throw "dumpbin failed for $($executable.FullName)" }
+            if ($dependencies -match '(?im)^\s*Sparkle.*\.dll\s*
+      - name: Upload CPU diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpu-headless-results
+          path: |
+            Playground/build/ci/Testing
+            Playground/build/ci/cpu-results.xml
+            Playground/build/ci/CMakeFiles/CMakeConfigureLog.yaml
+
+  gpu-golden-tests:
+    name: Windows/OpenGL golden candidates
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: Playground
+      - uses: actions/checkout@v4
+        with:
+          repository: EreliaStudio/Sparkle
+          ref: Version0.1.1
+          path: Sparkle
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Clean configure
+        working-directory: Playground
+        run: >-
+          cmake -S . -B build/ci -G Ninja
+          -DCMAKE_CXX_COMPILER=clang-cl
+          -DCMAKE_BUILD_TYPE=Release
+          '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          -DVCPKG_OVERLAY_PORTS="$env:GITHUB_WORKSPACE/Sparkle/ports"
+          -DBUILD_TESTING=ON
+      - name: Build GPU test
+        working-directory: Playground
+        run: cmake --build build/ci --target PlaygroundTest --parallel 4
+      - name: Install canonical software OpenGL
+        run: ./Sparkle/tools/ci/install-mesa.ps1 -Destination Playground/build/ci/tests
+      - name: Run GPU capture, comparison, and sensitivity gate
+        working-directory: Playground
+        run: ctest --test-dir build/ci --output-on-failure --no-tests=error -L gpu --output-junit gpu-results.xml
+      - name: Upload proposed expected images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-chunk-expected-candidates
+          path: Playground/build/ci/tests/expectedImages
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload actual images and differences
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-chunk-visual-results
+          path: |
+            Playground/build/ci/tests/results
+            Playground/build/ci/Testing
+            Playground/build/ci/gpu-results.xml
+            Playground/build/ci/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: error
+          retention-days: 30
+) {
+              throw "Unexpected Sparkle runtime DLL dependency in $($executable.FullName)"
+            }
+          }
       - name: Upload CPU diagnostics
         if: always()
         uses: actions/upload-artifact@v4
