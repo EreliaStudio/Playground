@@ -32,15 +32,13 @@ Make current Chunk derive from/use the resolved concrete `VoxelVolume` contract 
 
 ## Behavioral acceptance
 
-- [ ] Chunk reports dimensions `16 × 16 × 16`, voxel size `1.0`, and local bounds `[0,16]³` through `VoxelVolume`.
-- [ ] First, interior, and last Chunk cells match the same coordinates and span positions as before migration.
-- [ ] Existing packed Cell ID/orientation/flip values round-trip byte-for-byte.
-- [ ] Invalid local coordinates remain rejected without aliasing storage.
-- [ ] `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`, with the same `set`/`commit` call API and exactly one invalidation for a changed session.
-- [ ] Inherited access/editor rejection uses `spk::Exception` with the stable VoxelVolume diagnostic message and source location.
-- [ ] Chunk world/local conversion, Collection, generation, baking, and scheduling CPU tests remain green.
-- [ ] All 20 approved current textured Chunk golden comparisons remain green on the supported runner.
-- [ ] No approved reference, comparison tolerance, texture, or UV is changed.
+- [x] Chunk reports dimensions `16 × 16 × 16`, voxel size `1.0`, and local bounds `[0,16]³` through `VoxelVolume`.
+- [x] Chunk's static coordinate/index helpers retain the existing X-then-Z-then-Y order and rejection policy.
+- [x] No Chunk-owned storage, access, editor, versioning, or diagnostic behavior remains; those inherited contracts are tested once by ST-001-02 rather than duplicated in Chunk tests.
+- [x] A changed Chunk queues itself and every available face-neighbor for rebuild through the Chunk-owned BakeScheduler behavior.
+- [x] Chunk world/local conversion, Collection, generation, baking, and scheduling CPU tests remain green.
+- [x] All 20 approved current textured Chunk golden comparisons remain green on the supported runner.
+- [x] No approved reference, comparison tolerance, texture, or UV is changed.
 
 ## Rendering impact
 
@@ -53,7 +51,8 @@ No intentional visual impact. The existing 20-reference suite is mandatory regre
 
 ## Completion evidence
 
-- Focused Chunk/VoxelVolume integration tests.
-- Passing complete CPU/headless suite.
-- Passing supported Windows/OpenGL golden suite with unchanged reference hashes.
-- Implementation commit/PR and CI links.
+- Focused Chunk specialization/index tests in `tests/chunk_storage_tests.cpp`, with inherited behavior covered by the VoxelVolume test families.
+- Chunk-owned neighbor rebuild coverage in `tests/chunk_bake_scheduler_tests.cpp`.
+- Implementation commit [`27c095f`](https://github.com/EreliaStudio/Playground/commit/27c095f467cdb4bd1525aa5be81bccfab889b5fb).
+- Test-ownership refinement commit [`f3f855b`](https://github.com/EreliaStudio/Playground/commit/f3f855b71c67bfb96100bb09a3e52fbedd14683b).
+- PR #4 [CI run 35467461734](https://github.com/EreliaStudio/Playground/actions/runs/35467461734) passed the complete CPU/headless and supported Windows/OpenGL golden suites without reference or tolerance changes.

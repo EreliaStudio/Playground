@@ -1,17 +1,13 @@
 #pragma once
 
-#include <array>
 #include <compare>
 #include <cstdint>
-#include <span>
 
-#include <sparkle>
-
-#include "voxel/voxel_cell.hpp"
+#include "voxel/voxel_volume.hpp"
 
 namespace voxel
 {
-	class Chunk final : public spk::VersionedTrait
+	class Chunk final : public VoxelVolume
 	{
 	public:
 		static constexpr std::int32_t Size = 16;
@@ -26,7 +22,6 @@ namespace voxel
 		};
 
 		struct CoordinateHash;
-		class Editor;
 		class Collection;
 		class Generator;
 		class DebugGenerator;
@@ -38,7 +33,6 @@ namespace voxel
 
 	private:
 		Coordinate _coordinate;
-		std::array<Voxel::Cell, CellCount> _cells{};
 
 	public:
 		explicit Chunk(Coordinate coordinate);
@@ -47,14 +41,6 @@ namespace voxel
 		{
 			return _coordinate;
 		}
-		[[nodiscard]] Voxel::Cell at(spk::Vector3Int local) const;
-		[[nodiscard]] std::span<const Voxel::Cell> cells() const noexcept
-		{
-			return _cells;
-		}
-
-		[[nodiscard]] Editor edit();
-
 		[[nodiscard]] static bool contains(spk::Vector3Int local) noexcept;
 		[[nodiscard]] static std::size_t index(spk::Vector3Int local);
 
@@ -63,5 +49,3 @@ namespace voxel
 		[[nodiscard]] static spk::Vector3Int worldOrigin(Coordinate coordinate) noexcept;
 	};
 }
-
-#include "voxel/chunk_editor.hpp"

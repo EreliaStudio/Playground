@@ -2,13 +2,13 @@
 
 **Last updated:** 19 September 2026
 
-**Baseline branch/state:** `main` at `0bd12e5053e482fd6a4f1a4f2a843279627f2306`
+**Implementation base:** `main` at `610b41ab988654494c38312c30cac70f9ce6dd07`
 
-**Active implementation branch:** `feat/voxel-volume-contract`
+**Delivery:** [PR #4](https://github.com/EreliaStudio/Playground/pull/4) from `feat/chunk-voxel-volume-migration`
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** ST-001-03 — Chunk inheritance/storage/editor migration.
+**Current checkpoint:** ST-001-04 — Runtime-sized VoxelModel storage.
 
 This is the living answer to:
 
@@ -35,8 +35,8 @@ Playground TestLibrary consumption                 ✅
 Prebuilt Sparkle package consumption               ✅
 Current Chunk semantic + golden baseline           ✅
 VoxelVolume contract + batched editor/versioning   ✅
-Chunk inheritance / storage/editor migration       🟡 CURRENT
-Runtime-sized VoxelModel                           ⬜
+Chunk inheritance / storage/editor migration       ✅
+Runtime-sized VoxelModel                           🟡 CURRENT
 VoxelMesher structural extraction                  ⬜
 Palette rendering migration                        ⬜
 VS-000 unified voxel visual validation             ⬜
@@ -87,17 +87,30 @@ VS-001 first playable                              🔭
 - ✅ Sparkle-exception refinement [CI run 35463284473](https://github.com/EreliaStudio/Playground/actions/runs/35463284473) passed both complete lanes for remote commit `7b04ab2`.
 - ✅ No approved golden reference, tolerance, texture, UV, Chunk implementation, or rendering output changed.
 
+### ST-001-03 — Chunk adapter/specialization
+
+- ✅ `Chunk` now derives from `VoxelVolume` and constructs the shared storage as exactly `16×16×16` at voxel size `1.0`.
+- ✅ Chunk's duplicate fixed array, direct `VersionedTrait` inheritance, and duplicate editor implementation were removed.
+- ✅ `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`; changed and no-op sessions retain the established one-notification transaction behavior.
+- ✅ Chunk keeps its coordinate, world conversion, Collection, generation, baking, scheduling, and rendering responsibilities.
+- ✅ Focused Chunk tests cover the fixed constructor specialization and Chunk-owned coordinate/index behavior; inherited storage, access, editor, versioning, and diagnostics remain covered once by the VoxelVolume suites.
+- ✅ BakeScheduler coverage proves an edited Chunk queues itself and every available face-neighbor for rebuild.
+- ✅ Implementation commit: [`27c095f`](https://github.com/EreliaStudio/Playground/commit/27c095f467cdb4bd1525aa5be81bccfab889b5fb).
+- ✅ Test-ownership refinement commit: [`f3f855b`](https://github.com/EreliaStudio/Playground/commit/f3f855b71c67bfb96100bb09a3e52fbedd14683b).
+- ✅ PR #4 [CI run 35467461734](https://github.com/EreliaStudio/Playground/actions/runs/35467461734) passed both `CPU/headless tests` and `Windows/OpenGL golden candidates` for commit `f3f855b`.
+- ✅ No approved reference, comparison tolerance, texture, UV, or intended rendering output changed.
+
 ## Current implementation checkpoint
 
-### 🟡 ST-001-03 — Chunk adapter/specialization
+### 🟡 ST-001-04 — Runtime-sized VoxelModel storage
 
 The next implementation must:
 
-- derive/adapt `Chunk` to `VoxelVolume` and construct the base as `16×16×16` at scale `1.0`;
-- remove Chunk's duplicate fixed array and use the base-owned vector approved in OD-011;
-- remove Chunk's duplicate direct `VersionedTrait` and `Chunk::Editor` implementation in favor of inherited VoxelVolume behavior;
-- preserve current coordinate/index order, version invalidation, Collection, generator, baker, scheduler, and renderer behavior;
-- pass the complete CPU/headless suite and all 20 approved golden comparisons without changing references or tolerances.
+- introduce one semantic `VoxelModel` type with arbitrary valid runtime dimensions and uniform scale;
+- reuse the inherited `Voxel::Cell` storage, checked reads, bounds, editor, and version behavior without adding a model-specific mutation API;
+- prove representative `10×10×14`, `12×7×14`, and `32×32×22` models use the same C++ type;
+- prove an `8×8×16` model at scale `0.1` reports local bounds `0.8×0.8×1.6`;
+- remain headless and introduce no importer, serialization, rendering, Palette, GPU, transform, anchor, animation, or Chunk-world behavior.
 
 No unresolved decision currently blocks this ticket. Any new observable ambiguity becomes an Open Decision rather than an improvised implementation.
 
@@ -106,8 +119,8 @@ No unresolved decision currently blocks this ticket. Any new observable ambiguit
 | Order | Status | Work | Why it comes here |
 |---:|---|---|---|
 | 1 | ✅ | [ST-001-02](epics/EP-001-unified-voxel-volume/tickets/ST-001-02-read-only-voxelvolume-contract.md) — owning VoxelVolume/read/edit contract | Generic storage, reads, editing/versioning, Sparkle diagnostics, and both complete CI lanes are passing. |
-| 2 | 🟡 | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage/editor migration | Makes Chunk construct VoxelVolume as 16³ at scale 1.0, removes duplicate storage/editor/version behavior, and proves unchanged output. |
-| 3 | ⬜ | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel semantic type | Adds the model-specific construction/editing boundary over common storage. |
+| 2 | ✅ | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage/editor migration | Chunk now uses inherited 16³/1.0 storage, reads, editing, and versioning while retaining Chunk-only behavior and unchanged rendering. |
+| 3 | 🟡 | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel semantic type | Adds the model-specific construction/editing boundary over common storage. |
 | 4 | ⬜ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) through ST-032-03 | Extracts semantic parity, Shape expansion, and generic OcclusionResolver. |
 | 5 | ⬜ | [ST-004-02](epics/EP-004-chunk-world-generation/tickets/ST-004-02-chunk-occlusion-resolver.md) and Chunk mesher integration | Restores cross-Chunk occlusion outside the generic mesher. |
 | 6 | ⛔ | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) when profiling/parity evidence exists | Final optimization policy remains evidence-driven. |

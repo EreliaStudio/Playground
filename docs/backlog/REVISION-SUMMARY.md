@@ -59,7 +59,7 @@ A custom modeling application is no longer part of the required implementation. 
 
 The migration explicitly protects:
 
-- 16×16×16 Chunk semantics and fixed storage optimization;
+- fixed 16×16×16 Chunk semantics and coordinate/index order over shared VoxelVolume storage;
 - compact packed `Voxel::Cell` representation;
 - current normalized Shape JSON geometry;
 - cube, slab, slope, stair and crossed-plane content;

@@ -1,6 +1,8 @@
 #include "voxel/chunk.hpp"
 
 #include <gtest/gtest.h>
+#include <stdexcept>
+#include <type_traits>
 
 TEST(ChunkStorageTest, HasFixedDimensionsAndCoordinateIndexing)
 {
@@ -13,6 +15,18 @@ TEST(ChunkStorageTest, HasFixedDimensionsAndCoordinateIndexing)
 	EXPECT_EQ(voxel::Chunk::index({15, 15, 15}), 4095);
 }
 
+TEST(ChunkStorageTest, ExposesFixedVolumeMetadata)
+{
+	static_assert(std::is_base_of_v<voxel::VoxelVolume, voxel::Chunk>);
+	const voxel::Chunk chunk({2, -1, 3});
+	const auto bounds = chunk.localBounds();
+
+	EXPECT_EQ(chunk.dimensions(), spk::Vector3UInt(16, 16, 16));
+	EXPECT_FLOAT_EQ(chunk.voxelSize(), 1.0f);
+	EXPECT_EQ(bounds.minimum, spk::Vector3());
+	EXPECT_EQ(bounds.maximum, spk::Vector3(16.0f, 16.0f, 16.0f));
+}
+
 TEST(ChunkStorageTest, RejectsCoordinatesOutsideChunk)
 {
 	for (const auto outside : {spk::Vector3Int{-1, 0, 0}, {16, 0, 0}, {0, -1, 0}, {0, 16, 0}, {0, 0, -1}, {0, 0, 16}})
@@ -20,20 +34,4 @@ TEST(ChunkStorageTest, RejectsCoordinatesOutsideChunk)
 		EXPECT_FALSE(voxel::Chunk::contains(outside));
 		EXPECT_THROW(static_cast<void>(voxel::Chunk::index(outside)), std::out_of_range);
 	}
-}
-
-TEST(ChunkStorageTest, RetrievesFirstAndLastCellsAndRejectsOutsideAccess)
-{
-	voxel::Chunk chunk({2, -1, 3});
-	const voxel::Voxel::Cell first(7);
-	const voxel::Voxel::Cell last(9, voxel::Voxel::Orientation::PositiveX, voxel::Voxel::Flip::NegativeY);
-	{
-		auto editor = chunk.edit();
-		editor.set({0, 0, 0}, first);
-		editor.set({15, 15, 15}, last);
-	}
-	EXPECT_EQ(chunk.at({0, 0, 0}), first);
-	EXPECT_EQ(chunk.at({15, 15, 15}), last);
-	EXPECT_EQ(chunk.cells()[voxel::Chunk::index({15, 15, 15})], last);
-	EXPECT_THROW(static_cast<void>(chunk.at({16, 0, 0})), std::out_of_range);
 }
