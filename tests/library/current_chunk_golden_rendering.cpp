@@ -117,7 +117,7 @@ namespace playground_test::golden
 			<< "OpenGL version: " << reinterpret_cast<const char *>(::glGetString(GL_VERSION)) << '\n';
 	}
 
-	void renderScene(const Scene &fixture, const std::filesystem::path &path, bool alterFirstUv)
+	void renderScene(const Scene &fixture, std::size_t viewIndex, const std::filesystem::path &path, bool alterFirstUv)
 	{
 		auto catalog = loadCatalog();
 		voxel::Chunk::Collection chunks;
@@ -125,12 +125,12 @@ namespace playground_test::golden
 		auto &openGL = sparkle_test::OpenGLTestContext::instance();
 		prepareContext(openGL);
 		auto &context = openGL.renderContext();
-		configureCamera(fixture.camera, context);
+		configureCamera(fixture.cameras.at(viewIndex), context);
 		renderChunks(catalog, chunks, sceneCoordinates(fixture), context, alterFirstUv);
 		openGL.save(path);
 	}
 
-	void renderSeededScene(const std::filesystem::path &path)
+	void renderSeededScene(std::size_t viewIndex, const std::filesystem::path &path)
 	{
 		auto catalog = loadCatalog();
 		voxel::Chunk::Collection chunks;
@@ -140,7 +140,7 @@ namespace playground_test::golden
 		auto &openGL = sparkle_test::OpenGLTestContext::instance();
 		prepareContext(openGL);
 		auto &context = openGL.renderContext();
-		configureCamera({{26.0f, 24.0f, 31.0f}, {0.0f, 5.0f, 0.0f}, 0.90f, 0.1f, 150.0f}, context);
+		configureCamera(seededSceneCameras().at(viewIndex), context);
 		renderChunks(catalog, chunks, coordinates, context, false);
 		openGL.save(path);
 	}
