@@ -1,28 +1,28 @@
 #include "voxel/voxel_volume.hpp"
 
 #include <cmath>
+#include <exception.hpp>
 #include <limits>
-#include <stdexcept>
 
 namespace voxel
 {
 	std::size_t VoxelVolume::_cellCount(spk::Vector3UInt dimensions)
 	{
 		if (dimensions.x == 0 || dimensions.y == 0 || dimensions.z == 0)
-			throw std::invalid_argument("voxel volume dimensions must be positive");
+			throw spk::Exception("voxel volume dimensions must be positive");
 		constexpr auto maximum = std::numeric_limits<std::size_t>::max();
 		const auto width = static_cast<std::size_t>(dimensions.x);
 		const auto height = static_cast<std::size_t>(dimensions.y);
 		const auto depth = static_cast<std::size_t>(dimensions.z);
 		if (height > maximum / width || depth > maximum / (width * height))
-			throw std::length_error("voxel volume cell count is not representable");
+			throw spk::Exception("voxel volume cell count is not representable");
 		return width * height * depth;
 	}
 
 	float VoxelVolume::_validatedVoxelSize(float voxelSize)
 	{
 		if (!std::isfinite(voxelSize) || voxelSize <= 0.0f)
-			throw std::invalid_argument("voxel volume size must be finite and positive");
+			throw spk::Exception("voxel volume size must be finite and positive");
 		return voxelSize;
 	}
 
@@ -59,7 +59,7 @@ namespace voxel
 	std::size_t VoxelVolume::_index(spk::Vector3Int coordinate) const
 	{
 		if (!contains(coordinate))
-			throw std::out_of_range("voxel volume coordinate is out of range");
+			throw spk::Exception("voxel volume coordinate is out of range");
 		return (static_cast<std::size_t>(coordinate.y) * _dimensions.z + coordinate.z) * _dimensions.x + coordinate.x;
 	}
 

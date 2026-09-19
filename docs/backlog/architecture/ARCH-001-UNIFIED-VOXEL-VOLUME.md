@@ -101,6 +101,8 @@ edit cells → increment/version or dirty flag → remesh affected volume
 
 `VoxelVolume::Editor` is the generic mutation boundary. It retains the current Chunk editor API: `set(coordinate, cell)` records real changes, and `commit()` or RAII destruction publishes at most one volume invalidation for the entire session. A session containing only no-op assignments publishes no invalidation. Chunk-specific scheduling and neighbor invalidation remain outside the volume.
 
+VoxelVolume-owned contract failures use `spk::Exception`. Its `message()` is the stable programmatic diagnostic, while `what()` includes Sparkle's source location and any nested cause. The contract does not expose separate standard exception subtypes.
+
 Entity transform, camera movement, animation transforms, palette changes and ordinary material parameter changes do not remesh geometry.
 
 ## Authoritative boundary

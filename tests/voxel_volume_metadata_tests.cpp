@@ -1,7 +1,10 @@
 #include "voxel/voxel_volume.hpp"
 
+#include <cstdint>
 #include <limits>
+#include <string>
 
+#include <exception.hpp>
 #include <gtest/gtest.h>
 
 TEST(VoxelVolumeMetadataTest, ExposesDimensionsScaleAndDerivedLocalBounds)
@@ -21,15 +24,36 @@ TEST(VoxelVolumeMetadataTest, ExposesDimensionsScaleAndDerivedLocalBounds)
 
 TEST(VoxelVolumeMetadataTest, RejectsEmptyDimensions)
 {
-	EXPECT_THROW(voxel::VoxelVolume({0, 1, 1}, 1.0f), std::invalid_argument);
-	EXPECT_THROW(voxel::VoxelVolume({1, 0, 1}, 1.0f), std::invalid_argument);
-	EXPECT_THROW(voxel::VoxelVolume({1, 1, 0}, 1.0f), std::invalid_argument);
+	EXPECT_THROW(voxel::VoxelVolume({0, 1, 1}, 1.0f), spk::Exception);
+	EXPECT_THROW(voxel::VoxelVolume({1, 0, 1}, 1.0f), spk::Exception);
+	EXPECT_THROW(voxel::VoxelVolume({1, 1, 0}, 1.0f), spk::Exception);
 }
 
 TEST(VoxelVolumeMetadataTest, RejectsNonPositiveOrNonFiniteVoxelSize)
 {
-	EXPECT_THROW(voxel::VoxelVolume({1, 1, 1}, 0.0f), std::invalid_argument);
-	EXPECT_THROW(voxel::VoxelVolume({1, 1, 1}, -0.1f), std::invalid_argument);
-	EXPECT_THROW(voxel::VoxelVolume({1, 1, 1}, std::numeric_limits<float>::infinity()), std::invalid_argument);
-	EXPECT_THROW(voxel::VoxelVolume({1, 1, 1}, std::numeric_limits<float>::quiet_NaN()), std::invalid_argument);
+	EXPECT_THROW(voxel::VoxelVolume({1, 1, 1}, 0.0f), spk::Exception);
+	EXPECT_THROW(voxel::VoxelVolume({1, 1, 1}, -0.1f), spk::Exception);
+	EXPECT_THROW(voxel::VoxelVolume({1, 1, 1}, std::numeric_limits<float>::infinity()), spk::Exception);
+	EXPECT_THROW(voxel::VoxelVolume({1, 1, 1}, std::numeric_limits<float>::quiet_NaN()), spk::Exception);
+}
+
+TEST(VoxelVolumeMetadataTest, RejectsUnrepresentableCellCount)
+{
+	constexpr auto maximum = std::numeric_limits<std::uint32_t>::max();
+	EXPECT_THROW(voxel::VoxelVolume({maximum, maximum, maximum}, 1.0f), spk::Exception);
+}
+
+TEST(VoxelVolumeMetadataTest, ReportsStableMessageAndThrowSite)
+{
+	try
+	{
+		voxel::VoxelVolume volume({0, 1, 1}, 1.0f);
+		FAIL() << "expected spk::Exception";
+	} catch (const spk::Exception &exception)
+	{
+		EXPECT_EQ(exception.message(), "voxel volume dimensions must be positive");
+		EXPECT_NE(exception.location().line(), 0u);
+		EXPECT_FALSE(std::string(exception.location().file_name()).empty());
+		EXPECT_EQ(exception.cause(), nullptr);
+	}
 }

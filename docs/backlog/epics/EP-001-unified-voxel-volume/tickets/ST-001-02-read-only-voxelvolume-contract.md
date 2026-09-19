@@ -1,6 +1,6 @@
 # ST-001-02 — Read-only VoxelVolume contract
 
-**Status:** Complete
+**Status:** In verification after exception-policy refinement
 
 ## Intent
 
@@ -30,6 +30,7 @@ Introduce the smallest common owning volume and read contract required by later 
 - `VoxelVolume` owns generic `VersionedTrait` behavior and exposes `edit()`.
 - Nested `VoxelVolume::Editor` preserves the current Chunk editor API: move-only RAII lifetime, `bool set(spk::Vector3Int, Voxel::Cell)`, and `void commit()`.
 - Any number of real changes in one edit session publish exactly one version invalidation at commit/destruction; no-op sessions publish none.
+- VoxelVolume-owned contract failures use `spk::Exception`; stable classification uses `message()`, while `what()` includes the Sparkle throw-site diagnostic.
 
 ## Explicitly not owned
 
@@ -42,16 +43,17 @@ Introduce the smallest common owning volume and read contract required by later 
 
 - [x] Runtime dimensions and uniform voxel size are returned exactly.
 - [x] A valid first, interior, and last coordinate returns the expected `Voxel::Cell`.
-- [x] Every negative and one-step-past coordinate is rejected with `std::out_of_range` and cannot alias valid storage.
+- [x] Every negative and one-step-past coordinate is rejected with `spk::Exception` and cannot alias valid storage.
 - [x] The read-only span contains exactly `x × y × z` cells in the documented order.
-- [x] Zero in any dimension is rejected with `std::invalid_argument`.
-- [x] Zero, negative, infinite, and NaN voxel sizes are rejected with `std::invalid_argument`.
+- [x] Zero in any dimension and an unrepresentable cell count are rejected with `spk::Exception`.
+- [x] Zero, negative, infinite, and NaN voxel sizes are rejected with `spk::Exception`.
 - [x] Local minimum is zero and local maximum equals `dimensions × voxelSize`.
 - [x] Changing voxel size changes physical bounds without changing dimensions, topology, or packed cell IDs.
 - [x] Multiple changed cells in one editor session publish exactly one version notification.
 - [x] Assigning an unchanged value publishes no version notification.
 - [x] Out-of-range mutation is rejected without aliasing valid storage or publishing a notification.
 - [x] Explicit commit is idempotent and closes the editor against further mutation.
+- [x] Sparkle exception evidence includes the stable message, a non-empty source file, a nonzero source line, and the expected empty cause for direct validation failures.
 - [x] All focused tests run without creating a Window or OpenGL context.
 - [x] Existing CPU/headless tests remain green.
 - [x] Existing current-Chunk golden tests remain green on the supported runner; no reference or tolerance is changed.
@@ -70,7 +72,8 @@ None. This ticket adds headless data behavior only. The existing GPU suite is a 
 - `tests/voxel_volume_metadata_tests.cpp`: dimensions, scale, default empty storage, bounds, and invalid construction.
 - `tests/voxel_volume_access_tests.cpp`: first/interior/last access, span order, out-of-range rejection, and scale-independent topology/IDs.
 - `tests/voxel_volume_editor_tests.cpp`: changed/no-op edit transactions, one-notification batching, rejected coordinates, explicit commit, and closed-editor rejection.
-- Local focused run: 10/10 GoogleTests passed without Window/OpenGL initialization.
+- Prior local focused run after editor refinement: 10/10 GoogleTests passed without Window/OpenGL initialization.
+- Local focused run after exception-policy refinement: 12/12 GoogleTests passed without Window/OpenGL initialization.
 - Remote implementation commit: `d00e467c29ac907c1ef2e8f2cf41aaf081454624`.
 - [CI run 35460049379](https://github.com/EreliaStudio/Playground/actions/runs/35460049379): `CPU/headless tests` and `Windows/OpenGL golden candidates` both passed.
 - Editor/version refinement commit: `9effce86dee4d3304e9a61024e97afcd9894edf4`.

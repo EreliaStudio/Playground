@@ -21,6 +21,7 @@ Make current Chunk derive from/use the resolved concrete `VoxelVolume` contract 
 - Remove duplicate Chunk cell ownership and use the vector storage owned by `VoxelVolume`.
 - Remove Chunk's direct `VersionedTrait` inheritance and duplicate nested editor implementation; inherit `VoxelVolume` versioning and `VoxelVolume::Editor` while preserving the existing edit-call API and observable transaction behavior.
 - Preserve coordinate-to-index order and all existing mutation/version notifications.
+- Inherited VoxelVolume construction/access/editor failures use the `spk::Exception` policy recorded in OD-011; Chunk-only APIs retain their current failure policy unless this ticket necessarily replaces them with the generic path.
 - Preserve Chunk coordinate/world conversion, Collection, generator, scheduler, and renderer call sites.
 
 ## Explicitly not owned
@@ -36,6 +37,7 @@ Make current Chunk derive from/use the resolved concrete `VoxelVolume` contract 
 - [ ] Existing packed Cell ID/orientation/flip values round-trip byte-for-byte.
 - [ ] Invalid local coordinates remain rejected without aliasing storage.
 - [ ] `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`, with the same `set`/`commit` call API and exactly one invalidation for a changed session.
+- [ ] Inherited access/editor rejection uses `spk::Exception` with the stable VoxelVolume diagnostic message and source location.
 - [ ] Chunk world/local conversion, Collection, generation, baking, and scheduling CPU tests remain green.
 - [ ] All 20 approved current textured Chunk golden comparisons remain green on the supported runner.
 - [ ] No approved reference, comparison tolerance, texture, or UV is changed.

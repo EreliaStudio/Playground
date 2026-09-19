@@ -8,7 +8,7 @@
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** ST-001-03 — Chunk inheritance/storage/editor migration.
+**Current checkpoint:** ST-001-02 — verify the selected Sparkle exception policy.
 
 This is the living answer to:
 
@@ -34,8 +34,8 @@ Sparkle::TestLibrary export                        ✅
 Playground TestLibrary consumption                 ✅
 Prebuilt Sparkle package consumption               ✅
 Current Chunk semantic + golden baseline           ✅
-VoxelVolume contract + batched editor/versioning   ✅
-Chunk inheritance / storage/editor migration       🟡 CURRENT
+VoxelVolume contract + batched editor/versioning   🟡 CURRENT
+Chunk inheritance / storage/editor migration       ⬜ NEXT
 Runtime-sized VoxelModel                           ⬜
 VoxelMesher structural extraction                  ⬜
 Palette rendering migration                        ⬜
@@ -80,14 +80,15 @@ VS-001 first playable                              🔭
 - ✅ Runtime dimensions, finite positive uniform voxel size, checked coordinate access, read-only span access, and origin-based local bounds are implemented.
 - ✅ Meshing-facing access is read-only; controlled mutation uses the generic nested `VoxelVolume::Editor`.
 - ✅ `VoxelVolume` owns versioning, and a changed editor session publishes exactly one invalidation while a no-op session publishes none.
-- ✅ Ten focused headless GoogleTests cover metadata/validation, access/topology, and editor/version transaction behavior.
+- 🟡 The selected `spk::Exception` policy is implemented for VoxelVolume-owned failures and awaiting complete CI verification.
+- ✅ Twelve focused headless GoogleTests cover metadata/validation, access/topology, editor/version transactions, and Sparkle exception diagnostics.
 - ✅ Branch [CI run 35460049379](https://github.com/EreliaStudio/Playground/actions/runs/35460049379) passed both complete lanes for remote commit `d00e467`.
 - ✅ Editor/version refinement [CI run 35461166765](https://github.com/EreliaStudio/Playground/actions/runs/35461166765) passed both complete lanes for remote commit `9effce8`.
 - ✅ No approved golden reference, tolerance, texture, UV, Chunk implementation, or rendering output changed.
 
 ## Current implementation checkpoint
 
-### 🟡 ST-001-03 — Chunk adapter/specialization
+### ⬜ ST-001-03 — Chunk adapter/specialization
 
 The next implementation must:
 
@@ -97,14 +98,14 @@ The next implementation must:
 - preserve current coordinate/index order, version invalidation, Collection, generator, baker, scheduler, and renderer behavior;
 - pass the complete CPU/headless suite and all 20 approved golden comparisons without changing references or tolerances.
 
-No unresolved decision currently blocks this ticket. Any new observable ambiguity becomes an Open Decision rather than an improvised implementation.
+ST-001-03 becomes Current after the exception-policy refinement passes both CI lanes. No unresolved decision currently blocks it. Any new observable ambiguity becomes an Open Decision rather than an improvised implementation.
 
 ## Next implementation sequence
 
 | Order | Status | Work | Why it comes here |
 |---:|---|---|---|
-| 1 | ✅ | [ST-001-02](epics/EP-001-unified-voxel-volume/tickets/ST-001-02-read-only-voxelvolume-contract.md) — owning VoxelVolume/read/edit contract | Generic storage, reads, editor/version behavior, and both complete CI lanes are passing. |
-| 2 | 🟡 | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage/editor migration | Makes Chunk construct VoxelVolume as 16³ at scale 1.0, removes duplicate storage/editor/version behavior, and proves unchanged output. |
+| 1 | 🟡 | [ST-001-02](epics/EP-001-unified-voxel-volume/tickets/ST-001-02-read-only-voxelvolume-contract.md) — owning VoxelVolume/read/edit contract | Sparkle exception behavior is implemented locally and awaiting complete CI verification. |
+| 2 | ⬜ | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage/editor migration | Makes Chunk construct VoxelVolume as 16³ at scale 1.0, removes duplicate storage/editor/version behavior, and proves unchanged output. |
 | 3 | ⬜ | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel semantic type | Adds the model-specific construction/editing boundary over common storage. |
 | 4 | ⬜ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) through ST-032-03 | Extracts semantic parity, Shape expansion, and generic OcclusionResolver. |
 | 5 | ⬜ | [ST-004-02](epics/EP-004-chunk-world-generation/tickets/ST-004-02-chunk-occlusion-resolver.md) and Chunk mesher integration | Restores cross-Chunk occlusion outside the generic mesher. |

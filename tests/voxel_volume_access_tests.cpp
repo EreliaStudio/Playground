@@ -1,5 +1,6 @@
 #include "voxel/voxel_volume.hpp"
 
+#include <exception.hpp>
 #include <gtest/gtest.h>
 
 TEST(VoxelVolumeAccessTest, ResolvesValidCoordinatesToExpectedCells)
@@ -30,7 +31,7 @@ TEST(VoxelVolumeAccessTest, RejectsEveryOneStepOutsideCoordinate)
 	for (const auto coordinate : {spk::Vector3Int{-1, 0, 0}, {2, 0, 0}, {0, -1, 0}, {0, 3, 0}, {0, 0, -1}, {0, 0, 4}})
 	{
 		EXPECT_FALSE(volume.contains(coordinate));
-		EXPECT_THROW(static_cast<void>(volume.at(coordinate)), std::out_of_range);
+		EXPECT_THROW(static_cast<void>(volume.at(coordinate)), spk::Exception);
 	}
 }
 

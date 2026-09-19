@@ -1,6 +1,6 @@
 #include "voxel/voxel_volume_editor.hpp"
 
-#include <stdexcept>
+#include <exception.hpp>
 #include <utility>
 
 namespace voxel
@@ -19,7 +19,7 @@ namespace voxel
 	bool VoxelVolume::Editor::set(spk::Vector3Int coordinate, Voxel::Cell value)
 	{
 		if (!_volume)
-			throw std::logic_error("voxel volume editor was committed");
+			throw spk::Exception("voxel volume editor was committed");
 		auto &cell = _volume->_cells[_volume->_index(coordinate)];
 		if (cell == value)
 			return false;

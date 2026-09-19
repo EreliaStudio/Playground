@@ -37,7 +37,7 @@ Use one concrete, vector-owning `VoxelVolume` base.
 - X is the fastest-changing coordinate, followed by Z and then Y, preserving current Chunk indexing semantics.
 - The meshing-facing access contract remains read-only. Controlled mutation is exposed only through `edit()` and a nested RAII `VoxelVolume::Editor` with the same `set(coordinate, cell)` and `commit()` API as the current `Chunk::Editor`.
 - `VoxelVolume` owns versioning. One edit session that changes one or more cells invalidates the volume exactly once when committed or destroyed; a no-op session does not invalidate it.
-- Invalid construction uses `std::invalid_argument`; invalid cell coordinates use `std::out_of_range`.
+- All VoxelVolume-owned contract violations use `spk::Exception`, including invalid construction, unrepresentable cell count, invalid coordinates, and committed-editor misuse. Tests and callers use the stable `message()` for classification while `what()` retains source-location diagnostics.
 - `VoxelVolume` owns cell lifetime. Consumers use `const VoxelVolume&` and do not acquire ownership.
 - This decision explicitly supersedes the earlier fixed-`std::array` optimization constraint: ST-001-03 keeps Chunk dimensions fixed at 16³ but migrates its storage to the vector owned by `VoxelVolume`.
 
@@ -52,6 +52,7 @@ The project owner preferred one natural owning volume whose data can be inspecte
 - ST-001-04 introduces the semantic runtime-sized VoxelModel type; generic vector storage, versioning, and controlled editing already come from VoxelVolume.
 - VoxelMesher consumes `const VoxelVolume&`; it neither owns the volume nor depends on templates for concrete volume types.
 - Tests use the public checked `at()`, `cells()`, and `edit()` paths; no test-only mutation back door is required.
+- VoxelVolume callers catch `spk::Exception` (or `std::exception`) rather than relying on standard exception subtypes; this trades subtype classification for Sparkle throw-site and cause diagnostics.
 
 ## Validation / evidence
 
@@ -61,4 +62,4 @@ The project owner preferred one natural owning volume whose data can be inspecte
 
 ## Resolution provenance
 
-Resolved by the project owner during ST-001-02 execution on 19 September 2026. After comparing an abstract interface, non-owning span view, concept, and concrete owner, the owner selected the concrete vector-owning base and strict non-empty validation policy. The owner explicitly approved replacing Chunk's fixed array in ST-001-03 after the conflict with the earlier optimization constraint was identified. The owner then clarified that the current Chunk `Editor` API and its single-notification transaction behavior belong to `VoxelVolume`; ST-001-03 will remove the duplicate Chunk implementation when adopting the base.
+Resolved by the project owner during ST-001-02 execution on 19 September 2026. After comparing an abstract interface, non-owning span view, concept, and concrete owner, the owner selected the concrete vector-owning base and strict non-empty validation policy. The owner explicitly approved replacing Chunk's fixed array in ST-001-03 after the conflict with the earlier optimization constraint was identified. The owner then clarified that the current Chunk `Editor` API and its single-notification transaction behavior belong to `VoxelVolume`; ST-001-03 will remove the duplicate Chunk implementation when adopting the base. After reviewing Sparkle's source-location and cause-aware exception implementation, the owner selected `spk::Exception` consistently for VoxelVolume-owned failures instead of standard semantic subtypes.
