@@ -1,4 +1,4 @@
-#include "voxel_volume_test_fixture.hpp"
+#include "voxel/voxel_volume.hpp"
 
 #include <limits>
 

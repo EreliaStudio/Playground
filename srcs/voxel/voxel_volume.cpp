@@ -73,8 +73,8 @@ namespace voxel
 		return _cells;
 	}
 
-	Voxel::Cell &VoxelVolume::mutableCellAt(spk::Vector3Int coordinate)
+	VoxelVolume::Editor VoxelVolume::edit()
 	{
-		return _cells[_index(coordinate)];
+		return Editor(*this);
 	}
 }

@@ -19,7 +19,8 @@ Make current Chunk derive from/use the resolved concrete `VoxelVolume` contract 
 
 - Construct the Chunk volume as exactly `16 × 16 × 16` at voxel size `1.0`.
 - Remove duplicate Chunk cell ownership and use the vector storage owned by `VoxelVolume`.
-- Preserve coordinate-to-index order and the existing `Chunk::Editor` mutation/version behavior.
+- Remove Chunk's direct `VersionedTrait` inheritance and duplicate nested editor implementation; inherit `VoxelVolume` versioning and `VoxelVolume::Editor` while preserving the existing edit-call API and observable transaction behavior.
+- Preserve coordinate-to-index order and all existing mutation/version notifications.
 - Preserve Chunk coordinate/world conversion, Collection, generator, scheduler, and renderer call sites.
 
 ## Explicitly not owned
@@ -34,7 +35,7 @@ Make current Chunk derive from/use the resolved concrete `VoxelVolume` contract 
 - [ ] First, interior, and last Chunk cells match the same coordinates and span positions as before migration.
 - [ ] Existing packed Cell ID/orientation/flip values round-trip byte-for-byte.
 - [ ] Invalid local coordinates remain rejected without aliasing storage.
-- [ ] `Chunk::Editor` still invalidates the version only when a cell actually changes.
+- [ ] `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`, with the same `set`/`commit` call API and exactly one invalidation for a changed session.
 - [ ] Chunk world/local conversion, Collection, generation, baking, and scheduling CPU tests remain green.
 - [ ] All 20 approved current textured Chunk golden comparisons remain green on the supported runner.
 - [ ] No approved reference, comparison tolerance, texture, or UV is changed.

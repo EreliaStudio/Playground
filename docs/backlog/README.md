@@ -50,7 +50,7 @@ normalized Voxel::Shape + material slots
        same voxel shader + bound Palette SSBO
 ```
 
-[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base; Chunk remains fixed at 16³ but migrates its cell ownership to that base in ST-001-03. Vertex packing and buffer binding numbers remain later implementation decisions. Cross-Chunk lookup belongs to `ChunkOcclusionResolver`; `VoxelMesher` never depends directly on `Chunk::Collection`. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
+[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ but migrates its cell ownership and editor/version implementation to that base in ST-001-03. Vertex packing and buffer binding numbers remain later implementation decisions. Cross-Chunk lookup belongs to `ChunkOcclusionResolver`; `VoxelMesher` never depends directly on `Chunk::Collection`. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
 
 ## Safe migration rule
 

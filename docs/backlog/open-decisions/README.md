@@ -14,7 +14,7 @@ Decision records are persistent architecture/design history. Resolve a decision 
 | [OD-008](OD-008-world-count-cadence-and-content-progression.md) | Open | World count, cadence, and content progression. |
 | [OD-009](OD-009-marketplace-fair-price-and-outlier-procurement-policy.md) | Open | Marketplace fair-price and outlier procurement policy. |
 | [OD-010](OD-010-pvp-design-outside-the-baseline.md) | Open | PvP design outside the baseline. |
-| [OD-011](OD-011-c-ownership-and-view-design-for-voxelvolume.md) | Resolved | Concrete vector-owning VoxelVolume base with checked read access and protected mutation. |
+| [OD-011](OD-011-c-ownership-and-view-design-for-voxelvolume.md) | Resolved | Concrete vector-owning VoxelVolume base with checked read access and one-notification batched editing/versioning. |
 | [OD-012](OD-012-first-external-voxel-authoring-tool-and-interchange-format.md) | Open | First external voxel authoring tool and interchange format. |
 | [OD-013](OD-013-authoritative-collision-primitive-for-articulated-entities.md) | Open | Authoritative collision primitive for articulated entities. |
 | [OD-014](OD-014-fixed-simulation-tick-rates.md) | Open | Fixed simulation tick rates. |

@@ -1,10 +1,10 @@
 # ST-001-02 — Read-only VoxelVolume contract
 
-**Status:** Complete
+**Status:** In verification after editor-ownership clarification
 
 ## Intent
 
-Introduce the smallest common owning volume and read contract required by later meshing, following resolved [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md).
+Introduce the smallest common owning volume and read contract required by later meshing, plus the generic controlled edit transaction clarified by the project owner, following resolved [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md).
 
 ## Execution decision policy
 
@@ -24,10 +24,12 @@ Introduce the smallest common owning volume and read contract required by later 
 - Construction takes runtime `spk::Vector3UInt` dimensions and a uniform voxel size.
 - Every dimension and the finite voxel size are strictly positive.
 - Cells default to the existing empty `Voxel::Cell` value.
-- Public access is read-only through checked `at(spk::Vector3Int)` and `std::span<const Voxel::Cell>`.
+- Meshing-facing access is read-only through checked `at(spk::Vector3Int)` and `std::span<const Voxel::Cell>`.
 - Storage order preserves current Chunk indexing: X fastest, then Z, then Y.
 - Local bounds are `[0, dimensions × voxelSize]`.
-- Derived semantic volume types receive protected checked mutation access for their controlled editors/loaders.
+- `VoxelVolume` owns generic `VersionedTrait` behavior and exposes `edit()`.
+- Nested `VoxelVolume::Editor` preserves the current Chunk editor API: move-only RAII lifetime, `bool set(spk::Vector3Int, Voxel::Cell)`, and `void commit()`.
+- Any number of real changes in one edit session publish exactly one version invalidation at commit/destruction; no-op sessions publish none.
 
 ## Explicitly not owned
 
@@ -46,6 +48,10 @@ Introduce the smallest common owning volume and read contract required by later 
 - [x] Zero, negative, infinite, and NaN voxel sizes are rejected with `std::invalid_argument`.
 - [x] Local minimum is zero and local maximum equals `dimensions × voxelSize`.
 - [x] Changing voxel size changes physical bounds without changing dimensions, topology, or packed cell IDs.
+- [x] Multiple changed cells in one editor session publish exactly one version notification.
+- [x] Assigning an unchanged value publishes no version notification.
+- [x] Out-of-range mutation is rejected without aliasing valid storage or publishing a notification.
+- [x] Explicit commit is idempotent and closes the editor against further mutation.
 - [x] All focused tests run without creating a Window or OpenGL context.
 - [x] Existing CPU/headless tests remain green.
 - [x] Existing current-Chunk golden tests remain green on the supported runner; no reference or tolerance is changed.
@@ -56,14 +62,15 @@ None. This ticket adds headless data behavior only. The existing GPU suite is a 
 
 ## Open decisions
 
-- [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Resolved: concrete vector-owning base, strict non-empty dimensions, finite positive scale, checked read access, protected mutation.
+- [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Resolved: concrete vector-owning base, strict non-empty dimensions, finite positive scale, checked read access, and generic batched editor/versioning.
 - [OD-023](../../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Resolved: preserve the current packed Cell representation byte-for-byte.
 
 ## Completion evidence
 
 - `tests/voxel_volume_metadata_tests.cpp`: dimensions, scale, default empty storage, bounds, and invalid construction.
 - `tests/voxel_volume_access_tests.cpp`: first/interior/last access, span order, out-of-range rejection, and scale-independent topology/IDs.
-- Local focused run: 6/6 GoogleTests passed without Window/OpenGL initialization.
+- `tests/voxel_volume_editor_tests.cpp`: changed/no-op edit transactions, one-notification batching, rejected coordinates, explicit commit, and closed-editor rejection.
+- Local focused run: 10/10 GoogleTests passed without Window/OpenGL initialization.
 - Remote implementation commit: `d00e467c29ac907c1ef2e8f2cf41aaf081454624`.
 - [CI run 35460049379](https://github.com/EreliaStudio/Playground/actions/runs/35460049379): `CPU/headless tests` and `Windows/OpenGL golden candidates` both passed.
 - No PNG reference, comparison tolerance, texture, UV, Chunk implementation, or rendering code changed.

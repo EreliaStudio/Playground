@@ -12,6 +12,7 @@ voxel cells
 coordinate/index access
 local bounds
 uniform voxelSize
+batched edit session + version notification
 ```
 
 The cell representation remains based on the existing `Voxel::Cell → Voxel::Definition → Voxel::Shape` chain unless measured implementation evidence requires change.
@@ -51,7 +52,6 @@ A Chunk retains world-specific responsibilities outside the generic volume contr
 - `Chunk::Collection` membership;
 - deterministic generation;
 - streaming/request lifecycle;
-- versioning/editing;
 - cross-chunk neighbor access;
 - bake scheduling.
 
@@ -98,6 +98,8 @@ Only voxel-data change invalidates a volume mesh:
 ```text
 edit cells → increment/version or dirty flag → remesh affected volume
 ```
+
+`VoxelVolume::Editor` is the generic mutation boundary. It retains the current Chunk editor API: `set(coordinate, cell)` records real changes, and `commit()` or RAII destruction publishes at most one volume invalidation for the entire session. A session containing only no-op assignments publishes no invalidation. Chunk-specific scheduling and neighbor invalidation remain outside the volume.
 
 Entity transform, camera movement, animation transforms, palette changes and ordinary material parameter changes do not remesh geometry.
 
