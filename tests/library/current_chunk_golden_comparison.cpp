@@ -27,12 +27,22 @@ namespace playground_test::golden
 			return options;
 		}
 
+		void preserveExpectedCandidate(std::string_view name, const std::filesystem::path &actual)
+		{
+			const std::filesystem::path candidate =
+				std::filesystem::path(PLAYGROUND_TEST_EXPECTED_CANDIDATE_DIR) / Category / (std::string(name) + ".png");
+			std::filesystem::create_directories(candidate.parent_path());
+			std::filesystem::copy_file(actual, candidate, std::filesystem::copy_options::overwrite_existing);
+			std::cerr << "Proposed expected image: " << candidate << '\n';
+		}
+
 		bool compareCandidate(std::string_view name, const std::filesystem::path &actual)
 		{
 			const auto expected = sparkle_test::expectedImagePath(Category, std::string(name));
 			const auto difference = sparkle_test::resultImagePath(Category, std::string(name) + "_difference");
 			if (!std::filesystem::is_regular_file(expected))
 			{
+				preserveExpectedCandidate(name, actual);
 				std::cerr << "Missing approved reference: " << expected << "\nCandidate preserved: " << actual << '\n';
 				return false;
 			}
