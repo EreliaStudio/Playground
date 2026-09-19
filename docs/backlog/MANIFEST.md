@@ -2,6 +2,7 @@
 
 All Markdown files in this revision. Generated from the repository tree; update it whenever files move or are added.
 
+- `CURRENT-STATUS.md`
 - `DEFINITION-OF-READY-DONE.md`
 - `EPIC-INDEX.md`
 - `MANIFEST.md`

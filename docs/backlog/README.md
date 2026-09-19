@@ -1,5 +1,7 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
+> **Current position:** Backlog/architecture preparation is complete. The next implementation checkpoint is Playground-side `Sparkle::TestLibrary` consumption followed by reviewed current textured Chunk golden images. See [Erelia Implementation Status](CURRENT-STATUS.md).
+
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 
 See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the repository integration and design changes.
