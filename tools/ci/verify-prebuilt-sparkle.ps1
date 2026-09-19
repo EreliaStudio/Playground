@@ -14,9 +14,10 @@ $cache = Join-Path $build 'CMakeCache.txt'
 $log = (Resolve-Path $ConfigureLog).Path
 if (-not (Test-Path $cache)) { throw "CMake cache is missing: $cache" }
 
-$escapedPackageDirectory = [regex]::Escape((Join-Path $prefixPath 'lib/cmake/sparkle').Replace('\', '/'))
+$packageDirectory = (Join-Path $prefixPath 'lib/cmake/sparkle').Replace('\', '/')
 $normalizedCache = (Get-Content $cache -Raw).Replace('\', '/')
-if ($normalizedCache -notmatch "(?m)^sparkle_DIR:PATH=$escapedPackageDirectory$") {
+$cacheLines = $normalizedCache -split '\r?\n'
+if ($cacheLines -notcontains "sparkle_DIR:PATH=$packageDirectory") {
     throw 'CMake did not resolve sparkle_DIR from the downloaded package prefix'
 }
 
