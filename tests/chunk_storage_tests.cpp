@@ -37,21 +37,41 @@ TEST(ChunkStorageTest, RejectsCoordinatesOutsideChunk)
 	}
 }
 
-TEST(ChunkStorageTest, RetrievesFirstAndLastCellsAndRejectsOutsideAccess)
+TEST(ChunkStorageTest, RetrievesFirstInteriorAndLastCellsAndRejectsOutsideAccess)
 {
 	voxel::Chunk chunk({2, -1, 3});
 	const voxel::Voxel::Cell first(7);
+	const voxel::Voxel::Cell interior(8, voxel::Voxel::Orientation::NegativeX, voxel::Voxel::Flip::None);
 	const voxel::Voxel::Cell last(9, voxel::Voxel::Orientation::PositiveX, voxel::Voxel::Flip::NegativeY);
 	{
 		auto editor = chunk.edit();
 		editor.set({0, 0, 0}, first);
+		editor.set({3, 4, 5}, interior);
 		editor.set({15, 15, 15}, last);
 	}
 	EXPECT_EQ(chunk.at({0, 0, 0}), first);
+	EXPECT_EQ(chunk.at({3, 4, 5}), interior);
 	EXPECT_EQ(chunk.at({15, 15, 15}), last);
 	EXPECT_EQ(chunk.cells().front(), first);
+	EXPECT_EQ(chunk.cells()[voxel::Chunk::index({3, 4, 5})], interior);
 	EXPECT_EQ(chunk.cells()[voxel::Chunk::index({15, 15, 15})], last);
 	EXPECT_EQ(chunk.cells().back(), last);
 	EXPECT_EQ(chunk.at({15, 15, 15}).packed(), last.packed());
 	EXPECT_THROW(static_cast<void>(chunk.at({16, 0, 0})), spk::Exception);
+}
+
+TEST(ChunkStorageTest, UsesInheritedAccessDiagnosticsWithoutAliasingStorage)
+{
+	voxel::Chunk chunk({0, 0, 0});
+	chunk.edit().set({0, 0, 0}, voxel::Voxel::Cell(7));
+	try
+	{
+		static_cast<void>(chunk.at({16, 0, 0}));
+		FAIL() << "expected spk::Exception";
+	} catch (const spk::Exception &exception)
+	{
+		EXPECT_EQ(exception.message(), "voxel volume coordinate is out of range");
+		EXPECT_NE(exception.location().line(), 0u);
+	}
+	EXPECT_EQ(chunk.at({0, 0, 0}), voxel::Voxel::Cell(7));
 }

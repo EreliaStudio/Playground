@@ -32,15 +32,15 @@ Make current Chunk derive from/use the resolved concrete `VoxelVolume` contract 
 
 ## Behavioral acceptance
 
-- [ ] Chunk reports dimensions `16 × 16 × 16`, voxel size `1.0`, and local bounds `[0,16]³` through `VoxelVolume`.
-- [ ] First, interior, and last Chunk cells match the same coordinates and span positions as before migration.
-- [ ] Existing packed Cell ID/orientation/flip values round-trip byte-for-byte.
-- [ ] Invalid local coordinates remain rejected without aliasing storage.
-- [ ] `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`, with the same `set`/`commit` call API and exactly one invalidation for a changed session.
-- [ ] Inherited access/editor rejection uses `spk::Exception` with the stable VoxelVolume diagnostic message and source location.
-- [ ] Chunk world/local conversion, Collection, generation, baking, and scheduling CPU tests remain green.
-- [ ] All 20 approved current textured Chunk golden comparisons remain green on the supported runner.
-- [ ] No approved reference, comparison tolerance, texture, or UV is changed.
+- [x] Chunk reports dimensions `16 × 16 × 16`, voxel size `1.0`, and local bounds `[0,16]³` through `VoxelVolume`.
+- [x] First, interior, and last Chunk cells match the same coordinates and span positions as before migration.
+- [x] Existing packed Cell ID/orientation/flip values round-trip byte-for-byte.
+- [x] Invalid local coordinates remain rejected without aliasing storage.
+- [x] `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`, with the same `set`/`commit` call API and exactly one invalidation for a changed session.
+- [x] Inherited access/editor rejection uses `spk::Exception` with the stable VoxelVolume diagnostic message and source location.
+- [x] Chunk world/local conversion, Collection, generation, baking, and scheduling CPU tests remain green.
+- [x] All 20 approved current textured Chunk golden comparisons remain green on the supported runner.
+- [x] No approved reference, comparison tolerance, texture, or UV is changed.
 
 ## Rendering impact
 
@@ -53,7 +53,6 @@ No intentional visual impact. The existing 20-reference suite is mandatory regre
 
 ## Completion evidence
 
-- Focused Chunk/VoxelVolume integration tests.
-- Passing complete CPU/headless suite.
-- Passing supported Windows/OpenGL golden suite with unchanged reference hashes.
-- Implementation commit/PR and CI links.
+- Focused Chunk/VoxelVolume integration tests in `tests/chunk_storage_tests.cpp` and `tests/chunk_editor_tests.cpp`.
+- Implementation commit [`27c095f`](https://github.com/EreliaStudio/Playground/commit/27c095f467cdb4bd1525aa5be81bccfab889b5fb).
+- The complete CPU/headless and supported Windows/OpenGL golden suite pass without reference or tolerance changes; the exact CI run is recorded in `CURRENT-STATUS.md`.

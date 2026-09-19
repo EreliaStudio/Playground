@@ -1,6 +1,6 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
-> **Current position:** The installed test harness, reviewed current textured Chunk baseline, and ST-001-02 `VoxelVolume` contract are complete. ST-001-03 Chunk inheritance/storage migration is next; see [Erelia Implementation Status](CURRENT-STATUS.md).
+> **Current position:** The installed test harness, reviewed current textured Chunk baseline, ST-001-02 `VoxelVolume` contract, and ST-001-03 Chunk inheritance/storage migration are complete. ST-001-04 runtime-sized `VoxelModel` storage is next; see [Erelia Implementation Status](CURRENT-STATUS.md).
 
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 
@@ -50,7 +50,7 @@ normalized Voxel::Shape + material slots
        same voxel shader + bound Palette SSBO
 ```
 
-[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ but migrates its cell ownership and editor/version implementation to that base in ST-001-03. Vertex packing and buffer binding numbers remain later implementation decisions. Cross-Chunk lookup belongs to `ChunkOcclusionResolver`; `VoxelMesher` never depends directly on `Chunk::Collection`. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
+[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. Vertex packing and buffer binding numbers remain later implementation decisions. Cross-Chunk lookup belongs to `ChunkOcclusionResolver`; `VoxelMesher` never depends directly on `Chunk::Collection`. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
 
 ## Safe migration rule
 
