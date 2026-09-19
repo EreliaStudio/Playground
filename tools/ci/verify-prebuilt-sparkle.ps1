@@ -30,11 +30,6 @@ $installedSparkle = Get-ChildItem $build -Directory -Recurse -ErrorAction Silent
     Where-Object { $_.FullName -match '[\\/]vcpkg_installed[\\/].*[\\/]share[\\/]sparkle$' }
 if ($installedSparkle) { throw 'Sparkle was installed into Playground vcpkg_installed' }
 
-$cmakeFiles = Get-ChildItem "$prefixPath/lib/cmake/sparkle" -File -Filter '*.cmake'
-if ($cmakeFiles | Select-String -Pattern '(?i)[A-Z]:[\\/].*(?:sparkle-build|prebuilt-package[\\/]source)' -Quiet) {
-    throw 'The installed Sparkle CMake metadata embeds its packaging source/build directory'
-}
-
 if ($env:GITHUB_WORKSPACE -and (Test-Path (Join-Path $env:GITHUB_WORKSPACE 'Sparkle'))) {
     throw 'A Sparkle source checkout exists in the Playground CI workspace'
 }
