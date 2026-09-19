@@ -1,5 +1,7 @@
 # ST-001-01 — Current Chunk regression characterization
 
+**Status:** Complete
+
 ## Intent
 
 Capture stable fixtures around the existing 16³ storage/indexing and Cell semantics **and approve reference images from the current textured Chunk renderer before extraction**. This story has both headless data checks and a required GPU presentation gate using SparkleTestLibrary; see [ARCH-004](../../../architecture/ARCH-004-TEST-STRATEGY.md#textured-chunk-image-regression-gate).
@@ -88,14 +90,16 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 
 ## Open decisions
 
-- [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
-- [OD-023](../../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Resolved after this characterization checkpoint; it did not block capturing the baseline.
+- [OD-023](../../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Resolved: preserve the representation characterized here.
 - [OD-024](../../../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) — Resolved: several focused scenes plus one seeded multi-Chunk scene, the installed component's fixed `640 × 480` framebuffer, and GitHub Actions `windows-2025`.
 
 ## Completion evidence
 
-- Automated test names and passing CI run.
-- Exact fixtures and expected values checked into the test resources.
-- Error-path assertion proving no partial mutation.
-- Decision-file update and user approval reference when a gate was resolved.
-- For graphical work: expected, actual, and difference-image artifacts plus approval of any changed baseline.
+- CPU/headless fixtures: `tests/chunk_*_tests.cpp`, `tests/voxel_cell_tests.cpp`, `tests/voxel_shape_transform_tests.cpp`, and `tests/voxel_catalog_tests.cpp`.
+- GPU fixtures and controlled UV-sensitivity check: `tests/chunk_golden_tests.cpp` and `tests/library/current_chunk_golden_comparison.cpp`.
+- Fixture metadata: `tests/resources/current_chunk_fixtures.md`.
+- Approved references: 20 PNGs under `tests/resources/expectedImages/current_chunk/`; ordinary test runs never overwrite them.
+- OD-024 records the approved scenes, `640 × 480` capture, and canonical `windows-2025` software-OpenGL runner.
+- Merged implementation: Playground commit `0bd12e5053e482fd6a4f1a4f2a843279627f2306`.
+- Passing CI: [run 35456326462](https://github.com/EreliaStudio/Playground/actions/runs/35456326462), including successful `CPU/headless tests` and `Windows/OpenGL golden candidates` jobs.

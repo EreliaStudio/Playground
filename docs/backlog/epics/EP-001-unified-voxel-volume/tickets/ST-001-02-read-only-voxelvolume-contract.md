@@ -1,95 +1,67 @@
 # ST-001-02 — Read-only VoxelVolume contract
 
+**Status:** In implementation until focused tests and the existing regression suite pass
+
 ## Intent
 
-Introduce the smallest common dimensions/cell/scale/bounds access contract required by meshing.
+Introduce the smallest common owning volume and read contract required by later meshing, following resolved [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md).
 
 ## Execution decision policy
 
-- Do not invent, infer, or silently select behavior, data, assets, values, formulas, schemas, ownership, error policy, architecture, or technology that this ticket or an already-resolved linked decision does not define.
-- Treat every unspecified choice that can affect public behavior, compatibility, persistence, rendering, tests, or later tickets as an Open Decision.
-- Stop before implementing the affected portion, ask the user a focused clarification question, and record the approved answer in the applicable OD file—or create/link a new OD record when none exists.
-- Continue only with work that is independent of the missing decision.
-- Select an implementation detail without clarification only when this ticket explicitly delegates it and the choice cannot alter an observable contract.
+- Do not invent, infer, or silently select behavior, data, schemas, ownership, error policy, architecture, or technology not defined here or by a resolved linked decision.
+- Treat a missing observable choice as an Open Decision and pause the affected work.
+- Preserve the existing `Voxel::Cell` representation exactly as resolved by OD-023.
 
 ## Starting state / prerequisites
 
-- The dependency contracts `EP-000, specifically ST-000-05 for the installed SparkleTestLibrary visual-test utilities` used by this story are available; an epic dependency denotes a required contract, not global waterfall completion.
-- The test begins from an explicitly constructed, valid state with no pending operation unless the case says otherwise.
-- Rendering, authoring data, and display names are not authoritative gameplay state.
+- ST-001-01 is complete: the current Chunk has headless characterization and 20 approved textured references.
+- Playground consumes the installed `Sparkle::TestLibrary` from the pinned prebuilt Sparkle package.
+- OD-011 and OD-023 are resolved.
 
 ## Owned behavior
 
-Introduce the smallest common dimensions/cell/scale/bounds access contract required by meshing.
+- A concrete `VoxelVolume` owns a runtime-sized `std::vector<Voxel::Cell>`.
+- Construction takes runtime `spk::Vector3UInt` dimensions and a uniform voxel size.
+- Every dimension and the finite voxel size are strictly positive.
+- Cells default to the existing empty `Voxel::Cell` value.
+- Public access is read-only through checked `at(spk::Vector3Int)` and `std::span<const Voxel::Cell>`.
+- Storage order preserves current Chunk indexing: X fastest, then Z, then Y.
+- Local bounds are `[0, dimensions × voxelSize]`.
+- Derived semantic volume types receive protected checked mutation access for their controlled editors/loaders.
 
 ## Explicitly not owned
 
-- Behavior assigned to sibling tickets or later epics.
-- Resolution of linked Open Decisions.
-- New balance values, content, schemas, or platform choices not approved by the user.
+- Adapting or modifying `Chunk`; ST-001-03 owns that migration.
+- Introducing the `VoxelModel` semantic type; ST-001-04 owns it.
+- World/chunk lookup, streaming, generation, coordinate conversion, meshing, rendering, Palette ownership, animation, or GPU behavior.
+- Any change to `Voxel::Cell`, Definition, Shape, texture, UV, or approved golden references.
 
-## Implementation inputs
+## Behavioral acceptance
 
-### Already defined values/data
-
-- Story intent: Introduce the smallest common dimensions/cell/scale/bounds access contract required by meshing.
-- Required dependency contracts: EP-000, specifically ST-000-05 for the installed SparkleTestLibrary visual-test utilities.
-- Test fixture rule: Use the smallest deterministic fixture that exposes the owned behavior. Record exact dimensions, cell coordinates, palette indices, transforms, expected vertices/state, and stable asset IDs in the test source; do not substitute an unspecified representative asset.
-
-### User validation required before implementation
-
-Before implementing behavior controlled by an Open Decision below, ask the user to resolve it and record the approved choice in that OD file. Work that relies only on its fixed constraints may proceed.
-
-## Behavioral contract
-
-The operation validates identity, ownership, bounds, and dependency preconditions before authoritative mutation. Success produces only the state and events owned above. Failure is atomic. Ordering and deterministic inputs are explicit and reproducible.
-
-## Acceptance tests
-
-### Nominal behavior and integration interactions
-
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `A runtime-sized 8×8×16 volume stores/retrieves cells correctly with no template type dedicated to that dimension.` is observed exactly; no private-state shortcut is used.
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Empty/minimum dimensions and invalid coordinates follow the chosen explicit validation policy without aliasing valid storage.` is observed exactly; no private-state shortcut is used.
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `A controlled texture/UV change fails the visual comparison; missing references or an unavailable GPU run cannot count as visual parity.` is observed exactly; no private-state shortcut is used.
-- [ ] Runtime dimensions are queryable as data.
-- [ ] `at()` or equivalent cannot expose an invalid coordinate as a valid cell.
-- [ ] Uniform `voxelSize` is positive and validated.
-- [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
-- [ ] Identical deterministic inputs produce identical observable results.
-- [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
-- [ ] A rejected command leaves state, ownership, resources, version counters, scheduled work, and emitted authoritative events byte-for-byte or semantically unchanged.
-- [ ] Repeating the same seed, configuration, starting snapshot, and ordered commands produces the same result and event order.
-- [ ] Create → use → serialize where applicable → unload → restore/recreate → retry preserves stable IDs and does not duplicate the operation.
-- [ ] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
-
-### Boundaries and invalid/rejected operations
-
-- [ ] Missing IDs, foreign ownership, malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category.
-- [ ] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
-
-### Determinism and lifecycle / retry / persistence
-
-- [ ] Deterministic iteration never depends on pointer values, hash-table accident, render frame rate, or wall-clock timing.
-- [ ] A duplicate/retried operation is either idempotent or rejected as already applied, according to the story contract, without duplicating state or events.
-
-### Rendering / golden images
-
-- [ ] Render the deterministic fixture at `512 × 512`; compare against its reviewed PNG with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
-- [ ] Assert semantic geometry/material/transform values independently of the PNG comparison.
+- [ ] Runtime dimensions and uniform voxel size are returned exactly.
+- [ ] A valid first, interior, and last coordinate returns the expected `Voxel::Cell`.
+- [ ] Every negative and one-step-past coordinate is rejected with `std::out_of_range` and cannot alias valid storage.
+- [ ] The read-only span contains exactly `x × y × z` cells in the documented order.
+- [ ] Zero in any dimension is rejected with `std::invalid_argument`.
+- [ ] Zero, negative, infinite, and NaN voxel sizes are rejected with `std::invalid_argument`.
+- [ ] Local minimum is zero and local maximum equals `dimensions × voxelSize`.
+- [ ] Changing voxel size changes physical bounds without changing dimensions, topology, or packed cell IDs.
+- [ ] All focused tests run without creating a Window or OpenGL context.
+- [ ] Existing CPU/headless tests remain green.
+- [ ] Existing current-Chunk golden tests remain green on the supported runner; no reference or tolerance is changed.
 
 ## Rendering impact
 
-Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, and supported GPU runner. Structural refactors must match the reviewed current baseline; intentional migrations require human review before a new versioned baseline is accepted.
+None. This ticket adds headless data behavior only. The existing GPU suite is a no-change regression gate, not a source of new references.
 
 ## Open decisions
 
-- [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
-- [OD-023](../../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Resolved: concrete vector-owning base, strict non-empty dimensions, finite positive scale, checked read access, protected mutation.
+- [OD-023](../../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Resolved: preserve the current packed Cell representation byte-for-byte.
 
 ## Completion evidence
 
-- Automated test names and passing CI run.
-- Exact fixtures and expected values checked into the test resources.
-- Error-path assertion proving no partial mutation.
-- Decision-file update and user approval reference when a gate was resolved.
-- For graphical work: expected, actual, and difference-image artifacts plus approval of any changed baseline.
+- Focused GoogleTest files grouped into metadata/validation and access/topology behavior.
+- Passing CPU/headless suite and supported Windows/OpenGL golden suite.
+- No modified PNG references or broadened comparison tolerances.
+- OD-011/OD-023 provenance and current project status updated in the implementation commit.

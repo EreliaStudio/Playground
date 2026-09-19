@@ -222,6 +222,7 @@ All Markdown files in this revision. Generated from the repository tree; update 
 - `open-decisions/OD-021-serialized-derivative-mesh-cache-versus-rebuild-on-load.md`
 - `open-decisions/OD-022-assembly-anchor-and-animation-authoring-source.md`
 - `open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md`
+- `open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md`
 - `open-decisions/README.md`
 - `templates/EPIC-TEMPLATE.md`
 - `templates/STORY-TEMPLATE.md`

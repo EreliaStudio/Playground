@@ -1,6 +1,6 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
-> **Current position:** Backlog/architecture preparation is complete. The next implementation checkpoint is Playground-side `Sparkle::TestLibrary` consumption followed by reviewed current textured Chunk golden images. See [Erelia Implementation Status](CURRENT-STATUS.md).
+> **Current position:** The installed test harness and reviewed current textured Chunk baseline are complete. ST-001-02 implements the read-only `VoxelVolume` contract; see [Erelia Implementation Status](CURRENT-STATUS.md).
 
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 
@@ -11,8 +11,8 @@ See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the reposit
 - GDD: [Erelia GDD](../gdd/Erelia_GDD_Current.md)
 - Original source/baseline GDD: **17 September 2026**, Playground commit `ed75feb5e9e9a748c8bb4df95e341a19648d0091`
 - Authoritative integrated GDD: **18 September 2026**, integration commit `d0e8bf6`
-- Sparkle baseline: `Version0.1.1`
-- Sparkle baseline commit: `9784377d41509234d43e4adec16505382eef178f`
+- Sparkle architecture-planning baseline: `Version0.1.1` at `9784377d41509234d43e4adec16505382eef178f`
+- Current prebuilt Sparkle package: `0.1.1` at `68c260aa2108cd22c26ba09a2c8ca6f62913ad39`
 
 The current Playground implementation already provides normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker` coupled to chunk-neighbor lookup. Those are the migration baseline, not disposable prototypes.
 
@@ -50,7 +50,7 @@ normalized Voxel::Shape + material slots
        same voxel shader + bound Palette SSBO
 ```
 
-The exact C++ ownership model, vertex packing and buffer binding numbers remain implementation decisions. A Chunk may keep optimized fixed-size storage while exposing the common read contract. Cross-Chunk lookup belongs to `ChunkOcclusionResolver`; `VoxelMesher` never depends directly on `Chunk::Collection`. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
+[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base; Chunk remains fixed at 16³ but migrates its cell ownership to that base in ST-001-03. Vertex packing and buffer binding numbers remain later implementation decisions. Cross-Chunk lookup belongs to `ChunkOcclusionResolver`; `VoxelMesher` never depends directly on `Chunk::Collection`. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
 
 ## Safe migration rule
 

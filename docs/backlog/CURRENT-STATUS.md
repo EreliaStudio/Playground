@@ -1,22 +1,27 @@
 # Erelia Implementation Status
 
-**Last updated:** 19 September 2026  
-**Tracking branch:** `docs/integrate-unified-voxel-backlog`  
-**Current horizon:** H0 — Foundations and visual validation  
-**Current checkpoint:** Backlog/architecture ready; Playground visual-regression integration is the next implementation work.
+**Last updated:** 19 September 2026
+
+**Baseline branch/state:** `main` at `0bd12e5053e482fd6a4f1a4f2a843279627f2306`
+
+**Active implementation branch:** `feat/voxel-volume-contract`
+
+**Current horizon:** H0 — Foundations and visual validation
+
+**Current checkpoint:** ST-001-02 — Read-only VoxelVolume contract.
 
 This is the living answer to:
 
 > Where are we now, what has actually been completed, and what should be implemented next?
 
-The word **complete** below means there is implementation or documentation evidence. A written ticket is **specified**, not implemented.
+The word **complete** below means implementation and test evidence exist. A written ticket is only specified.
 
 ## Status legend
 
 | Marker | Meaning |
 |---|---|
 | ✅ Complete | Finished with identified evidence. |
-| 🟡 Current | The next active implementation ticket or checkpoint. |
+| 🟡 Current | The one active implementation checkpoint. |
 | ⬜ Next | Ordered follow-up work whose prerequisites are known. |
 | ⛔ Decision gate | Work must pause for user clarification or a recorded Open Decision. |
 | 🔭 Later | Deliberately outside the current checkpoint/horizon. |
@@ -24,128 +29,105 @@ The word **complete** below means there is implementation or documentation evide
 ## Where we are now
 
 ```text
-Working textured Chunk renderer
-        ↓
-Sparkle::TestLibrary export                    ✅
-        ↓
-Backlog restructuring and architecture         ✅
-        ↓
-Playground consumes TestLibrary                 🟡 CURRENT
-        ↓
-Current Chunk semantic + golden baselines       ⬜ NEXT
-        ↓
-VoxelVolume → VoxelMesher structural refactor   ⬜
-        ↓
-Palette rendering migration                     ⬜
-        ↓
-VS-000 unified voxel visual validation          ⬜
-        ↓
-VS-001 first playable                           🔭
+Working textured Chunk renderer                    ✅
+Sparkle::TestLibrary export                        ✅
+Playground TestLibrary consumption                 ✅
+Prebuilt Sparkle package consumption               ✅
+Current Chunk semantic + golden baseline           ✅
+Read-only VoxelVolume contract                     🟡 CURRENT
+Chunk inheritance / storage migration              ⬜ NEXT
+Runtime-sized VoxelModel                           ⬜
+VoxelMesher structural extraction                  ⬜
+Palette rendering migration                        ⬜
+VS-000 unified voxel visual validation             ⬜
+VS-001 first playable                              🔭
 ```
 
 ## Completed
 
-### Existing implementation baseline
+### Current implementation baseline
 
-- ✅ Data-driven voxel `Shape` polygons, normals, UVs, material slots, `outerSide`, and full-side coverage exist.
-- ✅ `Voxel::Definition` and compact `Voxel::Cell` with orientation/vertical flip exist.
-- ✅ Headless fixed 16×16×16 Chunk storage, Chunk collection/world-cell access, and the current `Chunk::Baker` exist.
-- ✅ The existing textured Chunk renderer is the behavior to preserve during the structural refactor.
+- ✅ Data-driven voxel Shapes, Definitions, compact packed `Voxel::Cell`, fixed 16³ Chunk behavior, Collection/world lookup, and current `Chunk::Baker` exist.
+- ✅ The existing textured Chunk renderer is the protected visual baseline for structural work.
 
-These are existing capabilities, not evidence that the new unified volume/mesher/Palette architecture is implemented.
+### Installed test/package infrastructure
 
-### Sparkle-side testing support
+- ✅ Sparkle exports the optional installed `Sparkle::TestLibrary` component.
+- ✅ Playground resolves `sparkle CONFIG REQUIRED COMPONENTS TestLibrary` and links `Sparkle::TestLibrary` through `PlaygroundTestLibrary`.
+- ✅ CI downloads a checksum-pinned prebuilt Sparkle `0.1.1` package at `68c260aa2108cd22c26ba09a2c8ca6f62913ad39`; Playground does not rebuild Sparkle source.
+- ✅ CPU/headless and Windows/OpenGL jobs are separate and retain diagnostics/artifacts.
+- ✅ Architecture planning used the older Sparkle baseline `9784377d41509234d43e4adec16505382eef178f`; it is not presented as the currently consumed package.
 
-- ✅ Sparkle PR #1 is merged into `Version0.1.1`.
-- ✅ Optional installed `Sparkle::TestLibrary` export exists.
-- ✅ Installed-package consumer support and reusable image comparison exist.
-- ✅ Sparkle-side CI for the final PR head succeeded.
+### ST-001-01 — Current Chunk characterization
 
-### Planning and architecture
+- ✅ Semantic tests cover storage/indexing, coordinates, Collection, Editor, scheduler, baker, transforms, catalog, Shape, and packed Cell behavior.
+- ✅ The Windows/OpenGL harness covers five scene families from four fixed views each.
+- ✅ All 20 approved current textured Chunk PNG references are checked in.
+- ✅ The controlled UV-regression sensitivity path proves an altered UV fails comparison without changing tolerances or references.
+- ✅ OD-024 records the approved fixtures, `640 × 480` capture, and canonical `windows-2025` software-OpenGL runner.
+- ✅ Main-branch [CI run 35456326462](https://github.com/EreliaStudio/Playground/actions/runs/35456326462) passed both `CPU/headless tests` and `Windows/OpenGL golden candidates` for commit `0bd12e5`.
 
-- ✅ The GDD and implementation backlog are integrated.
-- ✅ All 34 epics have their own folder, epic contract, coverage matrix, integration acceptance suite, and ticket index.
-- ✅ All 137 tickets are standalone and contain inputs, behavioral acceptance, rendering classification, decision links, and the no-improvisation rule.
-- ✅ All 23 Open Decisions have persistent records.
-- ✅ `VoxelVolume`, `OcclusionResolver`, `ChunkOcclusionResolver`, `MaterialResolver`, and `VoxelMesher` ownership is separated.
-- ✅ Pure VoxelModel data, assembly-only anchors, transform animation, and reusable equipment attachments are specified.
-- ✅ The per-renderable Palette SSBO architecture and common Chunk/model shader contract are specified.
-- ✅ The EP-020/EP-021 crafting/building dependency cycle is removed.
-- ✅ Relative Markdown links and backlog structure have been validated.
+### Planning and decisions
+
+- ✅ The backlog contains 34 epics, 137 tickets, and 24 persistent decision records.
+- ✅ Three decisions are resolved: OD-011, OD-023, and OD-024. Twenty-one remain open.
+- ✅ OD-011 selects one concrete vector-owning `VoxelVolume` base and explicitly accepts replacing Chunk's fixed array during ST-001-03.
+- ✅ OD-023 preserves the existing packed Cell orientation/vertical-flip representation until evidence justifies a separate expansion decision.
 
 ## Current implementation checkpoint
 
-### 🟡 Playground TestLibrary consumption and current-render characterization
+### 🟡 ST-001-02 — Read-only VoxelVolume contract
 
-The immediate goal is to make the current textured Chunk output reproducibly testable **before** changing volume access, meshing, or Palette rendering.
+The active branch introduces the concrete owner selected in OD-011:
 
-Relevant tickets:
-
-1. [ST-000-05 — Sparkle test utilities](epics/EP-000-test-harness-ci/tickets/ST-000-05-export-sparkle-test-utilities-for-downstream-projects.md)
-   - Sparkle-side export is complete.
-   - Playground-side remaining work: consume the installed component, configure Playground-owned reference/result roots, verify the supported Windows/OpenGL runner, and retain actual/difference artifacts on failure.
-2. [ST-001-01 — Current Chunk regression characterization](epics/EP-001-unified-voxel-volume/tickets/ST-001-01-current-chunk-regression-characterization.md)
-   - Capture semantic fixtures for current Chunk storage/cell behavior.
-   - Capture current textured Chunk images.
-   - Review those images manually before accepting them as golden references.
-   - Prove that a controlled texture/UV change makes the image comparison fail.
+- runtime dimensions and finite positive uniform voxel size;
+- vector-owned, zero-initialized `Voxel::Cell` storage;
+- checked `at(Vector3Int)` and read-only `cells()` span;
+- origin-based local bounds;
+- protected checked mutation for later semantic derived types;
+- focused headless access, validation, bounds, and topology tests.
 
 ### Exit condition for the current checkpoint
 
-Do not begin the structural VoxelVolume/VoxelMesher migration until all of the following are true:
-
-- [ ] Playground resolves and links the installed `Sparkle::TestLibrary` component.
-- [ ] CPU-only tests remain executable without a Window/OpenGL context.
-- [ ] The supported GPU test job renders the controlled current-Chunk fixtures.
-- [ ] Reference and result directories are owned/configured by Playground.
-- [ ] Actual and difference images are retained on failure.
-- [ ] Current textured references have been visually reviewed and approved by the user.
-- [ ] Semantic Chunk fixtures and the golden-image tests pass together.
-- [ ] A deliberate texture/UV alteration fails the comparison.
+- [ ] Focused VoxelVolume tests compile and pass.
+- [ ] The complete CPU/headless suite remains green.
+- [ ] The supported Windows/OpenGL suite passes all 20 existing references.
+- [ ] No approved PNG or comparison tolerance changes.
+- [x] OD-011 and OD-023 contain the selected decisions and provenance.
+- [x] EP-001 ticket responsibilities and acceptance criteria match the selected architecture.
 
 ## Next implementation sequence
 
 | Order | Status | Work | Why it comes here |
 |---:|---|---|---|
-| 1 | 🟡 | Playground TestLibrary consumption and `ST-001-01` baseline capture | Protects the working renderer before structural changes. |
-| 2 | ⛔ | Resolve [OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) when the exact public C++ ownership/view contract becomes necessary | The semantic volume contract is fixed; its concrete ownership API is intentionally not invented. |
-| 3 | ⬜ | [ST-001-02](epics/EP-001-unified-voxel-volume/tickets/ST-001-02-read-only-voxelvolume-contract.md) — minimal read-only VoxelVolume contract | Gives the mesher one source-independent volume interface. |
-| 4 | ⬜ | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — adapt existing Chunk | Preserves fixed 16³ storage while exposing the common contract. |
-| 5 | ⬜ | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel storage | Adds the model-side volume without meshing/rendering changes. |
-| 6 | ⬜ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) through ST-032-03 | Extract semantic parity, Shape expansion, and generic OcclusionResolver. |
-| 7 | ⬜ | [ST-004-02](epics/EP-004-chunk-world-generation/tickets/ST-004-02-chunk-occlusion-resolver.md) and Chunk mesher integration | Restores cross-Chunk occlusion outside the generic mesher. |
-| 8 | ⛔ | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) only when final optimization policy is required | Correctness-first output can proceed; merging/indexing policy must be evidence-driven. |
-| 9 | ⬜ | Prove unchanged semantic mesh and textured golden-image parity | Structural migration is not complete without both forms of evidence. |
-| 10 | ⬜ | [ST-003-02 — Palette Resource Binding](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
-| 11 | ⬜ | EP-033 palette/multi-scale visual fixtures | Intentionally changes the visual pipeline and creates reviewed versioned baselines. |
-| 12 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
-| 13 | ⬜ | [VS-000 — Unified Voxel Visual Validation](milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) | Validates terrain, model, assembly, equipment, Palette, and performance together. |
-| 14 | 🔭 | [VS-001 — First Playable](milestones/VS-001-FIRST-PLAYABLE.md) | Starts the narrow gameplay vertical slice only after VS-000 validates the visual/runtime foundation. |
+| 1 | 🟡 | [ST-001-02](epics/EP-001-unified-voxel-volume/tickets/ST-001-02-read-only-voxelvolume-contract.md) — owning VoxelVolume/read contract | Establishes common validated storage and access. |
+| 2 | ⬜ | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage migration | Makes Chunk construct VoxelVolume as 16³ at scale 1.0, removes duplicate storage, and proves unchanged output. |
+| 3 | ⬜ | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel semantic type | Adds the model-specific construction/editing boundary over common storage. |
+| 4 | ⬜ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) through ST-032-03 | Extracts semantic parity, Shape expansion, and generic OcclusionResolver. |
+| 5 | ⬜ | [ST-004-02](epics/EP-004-chunk-world-generation/tickets/ST-004-02-chunk-occlusion-resolver.md) and Chunk mesher integration | Restores cross-Chunk occlusion outside the generic mesher. |
+| 6 | ⛔ | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) when profiling/parity evidence exists | Final optimization policy remains evidence-driven. |
+| 7 | ⬜ | Prove unchanged semantic mesh and textured golden-image parity | Structural migration is not complete without both forms of evidence. |
+| 8 | ⬜ | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
+| 9 | ⬜ | EP-033 palette/multi-scale visual fixtures | Intentionally changes the visual pipeline and creates reviewed versioned baselines. |
+| 10 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
+| 11 | ⬜ | [VS-000](milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) | Validates terrain, model, assembly, equipment, Palette, and performance together. |
+| 12 | 🔭 | [VS-001](milestones/VS-001-FIRST-PLAYABLE.md) | Starts the gameplay vertical slice after the visual/runtime foundation. |
 
-Dependencies in this table are contract dependencies, not permission to turn the backlog into a global waterfall. Independent work may proceed when its precise prerequisites are satisfied.
+## Known user gates
 
-## Known gates requiring user input
+- OD-020 when profiling/parity evidence is available for mesh merging/indexing/hard normals.
+- Approval of any model, assembly, animation, equipment, import, or material-mapping schema before it is frozen.
+- Review of expected, produced, and difference images before accepting the later Palette migration baseline.
 
-The currently foreseeable user decisions are:
-
-- approval of the initial textured Chunk golden images;
-- OD-011 when selecting the exact C++ ownership/view form of `VoxelVolume`;
-- approval of any model, assembly, animation, equipment, or material-mapping schema before it is frozen;
-- OD-020 when profiling/parity evidence is available for mesh merging/indexing/hard normals;
-- review of old, produced, and difference images before accepting the Palette migration baseline.
-
-Additional ambiguity discovered during implementation is automatically an Open Decision. The executing agent must not improvise it.
+Additional ambiguity discovered during implementation becomes an Open Decision. The executing agent must not improvise it.
 
 ## How to update this file
 
-Update this status in the same commit that changes project state:
-
-1. Move a ticket to **Complete** only when its completion evidence exists: implementation commit/PR, automated tests, CI result, decision provenance, and visual artifacts where required.
-2. Set exactly one immediate checkpoint to **Current** unless two pieces of work are genuinely independent and active.
-3. Record the next smallest executable ticket, not an entire epic, whenever possible.
-4. Add newly discovered user decisions to both this file and the appropriate OD/ticket.
-5. Never infer implementation completion merely because a ticket, architecture document, or test plan was written.
-6. Preserve completed history; summarize it rather than deleting it when the file grows.
+1. Move a ticket to **Complete** only when implementation, automated tests, applicable CI, decision provenance, and visual evidence exist.
+2. Keep exactly one immediate checkpoint **Current** unless independent active work truly exists.
+3. Record the next smallest executable ticket, not an entire epic.
+4. Update this file in the same branch as the code that changes project state.
+5. Preserve completed history and distinguish architecture baselines from currently consumed dependency revisions.
 
 ## Quick links
 

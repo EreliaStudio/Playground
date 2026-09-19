@@ -2,7 +2,7 @@
 
 ## Status
 
-Open
+Resolved
 
 ## Problem
 
@@ -20,24 +20,28 @@ The project requires an explicit choice for whether cell orientation and flip mu
 
 ## Options considered
 
-Pending user-validated proposal. An implementation agent may document evaluated options but must not select one without the required evidence/approval.
+- Preserve the current four horizontal orientations plus vertical flip and their packed bit layout.
+- Expand the representation now without a demonstrated asset or transform requirement.
 
 ## Decision
 
-Pending.
+Preserve the existing `Voxel::Cell` orientation and vertical flip representation byte-for-byte. Do not widen or redesign it during EP-001. If authored content later proves the representation insufficient, open a separate evidence-backed decision before changing the packed contract.
 
 ## Rationale
 
-Pending.
+The current representation supports the existing Chunk renderer, Shapes, slopes, stairs, and approved regression fixtures. No current VoxelVolume requirement demonstrates that more orientations or flips are needed, while changing the packed layout would create avoidable compatibility and regression risk.
 
 ## Consequences
 
-Until resolved, only the behavior explicitly identified as blocked by this decision is blocked. After resolution, later tickets must follow the decision recorded here.
+- EP-001 reuses `Voxel::Cell` without changing its size, masks, packing, or round-trip behavior.
+- EP-029/EP-030/EP-031 must not invent additional orientation states while consuming the current contract.
+- A future expansion requires its own Open Decision, compatibility plan, and regression evidence.
 
 ## Validation / evidence
 
-Pending tests, benchmark, prototype, schema example, or user approval as appropriate.
+- `tests/voxel_cell_tests.cpp` proves the current `0xE000002A` ID/orientation/flip round trip.
+- The 20 approved current-Chunk golden fixtures cover current orientation and vertical-flip rendering.
 
 ## Resolution provenance
 
-Pending resolver, ticket/commit, and date.
+Resolved from the project owner's explicit ST-001-02 instruction on 19 September 2026 to preserve the current packed representation unless a real requirement demonstrates otherwise.

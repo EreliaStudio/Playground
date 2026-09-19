@@ -4,7 +4,7 @@
 
 Erelia uses **one fundamental voxel-volume representation** for persistent terrain chunks and voxel-authored models. `Chunk` and `VoxelModel` are semantic users of the same cell/grid contract, not separate graphics formats.
 
-The exact class/API names remain implementation decisions. Conceptually a volume exposes:
+As resolved by [OD-011](../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md), `VoxelVolume` is a concrete vector-owning base. It exposes:
 
 ```text
 dimensions
@@ -46,7 +46,7 @@ Do not introduce `TerrainVoxel` versus `ModelVoxel` merely because ownership dif
 
 A Chunk retains world-specific responsibilities outside the generic volume contract:
 
-- fixed 16³ dimensions and optimized storage;
+- fixed 16³ dimensions over the storage inherited from `VoxelVolume`;
 - chunk coordinate and world/local conversion;
 - `Chunk::Collection` membership;
 - deterministic generation;
@@ -56,6 +56,8 @@ A Chunk retains world-specific responsibilities outside the generic volume contr
 - bake scheduling.
 
 The generic volume must not absorb these responsibilities.
+
+The earlier option to retain a separate fixed `std::array` inside Chunk was superseded by the project owner's OD-011 decision. ST-001-03 must prove that migrating storage ownership does not change Chunk indexing, editing, or rendered output.
 
 ## VoxelModel specialization
 
