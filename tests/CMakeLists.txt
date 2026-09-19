@@ -2,6 +2,7 @@ find_package(sparkle CONFIG REQUIRED COMPONENTS TestLibrary)
 find_package(GTest CONFIG REQUIRED)
 
 set(PLAYGROUND_TEST_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(PLAYGROUND_TEST_LIBRARY_DIR "${PLAYGROUND_TEST_SOURCE_DIR}/library")
 
 file(GLOB_RECURSE PLAYGROUND_TEST_SOURCES
     CONFIGURE_DEPENDS
@@ -14,8 +15,28 @@ file(GLOB_RECURSE PLAYGROUND_TEST_HEADERS
     "${PLAYGROUND_TEST_SOURCE_DIR}/*.h"
 )
 
+file(GLOB_RECURSE PLAYGROUND_TEST_LIBRARY_SOURCES
+    CONFIGURE_DEPENDS
+    "${PLAYGROUND_TEST_LIBRARY_DIR}/*.cpp"
+)
+
+file(GLOB_RECURSE PLAYGROUND_TEST_LIBRARY_HEADERS
+    CONFIGURE_DEPENDS
+    "${PLAYGROUND_TEST_LIBRARY_DIR}/*.hpp"
+    "${PLAYGROUND_TEST_LIBRARY_DIR}/*.h"
+)
+
+set(PLAYGROUND_TEST_CASE_SOURCES ${PLAYGROUND_TEST_SOURCES})
+list(REMOVE_ITEM PLAYGROUND_TEST_CASE_SOURCES ${PLAYGROUND_TEST_LIBRARY_SOURCES})
+set(PLAYGROUND_TEST_CASE_HEADERS ${PLAYGROUND_TEST_HEADERS})
+list(REMOVE_ITEM PLAYGROUND_TEST_CASE_HEADERS ${PLAYGROUND_TEST_LIBRARY_HEADERS})
+
+set(PLAYGROUND_TEST_MAIN_SOURCE "${PLAYGROUND_TEST_SOURCE_DIR}/main.cpp")
+list(REMOVE_ITEM PLAYGROUND_TEST_CASE_SOURCES "${PLAYGROUND_TEST_MAIN_SOURCE}")
+
 if(NOT WIN32)
-    list(FILTER PLAYGROUND_TEST_SOURCES EXCLUDE REGEX "/chunk_golden_tests\\.cpp$")
+    list(FILTER PLAYGROUND_TEST_CASE_SOURCES EXCLUDE REGEX "/chunk_golden_tests\\.cpp$")
+    list(FILTER PLAYGROUND_TEST_LIBRARY_SOURCES EXCLUDE REGEX "/current_chunk_golden_[^/]+\\.cpp$")
 endif()
 
 #
@@ -23,20 +44,22 @@ endif()
 #
 
 add_library(PlaygroundTestLibrary STATIC
-    ${PLAYGROUND_TEST_SOURCES}
-    ${PLAYGROUND_TEST_HEADERS}
+    ${PLAYGROUND_TEST_LIBRARY_SOURCES}
+    ${PLAYGROUND_TEST_LIBRARY_HEADERS}
 )
 
 target_compile_features(PlaygroundTestLibrary PUBLIC cxx_std_23)
 
 target_include_directories(PlaygroundTestLibrary PUBLIC
-    ${PLAYGROUND_TEST_SOURCE_DIR}
+    ${PLAYGROUND_TEST_LIBRARY_DIR}
+)
+
+target_link_libraries(PlaygroundTestLibrary PUBLIC
+    PlaygroundCore
 )
 
 target_link_libraries(PlaygroundTestLibrary PRIVATE
-    PlaygroundCore
     Sparkle::TestLibrary
-    GTest::gtest
 )
 
 target_compile_definitions(PlaygroundTestLibrary PRIVATE
@@ -55,19 +78,25 @@ configure_debug_symbols(PlaygroundTestLibrary)
 # Playground Test Executable
 #
 
-set(PLAYGROUND_TEST_RUNNER_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/playground_test_runner.cpp")
-file(GENERATE OUTPUT "${PLAYGROUND_TEST_RUNNER_SOURCE}" CONTENT "// Entry point is provided by GTest::gtest_main.\n")
-
 add_executable(PlaygroundTest
-    ${PLAYGROUND_TEST_RUNNER_SOURCE}
+    ${PLAYGROUND_TEST_CASE_SOURCES}
+    ${PLAYGROUND_TEST_CASE_HEADERS}
 )
+
+if(EXISTS "${PLAYGROUND_TEST_MAIN_SOURCE}")
+    target_sources(PlaygroundTest PRIVATE "${PLAYGROUND_TEST_MAIN_SOURCE}")
+endif()
 
 target_compile_features(PlaygroundTest PRIVATE cxx_std_23)
 
 target_link_libraries(PlaygroundTest PRIVATE
-    "$<LINK_LIBRARY:WHOLE_ARCHIVE,PlaygroundTestLibrary>"
-    GTest::gtest_main
+    PlaygroundTestLibrary
+    GTest::gtest
 )
+
+if(NOT EXISTS "${PLAYGROUND_TEST_MAIN_SOURCE}")
+    target_link_libraries(PlaygroundTest PRIVATE GTest::gtest_main)
+endif()
 
 set_target_properties(PlaygroundTest PROPERTIES
     CXX_EXTENSIONS OFF

@@ -1,21 +1,13 @@
-#pragma once
-
-#include "voxel/chunk_collection.hpp"
-#include "voxel/chunk_editor.hpp"
-#include "voxel/voxel_catalog.hpp"
-
-#include <memory>
+#include "voxel_test_utils.hpp"
 
 namespace playground_test
 {
-	using VoxelCatalog = voxel::Voxel::Catalog<voxel::Voxel::Definition>;
-
-	[[nodiscard]] inline VoxelCatalog loadVoxelCatalog()
+	VoxelCatalog loadVoxelCatalog()
 	{
 		return VoxelCatalog::load("resources/catalog_config.json");
 	}
 
-	[[nodiscard]] inline std::unique_ptr<voxel::Chunk> chunkWithCell(
+	std::unique_ptr<voxel::Chunk> chunkWithCell(
 		voxel::Chunk::Coordinate coordinate,
 		spk::Vector3Int local,
 		voxel::Voxel::Cell cell)
@@ -25,7 +17,7 @@ namespace playground_test
 		return chunk;
 	}
 
-	[[nodiscard]] inline bool publish(voxel::Chunk::Collection &chunks, std::unique_ptr<voxel::Chunk> chunk)
+	bool publish(voxel::Chunk::Collection &chunks, std::unique_ptr<voxel::Chunk> chunk)
 	{
 		const auto coordinate = chunk->coordinate();
 		if (!chunks.request(coordinate)) return false;
