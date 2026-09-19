@@ -1,6 +1,6 @@
 # ST-001-02 — Read-only VoxelVolume contract
 
-**Status:** In verification after editor-ownership clarification
+**Status:** Complete
 
 ## Intent
 
@@ -73,5 +73,7 @@ None. This ticket adds headless data behavior only. The existing GPU suite is a 
 - Local focused run: 10/10 GoogleTests passed without Window/OpenGL initialization.
 - Remote implementation commit: `d00e467c29ac907c1ef2e8f2cf41aaf081454624`.
 - [CI run 35460049379](https://github.com/EreliaStudio/Playground/actions/runs/35460049379): `CPU/headless tests` and `Windows/OpenGL golden candidates` both passed.
+- Editor/version refinement commit: `9effce86dee4d3304e9a61024e97afcd9894edf4`.
+- [CI run 35461166765](https://github.com/EreliaStudio/Playground/actions/runs/35461166765): the complete `CPU/headless tests` and unchanged `Windows/OpenGL golden candidates` lanes both passed after moving editor/version ownership into VoxelVolume.
 - No PNG reference, comparison tolerance, texture, UV, Chunk implementation, or rendering code changed.
 - OD-011/OD-023 provenance and current project status were updated with the implementation.
