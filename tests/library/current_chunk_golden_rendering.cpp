@@ -90,10 +90,10 @@ namespace playground_test::golden
 					spk::TextureMesh3D::Builder altered;
 					const auto vertices = mesh.layout().vertexBuffer().cast<spk::Texture3DVertex>();
 					const auto indices = mesh.layout().indexBuffer().cast<spk::TextureMesh3D::Index>();
-					for (std::size_t index = 0; index < vertices.size(); ++index)
+					for (const auto &sourceVertex : vertices)
 					{
-						auto vertex = vertices[index];
-						if (index == 0) vertex.uv.x += 0.25f;
+						auto vertex = sourceVertex;
+						vertex.uv = {0.0f, 0.0f};
 						static_cast<void>(altered.addVertex(vertex));
 					}
 					for (const auto index : indices) altered.addIndex(index);
