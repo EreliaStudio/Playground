@@ -12,7 +12,7 @@ VoxelVolume + OcclusionResolver + MaterialResolver
              voxel rendering + bound Palette
 ```
 
-- `VoxelVolume` exposes dimensions, uniform voxel scale, bounds, and cells inside one volume. It owns no world lookup, palette, animation, or rendering behavior.
+- `VoxelVolume` owns one runtime-sized vector of cells, generic versioning, and a batched RAII editor. It exposes dimensions, uniform voxel scale, bounds, checked coordinate access, and a read-only span. One changed edit session publishes one invalidation; it owns no world lookup, palette, animation, or rendering behavior.
 - `OcclusionResolver` tells `VoxelMesher` whether a candidate polygon is hidden. Standalone volumes treat cells outside their bounds as empty.
 - `ChunkOcclusionResolver` is the EP-004 world-aware implementation. It resolves an out-of-volume coordinate through Chunk world/collection state so a voxel in Chunk B can occlude a boundary polygon in Chunk A.
 - `MaterialResolver` independently selects the `paletteElementIndex` for each emitted polygon.
@@ -22,7 +22,7 @@ VoxelVolume + OcclusionResolver + MaterialResolver
 
 | Epic | Owns | Does not own |
 |---|---|---|
-| EP-001 | Minimal volume contract; dimensions/cell access/uniform scale/bounds; fixed 16³ Chunk adaptation; owning runtime-sized VoxelModel storage | World lookup, streaming, external occlusion, meshing, rendering |
+| EP-001 | Concrete owning volume contract; dimensions/cell access/uniform scale/bounds; batched editing/versioning; fixed-dimension 16³ Chunk adaptation; semantic runtime-sized VoxelModel type | World lookup, streaming, external occlusion, meshing, rendering |
 | EP-032 | OcclusionResolver; standalone outside-is-empty policy; MaterialResolver contract; Shape expansion; visibility; deterministic VoxelMesh output | Chunk::Collection, streaming, GPU upload |
 | EP-004 | ChunkOcclusionResolver; world/local lookup; Chunk integration; bake scheduling; dirty/version and neighbor invalidation; streaming/generation integration | A second volume adapter or mesher |
 

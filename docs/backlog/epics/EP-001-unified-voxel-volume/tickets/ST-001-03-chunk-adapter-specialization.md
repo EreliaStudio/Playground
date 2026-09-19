@@ -2,93 +2,58 @@
 
 ## Intent
 
-Make current Chunk satisfy/adapt to the common contract without moving Chunk-specific responsibilities into it.
+Make current Chunk derive from/use the resolved concrete `VoxelVolume` contract while preserving fixed 16³ Chunk semantics and all observable behavior.
 
 ## Execution decision policy
 
-- Do not invent, infer, or silently select behavior, data, assets, values, formulas, schemas, ownership, error policy, architecture, or technology that this ticket or an already-resolved linked decision does not define.
-- Treat every unspecified choice that can affect public behavior, compatibility, persistence, rendering, tests, or later tickets as an Open Decision.
-- Stop before implementing the affected portion, ask the user a focused clarification question, and record the approved answer in the applicable OD file—or create/link a new OD record when none exists.
-- Continue only with work that is independent of the missing decision.
-- Select an implementation detail without clarification only when this ticket explicitly delegates it and the choice cannot alter an observable contract.
+- Do not invent unspecified observable behavior; record a missing choice as an Open Decision.
+- Follow resolved OD-011 even where it supersedes the earlier fixed-array optimization option.
+- Preserve `Voxel::Cell` byte-for-byte under resolved OD-023.
 
 ## Starting state / prerequisites
 
-- The dependency contracts `EP-000, specifically ST-000-05 for the installed SparkleTestLibrary visual-test utilities` used by this story are available; an epic dependency denotes a required contract, not global waterfall completion.
-- The test begins from an explicitly constructed, valid state with no pending operation unless the case says otherwise.
-- Rendering, authoring data, and display names are not authoritative gameplay state.
+- ST-001-01 current-Chunk semantic and textured golden baseline is complete.
+- ST-001-02 owning VoxelVolume/read contract is complete.
 
 ## Owned behavior
 
-Make current Chunk satisfy/adapt to the common contract without moving Chunk-specific responsibilities into it.
+- Construct the Chunk volume as exactly `16 × 16 × 16` at voxel size `1.0`.
+- Remove duplicate Chunk cell ownership and use the vector storage owned by `VoxelVolume`.
+- Remove Chunk's direct `VersionedTrait` inheritance and duplicate nested editor implementation; inherit `VoxelVolume` versioning and `VoxelVolume::Editor` while preserving the existing edit-call API and observable transaction behavior.
+- Preserve coordinate-to-index order and all existing mutation/version notifications.
+- Inherited VoxelVolume construction/access/editor failures use the `spk::Exception` policy recorded in OD-011; Chunk-only APIs retain their current failure policy unless this ticket necessarily replaces them with the generic path.
+- Preserve Chunk coordinate/world conversion, Collection, generator, scheduler, and renderer call sites.
 
 ## Explicitly not owned
 
-- Behavior assigned to sibling tickets or later epics.
-- Resolution of linked Open Decisions.
-- New balance values, content, schemas, or platform choices not approved by the user.
+- Runtime-sized VoxelModel behavior.
+- World lookup or cross-Chunk access inside `VoxelVolume`.
+- Mesher extraction, Palette migration, new rendering behavior, or changed golden images.
 
-## Implementation inputs
+## Behavioral acceptance
 
-### Already defined values/data
-
-- Story intent: Make current Chunk satisfy/adapt to the common contract without moving Chunk-specific responsibilities into it.
-- Required dependency contracts: EP-000, specifically ST-000-05 for the installed SparkleTestLibrary visual-test utilities.
-- Test fixture rule: Use the smallest deterministic fixture that exposes the owned behavior. Record exact dimensions, cell coordinates, palette indices, transforms, expected vertices/state, and stable asset IDs in the test source; do not substitute an unspecified representative asset.
-
-### User validation required before implementation
-
-Before implementing behavior controlled by an Open Decision below, ask the user to resolve it and record the approved choice in that OD file. Work that relies only on its fixed constraints may proceed.
-
-## Behavioral contract
-
-The operation validates identity, ownership, bounds, and dependency preconditions before authoritative mutation. Success produces only the state and events owned above. Failure is atomic. Ordering and deterministic inputs are explicit and reproducible.
-
-## Acceptance tests
-
-### Nominal behavior and integration interactions
-
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `A 16³ volume at scale 1.0 reports 16×16×16 local extent.` is observed exactly; no private-state shortcut is used.
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Existing packed Cell ID/orientation/flip round-trips byte-for-byte.` is observed exactly; no private-state shortcut is used.
-- [ ] Chunk remains fixed 16³ and keeps current optimized storage.
-- [ ] Chunk coordinate/world conversion APIs remain Chunk concerns.
-- [ ] Existing generator/collection/editor call sites need no model-specific concepts.
-- [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
-- [ ] Identical deterministic inputs produce identical observable results.
-- [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
-- [ ] A rejected command leaves state, ownership, resources, version counters, scheduled work, and emitted authoritative events byte-for-byte or semantically unchanged.
-- [ ] Repeating the same seed, configuration, starting snapshot, and ordered commands produces the same result and event order.
-- [ ] Create → use → serialize where applicable → unload → restore/recreate → retry preserves stable IDs and does not duplicate the operation.
-- [ ] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
-
-### Boundaries and invalid/rejected operations
-
-- [ ] Missing IDs, foreign ownership, malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category.
-- [ ] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
-
-### Determinism and lifecycle / retry / persistence
-
-- [ ] Deterministic iteration never depends on pointer values, hash-table accident, render frame rate, or wall-clock timing.
-- [ ] A duplicate/retried operation is either idempotent or rejected as already applied, according to the story contract, without duplicating state or events.
-
-### Rendering / golden images
-
-- [ ] Render the deterministic fixture at `512 × 512`; compare against its reviewed PNG with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
-- [ ] Assert semantic geometry/material/transform values independently of the PNG comparison.
+- [ ] Chunk reports dimensions `16 × 16 × 16`, voxel size `1.0`, and local bounds `[0,16]³` through `VoxelVolume`.
+- [ ] First, interior, and last Chunk cells match the same coordinates and span positions as before migration.
+- [ ] Existing packed Cell ID/orientation/flip values round-trip byte-for-byte.
+- [ ] Invalid local coordinates remain rejected without aliasing storage.
+- [ ] `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`, with the same `set`/`commit` call API and exactly one invalidation for a changed session.
+- [ ] Inherited access/editor rejection uses `spk::Exception` with the stable VoxelVolume diagnostic message and source location.
+- [ ] Chunk world/local conversion, Collection, generation, baking, and scheduling CPU tests remain green.
+- [ ] All 20 approved current textured Chunk golden comparisons remain green on the supported runner.
+- [ ] No approved reference, comparison tolerance, texture, or UV is changed.
 
 ## Rendering impact
 
-Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, and supported GPU runner. Structural refactors must match the reviewed current baseline; intentional migrations require human review before a new versioned baseline is accepted.
+No intentional visual impact. The existing 20-reference suite is mandatory regression evidence for the storage migration.
 
 ## Open decisions
 
-- [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
-- [OD-023](../../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-011](../../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Resolved: Chunk keeps fixed dimensions but migrates from its fixed array to the vector owned by VoxelVolume.
+- [OD-023](../../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Resolved: preserve current packing.
 
 ## Completion evidence
 
-- Automated test names and passing CI run.
-- Exact fixtures and expected values checked into the test resources.
-- Error-path assertion proving no partial mutation.
-- Decision-file update and user approval reference when a gate was resolved.
-- For graphical work: expected, actual, and difference-image artifacts plus approval of any changed baseline.
+- Focused Chunk/VoxelVolume integration tests.
+- Passing complete CPU/headless suite.
+- Passing supported Windows/OpenGL golden suite with unchanged reference hashes.
+- Implementation commit/PR and CI links.

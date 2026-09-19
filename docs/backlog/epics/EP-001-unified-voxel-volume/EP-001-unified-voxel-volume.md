@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Extract one meshing-facing volume/grid contract from the current Chunk data model while preserving the existing compact Voxel::Cell, Definition/Shape chain and optimized fixed-size Chunk storage.
+Extract one meshing-facing volume/grid contract from the current Chunk data model while preserving the existing compact Voxel::Cell and Definition/Shape chain. OD-011 explicitly accepts migrating Chunk's cell storage from its fixed array to the common vector-owning base while retaining fixed 16³ Chunk semantics.
 
 ## Starting state
 
@@ -16,9 +16,9 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 - Stable content IDs are distinct from display names and file-system paths.
 - Invalid commands, content, or assets fail before partial authoritative mutation.
 - Open GDD values remain configuration or explicit decision gates rather than silently invented constants.
-- The exact public class/template shape is not predetermined; prefer a minimal read contract the mesher can consume.
+- OD-011 resolves one concrete vector-owning `VoxelVolume` base with read-only meshing access plus a controlled batched editor and version notification.
 - Runtime dimensions are data for imported models; do not encode arbitrary model dimensions as C++ template types.
-- `Chunk` may keep `std::array<Voxel::Cell, 16³>` internally while adapting to the common contract.
+- `Chunk` remains fixed at 16³ and migrates its cells to the storage owned by `VoxelVolume` in ST-001-03.
 - Voxel scale is a uniform scalar initially and belongs to the volume contract.
 - Do not widen/change packed `Voxel::Cell` orientation/flip during this refactor unless a separate requirement proves necessary.
 - Current texture/UV fields remain valid until the later Material migration.
@@ -33,9 +33,9 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 
 ## Scope
 
-- VoxelVolume dimensions, cell access, uniform scale, and bounds
-- Fixed 16×16×16 Chunk adaptation
-- Owning runtime-sized VoxelModel storage
+- VoxelVolume dimensions, cell access, uniform scale, bounds, and batched editing/versioning
+- Fixed-dimension 16×16×16 Chunk adaptation to inherited VoxelVolume storage
+- Runtime-sized VoxelModel semantic type over VoxelVolume storage
 - No world lookup, streaming, meshing, palettes, or animation
 
 ## Out of scope
@@ -51,9 +51,9 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 - Stable content IDs are distinct from display names and file-system paths.
 - Invalid commands, content, or assets fail before partial authoritative mutation.
 - Open GDD values remain configuration or explicit decision gates rather than silently invented constants.
-- The exact public class/template shape is not predetermined; prefer a minimal read contract the mesher can consume.
+- OD-011 resolves one concrete vector-owning `VoxelVolume` base with read-only meshing access plus a controlled batched editor and version notification.
 - Runtime dimensions are data for imported models; do not encode arbitrary model dimensions as C++ template types.
-- `Chunk` may keep `std::array<Voxel::Cell, 16³>` internally while adapting to the common contract.
+- `Chunk` remains fixed at 16³ and migrates its cells to the storage owned by `VoxelVolume` in ST-001-03.
 - Voxel scale is a uniform scalar initially and belongs to the volume contract.
 - Do not widen/change packed `Voxel::Cell` orientation/flip during this refactor unless a separate requirement proves necessary.
 - Current texture/UV fields remain valid until the later Material migration.
@@ -64,17 +64,18 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 
 | Subject / capability | Implemented by tickets | Tested by tickets |
 |---|---|---|
-| VoxelVolume dimensions, cell access, uniform scale, and bounds | [ST-001-01](tickets/ST-001-01-current-chunk-regression-characterization.md) | [ST-001-01](tickets/ST-001-01-current-chunk-regression-characterization.md) |
-| Fixed 16×16×16 Chunk adaptation | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) |
-| Owning runtime-sized VoxelModel storage | [ST-001-03](tickets/ST-001-03-chunk-adapter-specialization.md) | [ST-001-03](tickets/ST-001-03-chunk-adapter-specialization.md) |
-| No world lookup, streaming, meshing, palettes, or animation | [ST-001-04](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) | [ST-001-04](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) |
+| Current Chunk semantic and textured-render regression baseline | [ST-001-01](tickets/ST-001-01-current-chunk-regression-characterization.md) | [ST-001-01](tickets/ST-001-01-current-chunk-regression-characterization.md) |
+| VoxelVolume dimensions, owning cell storage, checked read access, uniform scale, bounds, and batched editing/versioning | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) |
+| Fixed 16×16×16 Chunk adaptation and unchanged behavior/rendering | [ST-001-03](tickets/ST-001-03-chunk-adapter-specialization.md) | [ST-001-03](tickets/ST-001-03-chunk-adapter-specialization.md) |
+| Runtime-sized VoxelModel semantic type over common storage | [ST-001-04](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) | [ST-001-04](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) |
+| No world lookup, streaming, meshing, palettes, or animation in the volume contract | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) |
 
 ## Ticket index
 
 - [ST-001-01 — Current Chunk regression characterization](tickets/ST-001-01-current-chunk-regression-characterization.md) — Capture stable fixtures around the existing 16³ storage/indexing and Cell semantics **and approve reference images from the current textured Chunk renderer before extraction**. This story has both headless data checks and a required GPU presentation gate using SparkleTestLibrary; see [ARCH-004](../../architecture/ARCH-004-TEST-STRATEGY.md#textured-chunk-image-regression-gate).
-- [ST-001-02 — Read-only VoxelVolume contract](tickets/ST-001-02-read-only-voxelvolume-contract.md) — Introduce the smallest common dimensions/cell/scale/bounds access contract required by meshing.
-- [ST-001-03 — Chunk adapter/specialization](tickets/ST-001-03-chunk-adapter-specialization.md) — Make current Chunk satisfy/adapt to the common contract without moving Chunk-specific responsibilities into it.
-- [ST-001-04 — Runtime-sized VoxelModel storage](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — Add a simple owning volume suitable for imported props/parts with arbitrary dimensions and smaller scale.
+- [ST-001-02 — Read-only VoxelVolume contract](tickets/ST-001-02-read-only-voxelvolume-contract.md) — Introduce common dimensions/cell/scale/bounds access plus the generic batched editor and version notification.
+- [ST-001-03 — Chunk adapter/specialization](tickets/ST-001-03-chunk-adapter-specialization.md) — Make current Chunk inherit the common storage/editor/version contract without moving Chunk-specific responsibilities into it.
+- [ST-001-04 — Runtime-sized VoxelModel storage](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — Add the semantic VoxelModel type over the owning storage and controlled editor introduced by ST-001-02.
 
 ## Epic integration acceptance tests
 
@@ -100,8 +101,8 @@ Additional integration invariants:
 
 ## Decision gates
 
-- [OD-011](../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
-- [OD-023](../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-011](../../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) — Resolved during ST-001-02: use one concrete vector-owning VoxelVolume base; migrate Chunk storage in ST-001-03.
+- [OD-023](../../open-decisions/OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) — Resolved: preserve the existing packed Cell orientation/flip representation.
 
 ## Rendering validation
 

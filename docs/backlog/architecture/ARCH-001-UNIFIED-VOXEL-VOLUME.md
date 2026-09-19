@@ -4,7 +4,7 @@
 
 Erelia uses **one fundamental voxel-volume representation** for persistent terrain chunks and voxel-authored models. `Chunk` and `VoxelModel` are semantic users of the same cell/grid contract, not separate graphics formats.
 
-The exact class/API names remain implementation decisions. Conceptually a volume exposes:
+As resolved by [OD-011](../open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md), `VoxelVolume` is a concrete vector-owning base. It exposes:
 
 ```text
 dimensions
@@ -12,6 +12,7 @@ voxel cells
 coordinate/index access
 local bounds
 uniform voxelSize
+batched edit session + version notification
 ```
 
 The cell representation remains based on the existing `Voxel::Cell → Voxel::Definition → Voxel::Shape` chain unless measured implementation evidence requires change.
@@ -46,16 +47,17 @@ Do not introduce `TerrainVoxel` versus `ModelVoxel` merely because ownership dif
 
 A Chunk retains world-specific responsibilities outside the generic volume contract:
 
-- fixed 16³ dimensions and optimized storage;
+- fixed 16³ dimensions over the storage inherited from `VoxelVolume`;
 - chunk coordinate and world/local conversion;
 - `Chunk::Collection` membership;
 - deterministic generation;
 - streaming/request lifecycle;
-- versioning/editing;
 - cross-chunk neighbor access;
 - bake scheduling.
 
 The generic volume must not absorb these responsibilities.
+
+The earlier option to retain a separate fixed `std::array` inside Chunk was superseded by the project owner's OD-011 decision. ST-001-03 must prove that migrating storage ownership does not change Chunk indexing, editing, or rendered output.
 
 ## VoxelModel specialization
 
@@ -96,6 +98,10 @@ Only voxel-data change invalidates a volume mesh:
 ```text
 edit cells → increment/version or dirty flag → remesh affected volume
 ```
+
+`VoxelVolume::Editor` is the generic mutation boundary. It retains the current Chunk editor API: `set(coordinate, cell)` records real changes, and `commit()` or RAII destruction publishes at most one volume invalidation for the entire session. A session containing only no-op assignments publishes no invalidation. Chunk-specific scheduling and neighbor invalidation remain outside the volume.
+
+VoxelVolume-owned contract failures use `spk::Exception`. Its `message()` is the stable programmatic diagnostic, while `what()` includes Sparkle's source location and any nested cause. The contract does not expose separate standard exception subtypes.
 
 Entity transform, camera movement, animation transforms, palette changes and ordinary material parameter changes do not remesh geometry.
 
