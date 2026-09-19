@@ -33,11 +33,9 @@ Make current Chunk derive from/use the resolved concrete `VoxelVolume` contract 
 ## Behavioral acceptance
 
 - [x] Chunk reports dimensions `16 × 16 × 16`, voxel size `1.0`, and local bounds `[0,16]³` through `VoxelVolume`.
-- [x] First, interior, and last Chunk cells match the same coordinates and span positions as before migration.
-- [x] Existing packed Cell ID/orientation/flip values round-trip byte-for-byte.
-- [x] Invalid local coordinates remain rejected without aliasing storage.
-- [x] `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`, with the same `set`/`commit` call API and exactly one invalidation for a changed session.
-- [x] Inherited access/editor rejection uses `spk::Exception` with the stable VoxelVolume diagnostic message and source location.
+- [x] Chunk's static coordinate/index helpers retain the existing X-then-Z-then-Y order and rejection policy.
+- [x] No Chunk-owned storage, access, editor, versioning, or diagnostic behavior remains; those inherited contracts are tested once by ST-001-02 rather than duplicated in Chunk tests.
+- [x] A changed Chunk queues itself and every available face-neighbor for rebuild through the Chunk-owned BakeScheduler behavior.
 - [x] Chunk world/local conversion, Collection, generation, baking, and scheduling CPU tests remain green.
 - [x] All 20 approved current textured Chunk golden comparisons remain green on the supported runner.
 - [x] No approved reference, comparison tolerance, texture, or UV is changed.
@@ -53,6 +51,7 @@ No intentional visual impact. The existing 20-reference suite is mandatory regre
 
 ## Completion evidence
 
-- Focused Chunk/VoxelVolume integration tests in `tests/chunk_storage_tests.cpp` and `tests/chunk_editor_tests.cpp`.
+- Focused Chunk specialization/index tests in `tests/chunk_storage_tests.cpp`, with inherited behavior covered by the VoxelVolume test families.
+- Chunk-owned neighbor rebuild coverage in `tests/chunk_bake_scheduler_tests.cpp`.
 - Implementation commit [`27c095f`](https://github.com/EreliaStudio/Playground/commit/27c095f467cdb4bd1525aa5be81bccfab889b5fb).
 - The complete CPU/headless and supported Windows/OpenGL golden suite pass without reference or tolerance changes; the exact CI run is recorded in `CURRENT-STATUS.md`.

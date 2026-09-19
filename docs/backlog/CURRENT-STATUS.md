@@ -93,7 +93,8 @@ VS-001 first playable                              🔭
 - ✅ Chunk's duplicate fixed array, direct `VersionedTrait` inheritance, and duplicate editor implementation were removed.
 - ✅ `Chunk::edit()` resolves to the inherited `VoxelVolume::Editor`; changed and no-op sessions retain the established one-notification transaction behavior.
 - ✅ Chunk keeps its coordinate, world conversion, Collection, generation, baking, scheduling, and rendering responsibilities.
-- ✅ Focused integration tests cover inheritance, volume metadata/bounds, first/interior/last span positions, packed Cell preservation, inherited editor identity, and `spk::Exception` rejection.
+- ✅ Focused Chunk tests cover the fixed constructor specialization and Chunk-owned coordinate/index behavior; inherited storage, access, editor, versioning, and diagnostics remain covered once by the VoxelVolume suites.
+- ✅ BakeScheduler coverage proves an edited Chunk queues itself and every available face-neighbor for rebuild.
 - ✅ Implementation commit: [`27c095f`](https://github.com/EreliaStudio/Playground/commit/27c095f467cdb4bd1525aa5be81bccfab889b5fb).
 - ✅ No approved reference, comparison tolerance, texture, UV, or intended rendering output changed.
 
