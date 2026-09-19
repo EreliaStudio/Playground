@@ -6,7 +6,7 @@
 EP-000 Test Harness
    ↓
 EP-001 Unified VoxelVolume/Cell/Scale contract
-   ├──────────────→ EP-032 Unified VoxelMesher + NeighborContext
+   ├──────────────→ EP-032 Unified VoxelMesher + OcclusionResolver
    │                       ├──────────→ EP-004 Chunk world adaptation
    │                       └──────────→ EP-003 Mesh runtime/materials
    │

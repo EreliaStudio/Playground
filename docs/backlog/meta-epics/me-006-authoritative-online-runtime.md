@@ -6,8 +6,8 @@ Provide authoritative durable state first locally/headlessly and then through re
 
 ## Children
 
-- [EP-024 — Authoritative Domain Server and Persistence](../epics/EP-024-server-authority-persistence.md)
-- [EP-028 — Networking, Replication, Interest Management, and Client Reconciliation](../epics/EP-028-network-replication.md)
+- [EP-024 — Authoritative Domain Server and Persistence](../epics/EP-024-server-authority-persistence/EP-024-server-authority-persistence.md)
+- [EP-028 — Networking, Replication, Interest Management, and Client Reconciliation](../epics/EP-028-network-replication/EP-028-network-replication.md)
 
 ## Capability-level Done
 

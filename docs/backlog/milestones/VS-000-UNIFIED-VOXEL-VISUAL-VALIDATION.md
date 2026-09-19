@@ -19,11 +19,12 @@ One runtime scene contains simultaneously:
 All voxel geometry must pass through the same fundamental path:
 
 ```text
-VoxelVolume → NeighborResolver → VoxelMesher → Mesh + Materials → renderer
+VoxelVolume + OcclusionResolver + MaterialResolver → VoxelMesher → VoxelMesh → same voxel shader + bound Palette SSBO
 ```
 
 ## Entry gates
 
+- Sparkle PR #1 is merged and its exported optional `Sparkle::TestLibrary` is available. Playground has consumed the installed component, configured project-owned reference/result roots, wired the supported GPU job, and retained failure artifacts.
 - Current Chunk mesh semantic regression fixtures and reviewed pre-refactor textured PNG references exist.
 - EP-001/EP-032 pass both semantic and image parity before material changes; any palette/non-textured image-baseline transition follows the explicit review/versioning gate in [ARCH-004](../architecture/ARCH-004-TEST-STRATEGY.md#later-non-textured-rendering-migration).
 - EP-001 volume contract can adapt current Chunk and own runtime-sized model storage.
@@ -44,6 +45,8 @@ VoxelVolume → NeighborResolver → VoxelMesher → Mesh + Materials → render
 10. **Headless parity:** volume/import/meshing tests run without GPU; presentation scene does not change authoritative state hash.
 11. **Performance capture:** record meshing time, mesh triangle/vertex counts, cache hits, draw calls and frame cost for the scene.
 12. **Decision record:** document whether the visual result is accepted, what Material sampling rule is chosen, and any measured blocker before H1 content production.
+13. **Palette contract:** the Chunk scene binds one shared WorldPalette, model instances bind their selected smaller Palettes, the shader consumes flat `paletteElementIndex`, and Palette swaps alter no geometry or mesher count.
+14. **Strict visual gate:** semantic parity alone cannot satisfy VS-000. The textured refactor image remains identical; the later palette change is reviewed through old/actual/difference images before a new versioned baseline is accepted.
 
 ## Explicit non-goals
 

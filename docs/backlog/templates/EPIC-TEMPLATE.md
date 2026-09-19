@@ -1,41 +1,54 @@
 # EP-XXX — Title
 
-**Meta-epic:** ME-XXX  
-**Horizon:** H0/H1/H2/H3  
-**Coverage:** ...  
-**Dependencies:** ...
+**Dependencies:** required contracts only; not a mandatory waterfall in which every earlier epic is globally complete.
 
-## Goal
+## Purpose
 
-...
+## Starting state
 
-## Architectural constraints
+State concrete contracts and observable assumptions.
 
-- Headless/simulation boundary.
-- Stable IDs/versioning.
-- Atomic validation.
-- Decision gates remain explicit.
+## Target state
 
-## Integration Test Catalogue
+## Scope
 
-1. Nominal.
-2. Boundary.
-3. Invalid/corrupt.
-4. Lifecycle.
-5. Determinism.
-6. Persistence.
-7. Failure/retry.
-8. Headless/performance as applicable.
+## Out of scope
 
-## Candidate Stories
+Define ownership boundaries with neighboring epics.
 
-### ST-XXX-01 — ...
+## Architecture / behavioral overview
 
-**Acceptance cases**
+## Subjects / capabilities covered
 
-- [ ] ...
+| Subject / capability | Implemented by tickets | Tested by tickets |
+|---|---|---|
+| Exact subject | ST-XXX-YY | ST-XXX-YY |
 
-## Epic Exit Criteria
+No prose feature may be absent from this matrix.
 
-- [ ] Activated stories Done.
-- [ ] Integration catalogue automated/passing.
+## Ticket index
+
+- [ST-XXX-YY](tickets/ST-XXX-YY-title.md) — description.
+
+## Epic integration acceptance tests
+
+Define exhaustive cross-ticket state/input/output cases. These supplement rather than replace ticket tests.
+
+## Decision gates
+
+Link persistent OD files and identify precisely what is blocked.
+
+## Rendering validation
+
+Classify impact. Graphical epics require controlled golden-image fixtures plus semantic/value assertions. Never replace a failed reference without regression review.
+
+## Required user-provided inputs
+
+List missing assets, schemas, content, values, formulas, policies, or technology decisions. Write `None` only when all are defined.
+
+## Epic exit criteria
+
+- [ ] Coverage matrix complete.
+- [ ] Integration catalogue automated and passing.
+- [ ] Decisions and user inputs recorded.
+- [ ] Rendering baselines reviewed where applicable.

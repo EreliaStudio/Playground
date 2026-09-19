@@ -6,9 +6,9 @@ Make testing, telemetry/profiling and versioned content publication foundational
 
 ## Children
 
-- [EP-000 — Test Harness and CI Quality Gates](../epics/EP-000-test-harness-ci.md)
-- [EP-027 — Telemetry, Profiling, and Operational Observability](../epics/EP-027-telemetry-observability.md)
-- [EP-029 — Unified Content Schemas and Runtime Asset Contract](../epics/EP-029-content-contracts.md)
+- [EP-000 — Test Harness and CI Quality Gates](../epics/EP-000-test-harness-ci/EP-000-test-harness-ci.md)
+- [EP-027 — Telemetry, Profiling, and Operational Observability](../epics/EP-027-telemetry-observability/EP-027-telemetry-observability.md)
+- [EP-029 — Unified Content Schemas and Runtime Asset Contract](../epics/EP-029-content-contracts/EP-029-content-contracts.md)
 
 ## Capability-level Done
 

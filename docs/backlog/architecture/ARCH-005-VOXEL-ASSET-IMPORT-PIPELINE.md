@@ -37,13 +37,13 @@ Most common voxel formats are cube-centric. That is acceptable for many props/ch
 Character assembly data is separate from cell geometry:
 
 ```text
-part asset + pivot
+part asset + assembly anchor
 parent/child transform hierarchy
 animation clips over transforms
 attachment points
 ```
 
-Blender or a simple declarative sidecar format may provide hierarchy/pivots/animation if useful. The runtime does not need skeletal vertex skinning because each part is a rigid voxel mesh.
+Blender or a simple declarative sidecar format may provide anchor hierarchies/animation if useful. The runtime does not need skeletal vertex skinning because each part is a rigid voxel mesh.
 
 ## Import is not mesh compilation
 
@@ -58,7 +58,7 @@ Import must fail before publication on:
 - unsupported dimensions or coordinate overflow;
 - unknown Definition/material mapping;
 - invalid hierarchy references;
-- missing required part/pivot metadata;
+- missing required assembly part/anchor metadata;
 - format/version errors.
 
 A failed import never replaces the last valid asset revision.

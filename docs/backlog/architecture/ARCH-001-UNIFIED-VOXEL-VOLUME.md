@@ -74,7 +74,7 @@ The model's detailed cells are visual data unless explicit gameplay systems say 
 Target architecture:
 
 ```text
-VoxelVolume + NeighborResolver + DefinitionCatalog
+VoxelVolume + OcclusionResolver + DefinitionCatalog
                     ↓
                 VoxelMesher
                     ↓
@@ -87,7 +87,7 @@ The mesher must preserve the current behavior for shape transforms, hidden-face 
 
 ## Articulated characters
 
-A Hero is an assembly of independently meshed rigid volumes. Hierarchy/pivot transforms animate parts; animation must not edit cells or remesh by default. Equipment is independent VoxelModel assets attached to hierarchy points.
+A Hero is a VoxelAssembly of independently meshed rigid VoxelModels. Named assembly-anchor transforms animate parts; animation must not edit cells or invoke the mesher. Equipment consists of reusable VoxelModels attached to named assembly anchors. VoxelModel files contain no anchors or hierarchy metadata.
 
 ## Editing and cache invalidation
 

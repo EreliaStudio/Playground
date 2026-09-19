@@ -6,10 +6,10 @@ Build deterministic voxel worlds, traversal, continuous exploration, followers a
 
 ## Children
 
-- [EP-004 — Deterministic Chunk World Runtime](../epics/EP-004-chunk-world-generation.md)
-- [EP-005 — Voxel Traversal Graph and Surface Extraction](../epics/EP-005-voxel-navigation.md)
-- [EP-008 — Third-Person Movement and Camera](../epics/EP-008-exploration-control.md)
-- [EP-009 — Followers, Formation, Detection, and Exploration Actions](../epics/EP-009-followers-detection-actions.md)
+- [EP-004 — Deterministic Chunk World Runtime](../epics/EP-004-chunk-world-generation/EP-004-chunk-world-generation.md)
+- [EP-005 — Voxel Traversal Graph and Surface Extraction](../epics/EP-005-voxel-navigation/EP-005-voxel-navigation.md)
+- [EP-008 — Third-Person Movement and Camera](../epics/EP-008-exploration-control/EP-008-exploration-control.md)
+- [EP-009 — Followers, Formation, Detection, and Exploration Actions](../epics/EP-009-followers-detection-actions/EP-009-followers-detection-actions.md)
 
 ## Capability-level Done
 

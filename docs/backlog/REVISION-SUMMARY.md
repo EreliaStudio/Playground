@@ -27,7 +27,7 @@ Voxel::Cell → Definition → normalized Shape
               ↙              ↘
            Chunk            VoxelModel
               ↘              ↙
-              NeighborResolver
+              OcclusionResolver
                      ↓
                 VoxelMesher
                      ↓
@@ -51,7 +51,7 @@ A custom modeling application is no longer part of the required implementation. 
 | `EP-003 — Runtime Rendering, Material Effects, and Mesh Caching` | `EP-003 — Material Rendering, Mesh Runtime, and Caching` |
 | `EP-030 — Voxel Modeling Program Foundation` | `EP-030 — External Voxel Asset Import and Volume Conversion` |
 | `EP-031 — Micro-Voxel Authoring Tools` | `EP-031 — Articulated Voxel Character Assembly and Transform Animation` |
-| `EP-032 — Mesh Compiler / Baked Format` | `EP-032 — Unified Voxel Mesher and Neighbor Context` |
+| `EP-032 — Mesh Compiler / Baked Format` | `EP-032 — Unified Voxel Mesher and Occlusion Context` |
 | `EP-033 — Model Preview / Animation / Export` | `EP-033 — Multi-Scale Material Prototype and Visual Validation` |
 | first playable required custom editor/compiler | new `VS-000` validates unified voxel visuals before `VS-001` gameplay slice |
 
