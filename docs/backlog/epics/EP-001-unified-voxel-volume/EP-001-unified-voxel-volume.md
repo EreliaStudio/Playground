@@ -114,7 +114,7 @@ Graphical tickets use deterministic `512 × 512` Sparkle TestLibrary comparisons
 
 ## Epic exit criteria
 
-- [ ] Every ticket's behavioral, boundary, rejection, determinism, lifecycle, integration, rendering, and evidence sections pass.
-- [ ] Every coverage-matrix row has implementation and test evidence.
-- [ ] Applicable decisions are resolved in their persistent OD files, with provenance.
-- [ ] No graphical baseline was replaced solely because a comparison failed.
+- [x] Every ticket's behavioral, boundary, rejection, determinism, lifecycle, integration, rendering, and evidence sections pass.
+- [x] Every coverage-matrix row has implementation and test evidence.
+- [x] Applicable decisions are resolved in their persistent OD files, with provenance.
+- [x] No graphical baseline was replaced solely because a comparison failed.

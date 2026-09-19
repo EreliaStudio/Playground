@@ -29,12 +29,12 @@ Introduce the semantic `VoxelModel` volume type for imported props and rigid ass
 
 ## Behavioral acceptance
 
-- [ ] Models with dimensions `10×10×14`, `12×7×14`, and `32×32×22` use the same C++ type.
-- [ ] An `8×8×16` model at scale `0.1` reports local bounds `0.8×0.8×1.6` within floating tolerance.
-- [ ] Inherited model editing stores and retrieves the same packed `Voxel::Cell` values through the public read contract and publishes one invalidation per changed session.
-- [ ] Invalid dimensions, scale, and coordinates follow the validation policy inherited from VoxelVolume.
-- [ ] Model access and bounds run headlessly without a Definition catalog, Window, OpenGL context, or GPU ownership.
-- [ ] No model-specific concept enters Chunk, VoxelVolume, or world lookup APIs.
+- [x] Models with dimensions `10×10×14`, `12×7×14`, and `32×32×22` use the same C++ type.
+- [x] An `8×8×16` model at scale `0.1` reports local bounds `0.8×0.8×1.6` within floating tolerance.
+- [x] Inherited model editing stores and retrieves the same packed `Voxel::Cell` values through the public read contract and publishes one invalidation per changed session.
+- [x] Invalid dimensions, scale, and coordinates follow the validation policy inherited from VoxelVolume.
+- [x] Model access and bounds run headlessly without a Definition catalog, Window, OpenGL context, or GPU ownership.
+- [x] No model-specific concept enters Chunk, VoxelVolume, or world lookup APIs.
 
 ## Rendering impact
 
@@ -48,6 +48,6 @@ None. This ticket creates headless model data only and does not require a golden
 
 ## Completion evidence
 
-- Focused headless VoxelModel tests for representative dimensions, scale/bounds, cell values, and rejection cases.
-- Passing CPU/headless regression suite.
-- Implementation commit/PR and CI links.
+- Four focused `VoxelModelTest` headless tests cover representative runtime dimensions, scale/bounds, packed cell values with one invalidation, and inherited rejection cases.
+- Implementation head: [`d9f25c6`](https://github.com/EreliaStudio/Playground/commit/d9f25c6a91c32f8ac05ab71419bff30397c40d39), delivered by [PR #5](https://github.com/EreliaStudio/Playground/pull/5).
+- [CI run 35469132300](https://github.com/EreliaStudio/Playground/actions/runs/35469132300) passed the CPU/headless regression suite and the unchanged Windows/OpenGL golden suite.
