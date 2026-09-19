@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -150,24 +150,3 @@ jobs:
             Playground/build/ci/CMakeFiles/CMakeConfigureLog.yaml
           if-no-files-found: error
           retention-days: 30
-      - name: Commit approved golden references
-        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/feat/current-chunk-regression-characterization'
-        working-directory: Playground
-        run: |
-          $source = 'build/ci/tests/expectedImages/current_chunk'
-          $destination = 'tests/resources/expectedImages/current_chunk'
-          if (-not (Test-Path $source)) {
-            Write-Host 'No missing golden references were generated.'
-            exit 0
-          }
-          New-Item -ItemType Directory -Force -Path $destination | Out-Null
-          Copy-Item "$source/*" $destination -Force
-          git add -- tests/resources/expectedImages/current_chunk
-          if (git diff --cached --quiet) {
-            Write-Host 'Golden references are already committed.'
-            exit 0
-          }
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Add approved current Chunk golden references'
-          git push origin "HEAD:$env:GITHUB_REF_NAME"
