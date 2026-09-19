@@ -49,6 +49,7 @@ jobs:
           '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
           -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
           -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          -DVCPKG_OVERLAY_PORTS="$env:GITHUB_WORKSPACE/Sparkle/ports"
           -DBUILD_TESTING=ON
       - name: Build CPU/headless tests
         working-directory: Playground
@@ -97,6 +98,7 @@ jobs:
           '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
           -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
           -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          -DVCPKG_OVERLAY_PORTS="$env:GITHUB_WORKSPACE/Sparkle/ports"
           -DBUILD_TESTING=ON
       - name: Build GPU test
         working-directory: Playground
