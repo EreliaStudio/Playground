@@ -37,7 +37,7 @@ namespace voxel
 
 	bool Palette::empty() const noexcept
 	{
-		return _elements.empty();
+		return size() == 0;
 	}
 
 	bool Palette::contains(std::size_t elementIndex) const noexcept
