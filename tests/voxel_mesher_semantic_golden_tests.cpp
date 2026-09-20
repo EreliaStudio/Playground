@@ -35,7 +35,7 @@ namespace
 			auto right = playground_test::chunkWithCell({1, 0, 0}, {0, 2, 3}, voxel::Voxel::Cell(catalog.id("stone")));
 			if (!playground_test::publish(chunks, std::move(right))) throw spk::Exception("fixture publication failed");
 		}
-		return voxel::ChunkMesher(catalog, chunks).bake(*source);
+		return voxel::Chunk::Mesher(catalog, chunks).bake(*source);
 	}
 
 	void expectSnapshot(const spk::TextureMesh3D &mesh, std::string_view name)

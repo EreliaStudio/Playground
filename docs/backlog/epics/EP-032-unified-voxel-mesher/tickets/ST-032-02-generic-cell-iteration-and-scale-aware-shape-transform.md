@@ -1,8 +1,8 @@
-# ST-032-02 — Unified VoxelMesher and ChunkMesher implementation
+# ST-032-02 — Unified VoxelMesher and Chunk::Mesher implementation
 
 ## Intent
 
-Implement one inheritable, scale-aware `VoxelMesher` for `VoxelVolume`/`VoxelModel` and its narrow `ChunkMesher` specialization, including cached occlusion, cross-Chunk lookup, exhaustive semantic evidence, and reviewed rendering fixtures.
+Implement one inheritable, scale-aware `VoxelMesher` for `VoxelVolume`/`VoxelModel` and its narrow `Chunk::Mesher` specialization, including cached occlusion, cross-Chunk lookup, exhaustive semantic evidence, and reviewed rendering fixtures.
 
 ## Execution decision policy
 
@@ -19,13 +19,13 @@ Implement one inheritable, scale-aware `VoxelMesher` for `VoxelVolume`/`VoxelMod
 
 ## Approved consolidation
 
-The project owner consolidated the former ST-032-02 Shape/iteration work, ST-032-03 boundary/cache work, and ST-004-02 Chunk specialization into this ticket on 20 September 2026. `Chunk::Baker` remains intact as the independent parity oracle. ST-004-01 separately owns the later migration of runtime consumers from `Chunk::Baker` to `ChunkMesher`.
+The project owner consolidated the former ST-032-02 Shape/iteration work, ST-032-03 boundary/cache work, and ST-004-02 Chunk specialization into this ticket on 20 September 2026. `Chunk::Baker` remains intact as the independent parity oracle. ST-004-01 separately owns the later migration of runtime consumers from `Chunk::Baker` to `Chunk::Mesher`.
 
 ## Owned behavior
 
 - `VoxelMesher` owns deterministic volume iteration, Definition/Shape expansion, orientation/flip transforms, uniform-scale position mapping, material/UV propagation, visibility evaluation, mesh emission, and the reusable occlusion-result cache.
 - In-bounds neighbors use `VoxelVolume::at`. Only out-of-volume coordinates reach a protected virtual hook; the base returns `Voxel::Cell{}`.
-- `ChunkMesher` derives from `VoxelMesher`, inherits the entire algorithm/cache, and overrides only outside-volume lookup through the source Chunk coordinate and `Chunk::Collection`.
+- `Chunk::Mesher` derives from `VoxelMesher`, inherits the entire algorithm/cache, and overrides only outside-volume lookup through the source Chunk coordinate and `Chunk::Collection`.
 - Invalid runtime Definition IDs fail validation before mesh/cache mutation.
 - The existing textured `spk::TextureMesh3D` representation is preserved; OD-020 continues to own later merging/indexing/hard-normal policy.
 
@@ -58,8 +58,8 @@ The project owner consolidated the former ST-032-02 Shape/iteration work, ST-032
 ### Structure and shared algorithm
 
 - [x] `VoxelMesher` works directly with `VoxelVolume` and `VoxelModel` and contains no Chunk/world dependency or concrete-volume branch.
-- [x] `ChunkMesher` derives from `VoxelMesher` and overrides only protected outside-volume neighbor resolution.
-- [x] No second iteration, Shape transform, visibility, cache, or mesh-emission loop exists in `ChunkMesher`.
+- [x] `Chunk::Mesher` derives from `VoxelMesher` and overrides only protected outside-volume neighbor resolution.
+- [x] No second iteration, Shape transform, visibility, cache, or mesh-emission loop exists in `Chunk::Mesher`.
 - [x] `Chunk::Baker` remains present and exercised as a separate production parity oracle.
 
 ### Semantic and numerical behavior
@@ -92,8 +92,8 @@ The project owner consolidated the former ST-032-02 Shape/iteration work, ST-032
 
 ## Completion evidence
 
-- `VoxelMesherTest`, `VoxelMesherSemanticGoldenTest`, and `ChunkMesherTest` provide headless numerical, semantic, cache, scale, failure, and six-direction boundary evidence.
-- `CurrentChunkGoldenTest.VoxelMesherJsonAndProceduralVolumes` and `CurrentChunkGoldenTest.ChunkMesherCrossChunkOcclusion` cover the twelve approved references.
+- `VoxelMesherTest`, `VoxelMesherSemanticGoldenTest`, and `Chunk::MesherTest` provide headless numerical, semantic, cache, scale, failure, and six-direction boundary evidence.
+- `CurrentChunkGoldenTest.VoxelMesherJsonAndProceduralVolumes` and `CurrentChunkGoldenTest.Chunk::MesherCrossChunkOcclusion` cover the twelve approved references.
 - Candidate artifact `10606095311` from CI run `35510619947`, SHA-256 `91bb25488ec4a2c0f5c4c47184559ae1f6e9b44922e82e4a1f7abff36ec447d4`, was explicitly approved by the project owner on 20 September 2026.
 - Commit `ae1deac` checks in those exact twelve `640 × 480` PNGs without changing existing references, tolerances, cameras, atlas data, or shaders.
 - Commit `6e0054f` protects JSON/procedural parity inputs from Sparkle's successful-comparison artifact cleanup without changing any reference.

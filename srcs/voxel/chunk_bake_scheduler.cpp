@@ -5,9 +5,9 @@
 
 namespace voxel
 {
-	Chunk::BakeScheduler::BakeScheduler(Collection &chunks, const Baker &baker, spk::Profiler *profiler) :
+	Chunk::BakeScheduler::BakeScheduler(Collection &chunks, const Mesher &mesher, spk::Profiler *profiler) :
 		_chunks(chunks),
-		_baker(baker),
+		_mesher(mesher),
 		_profiler(profiler),
 		_available(chunks.subscribeToAvailability([this](Chunk &chunk) {
 			_observe(chunk);
@@ -64,7 +64,7 @@ namespace voxel
 				std::unique_ptr<spk::Profiler::TimeMeasurement::Scope> chunkTimer;
 				if (_profiler != nullptr)
 					chunkTimer = std::make_unique<spk::Profiler::TimeMeasurement::Scope>(_profiler->timeMeasurement("Chunks/bake chunk"));
-				const spk::TextureMesh3D mesh = _baker.bake(*chunk);
+				const spk::TextureMesh3D mesh = _mesher.bake(*chunk);
 				_bakeCompletions.trigger(coordinate, mesh);
 				++count;
 			}

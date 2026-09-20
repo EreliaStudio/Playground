@@ -1,6 +1,6 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
-> **Current position:** The installed test harness, reviewed current textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, provisional sparse JSON model loader, focused headless tests, and ST-032-01 current Baker semantic fixtures are in place. ST-032-02 generic cell iteration and scale-aware Shape transform is next; see [Erelia Implementation Status](CURRENT-STATUS.md).
+> **Current position:** The installed test harness, reviewed textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, provisional sparse JSON loader, unified `VoxelMesher`, nested `Chunk::Mesher`, and production consumer transition are complete. The obsolete `Chunk::Baker` is removed after semantic and all 32 image references passed unchanged. OD-020 is the current optimization-policy decision gate; see [Erelia Implementation Status](CURRENT-STATUS.md).
 
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 
@@ -14,7 +14,7 @@ See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the reposit
 - Sparkle architecture-planning baseline: `Version0.1.1` at `9784377d41509234d43e4adec16505382eef178f`
 - Current prebuilt Sparkle package: `0.1.2` at `65c1091fcc3d3387f7d019486e3538c7df5572d6`
 
-The current Playground implementation already provides normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker` coupled to chunk-neighbor lookup. Those are the migration baseline, not disposable prototypes.
+The original Playground migration baseline provided normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker`. Those semantics are now preserved by the shared `VoxelMesher`, nested `Chunk::Mesher`, retained semantic snapshots, and approved visual references.
 
 
 Current package: **34 epics, 137 standalone implementation tickets, 25 persistent Open Decisions, and 9 capability/root meta-epics.** Acceptance-case totals are intentionally not hand-maintained; completeness is audited from the ticket files rather than constrained to an artificial count.
@@ -46,14 +46,14 @@ normalized Voxel::Shape + material slots
        VoxelMesher + shared occlusion cache
           default outside-volume = empty
                        ↑
-  ChunkMesher overrides external lookup only
+  Chunk::Mesher overrides external lookup only
                        ↓
  VoxelMesh(position, normal, paletteElementIndex)
                        ↓
        same voxel shader + bound Palette SSBO
 ```
 
-[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. [OD-025](open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) resolves one generic VoxelMesher owning the common algorithm/cache, with ChunkMesher overriding only outside-volume lookup through `Chunk::Collection`. Vertex packing and buffer binding numbers remain later implementation decisions. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
+[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. [OD-025](open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) resolves one generic VoxelMesher owning the common algorithm/cache, with Chunk::Mesher overriding only outside-volume lookup through `Chunk::Collection`. Vertex packing and buffer binding numbers remain later implementation decisions. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
 
 ## Safe migration rule
 
@@ -61,7 +61,7 @@ Do **not** rewrite the working world renderer and material system in one step.
 
 1. Characterize current chunk output with semantic fixtures and manually approved textured PNG references using SparkleTestLibrary image comparison.
 2. Extract generic volume access from `Chunk` without changing current output.
-3. Introduce one `VoxelMesher` with cached occlusion/default-empty boundaries and its narrow `ChunkMesher` outside-neighbor override while retaining `Chunk::Baker` as an oracle.
+3. Introduce one `VoxelMesher` with cached occlusion/default-empty boundaries and its narrow `Chunk::Mesher` outside-neighbor override while retaining `Chunk::Baker` as an oracle.
 4. Prove JSON-loaded `VoxelModel`, procedural raw-volume, and filled cross-Chunk behavior through numerical, semantic, and reviewed textured-image evidence.
 5. Transition runtime Chunk consumers from `Chunk::Baker` only after the new mesher references and parity evidence are approved.
 6. Introduce the new Material abstraction alongside the current atlas path.

@@ -1,6 +1,6 @@
 #include "voxel_test_utils.hpp"
 
-#include "voxel/chunk_baker.hpp"
+#include "voxel/chunk_mesher.hpp"
 
 #include <gtest/gtest.h>
 
@@ -21,7 +21,7 @@ namespace
 	}
 }
 
-TEST(ChunkBakerTransformTest, VerticalFlipChangesBoundaryOcclusion)
+TEST(ChunkMesherTransformTest, VerticalFlipChangesBoundaryOcclusion)
 {
 	auto catalog = playground_test::loadVoxelCatalog();
 	voxel::Chunk::Collection chunks;
@@ -32,12 +32,12 @@ TEST(ChunkBakerTransformTest, VerticalFlipChangesBoundaryOcclusion)
 	voxel::Chunk *upperSource = upper.get();
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(lower)));
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(upper)));
-	voxel::Chunk::Baker baker(catalog, chunks);
-	EXPECT_EQ(baker.bake(*lowerSource).indexCount(), 36);
-	EXPECT_EQ(baker.bake(*upperSource).indexCount(), 36);
+	voxel::Chunk::Mesher mesher(catalog, chunks);
+	EXPECT_EQ(mesher.bake(*lowerSource).indexCount(), 36);
+	EXPECT_EQ(mesher.bake(*upperSource).indexCount(), 36);
 }
 
-TEST(ChunkBakerTransformTest, PreservesCounterClockwiseWindingForAllTransforms)
+TEST(ChunkMesherTransformTest, PreservesCounterClockwiseWindingForAllTransforms)
 {
 	auto catalog = playground_test::loadVoxelCatalog();
 	voxel::Chunk::Collection chunks;
@@ -57,5 +57,5 @@ TEST(ChunkBakerTransformTest, PreservesCounterClockwiseWindingForAllTransforms)
 	}
 	voxel::Chunk *source = transformed.get();
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(transformed)));
-	expectCounterClockwise(voxel::Chunk::Baker(catalog, chunks).bake(*source));
+	expectCounterClockwise(voxel::Chunk::Mesher(catalog, chunks).bake(*source));
 }

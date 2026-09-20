@@ -79,7 +79,7 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 
 - [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
 - [OD-024](../../../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) — Resolved: preserve the approved `640 × 480`, `windows-2025` textured baseline.
-- [OD-025](../../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved during delivery for the next extraction: one generic cached VoxelMesher plus a ChunkMesher outside-neighbor override.
+- [OD-025](../../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved during delivery for the next extraction: one generic cached VoxelMesher plus a Chunk::Mesher outside-neighbor override.
 
 ## Completion evidence
 
