@@ -36,13 +36,15 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 - VoxelVolume dimensions, cell access, uniform scale, bounds, and batched editing/versioning
 - Fixed-dimension 16×16×16 Chunk adaptation to inherited VoxelVolume storage
 - Runtime-sized VoxelModel semantic type over VoxelVolume storage
+- Provisional sparse `spk::JSON::Reader` constructor for early VoxelModel fixtures
 - No world lookup, streaming, meshing, palettes, or animation
 
 ## Out of scope
 
 - Responsibilities explicitly assigned to neighboring epics.
 - Final choices tracked by unresolved Open Decisions.
-- Unapproved balance values, content, serialization syntax, or technology selections.
+- Unapproved balance values, content, or technology selections.
+- Stable VoxelModel asset serialization, file loading, importer behavior, and Definition-name/catalog mapping beyond the explicitly approved prototype Reader schema.
 
 ## Architecture / behavioral overview
 
@@ -67,7 +69,7 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 | Current Chunk semantic and textured-render regression baseline | [ST-001-01](tickets/ST-001-01-current-chunk-regression-characterization.md) | [ST-001-01](tickets/ST-001-01-current-chunk-regression-characterization.md) |
 | VoxelVolume dimensions, owning cell storage, checked read access, uniform scale, bounds, and batched editing/versioning | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) |
 | Fixed 16×16×16 Chunk adaptation and unchanged behavior/rendering | [ST-001-03](tickets/ST-001-03-chunk-adapter-specialization.md) | [ST-001-03](tickets/ST-001-03-chunk-adapter-specialization.md) |
-| Runtime-sized VoxelModel semantic type over common storage | [ST-001-04](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) | [ST-001-04](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) |
+| Runtime-sized VoxelModel semantic type and provisional sparse Reader loader over common storage | [ST-001-04](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) | [ST-001-04](tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) |
 | No world lookup, streaming, meshing, palettes, or animation in the volume contract | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) | [ST-001-02](tickets/ST-001-02-read-only-voxelvolume-contract.md) |
 
 ## Ticket index
@@ -89,6 +91,7 @@ Extract one meshing-facing volume/grid contract from the current Chunk data mode
 8. Volume access and scale/bounds calculations run headlessly and without Definition catalog/GPU ownership.
 9. Fixed current-texture Chunk scenes match approved pre-refactor PNG references after volume adaptation; failures expose expected/actual/difference images.
 10. A controlled texture/UV change fails the visual comparison; missing references or an unavailable GPU run cannot count as visual parity.
+11. A provisional sparse JSON model fixture loads dimensions, voxel size, numeric values, named orientations and optional vertical flip while rejecting duplicate/out-of-range entries with exact source paths.
 
 Additional integration invariants:
 
@@ -114,7 +117,7 @@ Graphical tickets use deterministic `512 × 512` Sparkle TestLibrary comparisons
 
 ## Epic exit criteria
 
-- [ ] Every ticket's behavioral, boundary, rejection, determinism, lifecycle, integration, rendering, and evidence sections pass.
-- [ ] Every coverage-matrix row has implementation and test evidence.
-- [ ] Applicable decisions are resolved in their persistent OD files, with provenance.
-- [ ] No graphical baseline was replaced solely because a comparison failed.
+- [x] Every ticket's behavioral, boundary, rejection, determinism, lifecycle, integration, rendering, and evidence sections pass.
+- [x] Every coverage-matrix row has implementation and test evidence.
+- [x] Applicable decisions are resolved in their persistent OD files, with provenance.
+- [x] No graphical baseline was replaced solely because a comparison failed.

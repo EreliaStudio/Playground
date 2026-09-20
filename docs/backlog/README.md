@@ -1,6 +1,6 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
-> **Current position:** The installed test harness, reviewed current textured Chunk baseline, ST-001-02 `VoxelVolume` contract, and ST-001-03 Chunk inheritance/storage migration are complete. ST-001-04 runtime-sized `VoxelModel` storage is next; see [Erelia Implementation Status](CURRENT-STATUS.md).
+> **Current position:** The installed test harness, reviewed current textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, provisional sparse JSON model loader, and focused headless tests are in place. ST-032-01 current Baker semantic fixtures are next; see [Erelia Implementation Status](CURRENT-STATUS.md).
 
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 
@@ -12,7 +12,7 @@ See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the reposit
 - Original source/baseline GDD: **17 September 2026**, Playground commit `ed75feb5e9e9a748c8bb4df95e341a19648d0091`
 - Authoritative integrated GDD: **18 September 2026**, integration commit `d0e8bf6`
 - Sparkle architecture-planning baseline: `Version0.1.1` at `9784377d41509234d43e4adec16505382eef178f`
-- Current prebuilt Sparkle package: `0.1.1` at `68c260aa2108cd22c26ba09a2c8ca6f62913ad39`
+- Current prebuilt Sparkle package: `0.1.2` at `65c1091fcc3d3387f7d019486e3538c7df5572d6`
 
 The current Playground implementation already provides normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker` coupled to chunk-neighbor lookup. Those are the migration baseline, not disposable prototypes.
 
