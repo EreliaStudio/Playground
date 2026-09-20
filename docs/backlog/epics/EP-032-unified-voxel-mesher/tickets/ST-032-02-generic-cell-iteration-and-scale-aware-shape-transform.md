@@ -82,7 +82,7 @@ The project owner consolidated the former ST-032-02 Shape/iteration work, ST-032
 - [x] One scene renders the JSON model and procedural volume beside one another.
 - [x] Chunk captures show left without neighbor, left with an available-but-undrawn neighbor, and both adjacent Chunks rendered.
 - [x] Existing 20 current-Chunk golden references remain unchanged and passing.
-- [ ] The twelve new candidate references have been reviewed and approved by the project owner before being checked in.
+- [x] The twelve new candidate references were reviewed and approved by the project owner, then checked in byte-for-byte from artifact `10606095311`.
 
 ## Open decisions
 
@@ -93,6 +93,8 @@ The project owner consolidated the former ST-032-02 Shape/iteration work, ST-032
 ## Completion evidence
 
 - `VoxelMesherTest`, `VoxelMesherSemanticGoldenTest`, and `ChunkMesherTest` provide headless numerical, semantic, cache, scale, failure, and six-direction boundary evidence.
-- `CurrentChunkGoldenTest.VoxelMesherJsonAndProceduralVolumes` and `CurrentChunkGoldenTest.ChunkMesherCrossChunkOcclusion` publish the twelve review candidates.
-- CI run `35510619947` passed the complete CPU/headless lane; its GPU lane built and rendered successfully, preserved all twelve candidates, and failed only because those references intentionally remain unapproved.
-- Completion remains blocked solely on project-owner review of the published candidate images.
+- `CurrentChunkGoldenTest.VoxelMesherJsonAndProceduralVolumes` and `CurrentChunkGoldenTest.ChunkMesherCrossChunkOcclusion` cover the twelve approved references.
+- Candidate artifact `10606095311` from CI run `35510619947`, SHA-256 `91bb25488ec4a2c0f5c4c47184559ae1f6e9b44922e82e4a1f7abff36ec447d4`, was explicitly approved by the project owner on 20 September 2026.
+- Commit `ae1deac` checks in those exact twelve `640 × 480` PNGs without changing existing references, tolerances, cameras, atlas data, or shaders.
+- Commit `6e0054f` protects JSON/procedural parity inputs from Sparkle's successful-comparison artifact cleanup without changing any reference.
+- CI run `35513348937` passes both the complete CPU/headless and Windows/OpenGL lanes with all 32 approved references.

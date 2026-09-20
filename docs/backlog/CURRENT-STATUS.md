@@ -8,7 +8,7 @@
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** ST-032-02 — Unified VoxelMesher/ChunkMesher candidate review.
+**Current checkpoint:** ST-004-01 — Transition Chunk consumers from Baker to ChunkMesher.
 
 This is the living answer to:
 
@@ -38,8 +38,8 @@ VoxelVolume contract + batched editor/versioning   ✅
 Chunk inheritance / storage/editor migration       ✅
 Runtime-sized VoxelModel                           ✅
 Current Baker semantic fixtures                    ✅
-VoxelMesher + ChunkMesher implementation           🟡 CANDIDATE REVIEW
-Chunk::Baker consumer transition                   ⬜
+VoxelMesher + ChunkMesher implementation           ✅
+Chunk::Baker consumer transition                   🟡 CURRENT
 Palette rendering migration                        ⬜
 VS-000 unified voxel visual validation             ⬜
 VS-001 first playable                              🔭
@@ -132,20 +132,25 @@ VS-001 first playable                              🔭
 - ✅ Playground-wide Sparkle-exception refinement: [`f0db728`](https://github.com/EreliaStudio/Playground/commit/f0db728d49360e78e9d7e44ff16d2fe83d715ff8).
 - ✅ PR #6 [CI run 35502696771](https://github.com/EreliaStudio/Playground/actions/runs/35502696771) passed both `CPU/headless tests` and `Windows/OpenGL golden candidates` after the exception-policy refinement.
 
-## Current implementation checkpoint
-
-### 🟡 ST-032-02 — Unified VoxelMesher and ChunkMesher implementation
-
-Implemented and passing headlessly:
+### ST-032-02 — Unified VoxelMesher and ChunkMesher implementation
 
 - one base `VoxelMesher` owns deterministic iteration, scale-aware Shape transforms, textured mesh emission, visibility, and the reusable occlusion cache;
 - base outside-volume lookup returns `Voxel::Cell{}`, while derived `ChunkMesher` overrides only that hook through `Chunk::Collection`;
 - an `8 × 8 × 16`, scale-`0.1` JSON cross statue and identical procedural raw volume emit the same `290` vertices/`432` indices and pixel-identical four-view captures;
 - filled adjacent Chunk sections prove `144 → 120 + 120` indices, hidden-neighbor occlusion, both-rendered output, and correct lookup in all six directions;
 - all seven ST-032-01 snapshots match, rejected IDs use `spk::Exception`, repeated bakes reuse the cache, and the existing Baker remains untouched as the parity oracle;
-- CI run 35510619947 passes the complete CPU/headless lane and renders every new `640 × 480` candidate while preserving all existing golden references.
+- candidate artifact `10606095311` from CI run `35510619947`, SHA-256 `91bb25488ec4a2c0f5c4c47184559ae1f6e9b44922e82e4a1f7abff36ec447d4`, was explicitly approved by the project owner;
+- commit [`ae1deac`](https://github.com/EreliaStudio/Playground/commit/ae1deac7a3d1ac7dbf2e8d75f08780b863845c35) checks in those exact twelve `640 × 480` PNGs while preserving the existing 20 references;
+- comparison-lifecycle fix [`6e0054f`](https://github.com/EreliaStudio/Playground/commit/6e0054f098a241193cec0781090ddf17d67f44c0) protects JSON/procedural parity inputs from successful-comparison cleanup;
+- CI run [35513348937](https://github.com/EreliaStudio/Playground/actions/runs/35513348937) passes both the complete CPU/headless and Windows/OpenGL lanes with all 32 approved references.
 
-The only remaining gate is project-owner review of the twelve published candidate images. ST-032-03 and ST-004-02 are superseded by this approved consolidation. After approval, ST-004-01 becomes current and migrates production consumers from `Chunk::Baker` to `ChunkMesher`.
+ST-032-03 and ST-004-02 are superseded by this approved consolidation.
+
+## Current implementation checkpoint
+
+### 🟡 ST-004-01 — Transition Chunk consumers from Baker to ChunkMesher
+
+Redirect production scheduler, application, and view consumers from `Chunk::Baker` to the approved `ChunkMesher`. Preserve scheduling, invalidation, transforms, current semantic meshes, all 32 approved `640 × 480` references, and the existing textured rendering behavior. Remove the old Baker only after no production or retained test consumer requires it.
 
 ## Next implementation sequence
 
@@ -155,8 +160,8 @@ The only remaining gate is project-owner review of the twelve published candidat
 | 2 | ✅ | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage/editor migration | Chunk now uses inherited 16³/1.0 storage, reads, editing, and versioning while retaining Chunk-only behavior and unchanged rendering. |
 | 3 | ✅ | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel semantic type | One semantic model type now forwards runtime dimensions and scale to shared storage and inherits editing/versioning unchanged. |
 | 4 | ✅ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) — current Baker semantic fixtures | Seven canonical fixtures now protect positions, normals, atlas UVs, winding, visible topology, and both Chunk-boundary outcomes. |
-| 5 | 🟡 | [ST-032-02](epics/EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — unified VoxelMesher + ChunkMesher | Implementation and headless evidence pass; twelve `640 × 480` candidates await owner approval. |
-| 6 | ⬜ | [ST-004-01](epics/EP-004-chunk-world-generation/tickets/ST-004-01-chunk-mesher-integration.md) — transition Chunk consumers | Redirects scheduler/application/view use only after the new mesher baseline is approved. |
+| 5 | ✅ | [ST-032-02](epics/EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — unified VoxelMesher + ChunkMesher | Shared algorithm/cache, Chunk specialization, numerical/semantic evidence, and all twelve approved references pass both CI lanes. |
+| 6 | 🟡 | [ST-004-01](epics/EP-004-chunk-world-generation/tickets/ST-004-01-chunk-mesher-integration.md) — transition Chunk consumers | Redirect scheduler/application/view use while protecting the approved semantic and visual baselines. |
 | 7 | ⛔ | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) when profiling/parity evidence exists | Final optimization policy remains evidence-driven. |
 | 8 | ⬜ | Prove unchanged semantic mesh and textured golden-image parity after the consumer transition | Runtime migration is not complete without both forms of evidence. |
 | 9 | ⬜ | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
@@ -170,7 +175,6 @@ The only remaining gate is project-owner review of the twelve published candidat
 - OD-020 when profiling/parity evidence is available for mesh merging/indexing/hard normals.
 - OD-025 is resolved: VoxelMesher owns the common cached algorithm; ChunkMesher overrides only outside-volume neighbor lookup.
 - Approval of any model, assembly, animation, equipment, import, or material-mapping schema before it is frozen.
-- Review of the twelve ST-032-02 VoxelMesher/ChunkMesher candidate images before accepting them as references.
 - Review of expected, produced, and difference images before accepting the later Palette migration baseline.
 
 Additional ambiguity discovered during implementation becomes an Open Decision. The executing agent must not improvise it.
