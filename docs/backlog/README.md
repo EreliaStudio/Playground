@@ -17,7 +17,7 @@ See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the reposit
 The current Playground implementation already provides normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker` coupled to chunk-neighbor lookup. Those are the migration baseline, not disposable prototypes.
 
 
-Current package: **34 epics, 137 standalone implementation tickets, 24 persistent Open Decisions, and 9 capability/root meta-epics.** Acceptance-case totals are intentionally not hand-maintained; completeness is audited from the ticket files rather than constrained to an artificial count.
+Current package: **34 epics, 137 standalone implementation tickets, 25 persistent Open Decisions, and 9 capability/root meta-epics.** Acceptance-case totals are intentionally not hand-maintained; completeness is audited from the ticket files rather than constrained to an artificial count.
 
 ## Central architecture principle
 
@@ -41,16 +41,19 @@ normalized Voxel::Shape + material slots
       16³ / streaming /         arbitrary dimensions /
        generation / world        imported asset / entity
               ↘                    ↙
-        OcclusionResolver + MaterialResolver
+                 MaterialResolver
                        ↓
-                  VoxelMesher
+       VoxelMesher + shared occlusion cache
+          default outside-volume = empty
+                       ↑
+  ChunkMesher overrides external lookup only
                        ↓
  VoxelMesh(position, normal, paletteElementIndex)
                        ↓
        same voxel shader + bound Palette SSBO
 ```
 
-[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. Vertex packing and buffer binding numbers remain later implementation decisions. Cross-Chunk lookup belongs to `ChunkOcclusionResolver`; `VoxelMesher` never depends directly on `Chunk::Collection`. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
+[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. [OD-025](open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) resolves one generic VoxelMesher owning the common algorithm/cache, with ChunkMesher overriding only outside-volume lookup through `Chunk::Collection`. Vertex packing and buffer binding numbers remain later implementation decisions. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
 
 ## Safe migration rule
 
@@ -58,8 +61,8 @@ Do **not** rewrite the working world renderer and material system in one step.
 
 1. Characterize current chunk output with semantic fixtures and manually approved textured PNG references using SparkleTestLibrary image comparison.
 2. Extract generic volume access from `Chunk` without changing current output.
-3. Extract occlusion resolution from `Chunk::Baker`, using `ChunkOcclusionResolver` to preserve cross-Chunk behavior.
-4. Generalize the baker into one `VoxelMesher` while continuing to emit the current textured mesh representation.
+3. Generalize the baker into one `VoxelMesher` with cached occlusion and a default outside-is-empty hook while continuing to emit the current textured mesh representation.
+4. Add `ChunkMesher` as the narrow external-neighbor lookup specialization that preserves cross-Chunk behavior without duplicating the meshing algorithm.
 5. Prove terrain output/behavior parity, including unchanged textured PNG comparisons on the supported GPU runner.
 6. Add voxel scale and runtime-sized/imported `VoxelModel` volumes.
 7. Mesh a small prop through the exact same mesher.

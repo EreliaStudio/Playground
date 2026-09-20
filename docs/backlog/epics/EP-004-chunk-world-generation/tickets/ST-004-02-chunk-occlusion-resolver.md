@@ -1,8 +1,8 @@
-# ST-004-02 — Chunk occlusion resolver
+# ST-004-02 — ChunkMesher outside-neighbor specialization
 
 ## Intent
 
-Implement meshing context that resolves local out-of-bounds neighbors through Chunk::Collection.
+Implement `ChunkMesher` as the OD-025 VoxelMesher subclass that resolves only out-of-volume neighbor coordinates through `Chunk::Collection`.
 
 ## Execution decision policy
 
@@ -20,11 +20,13 @@ Implement meshing context that resolves local out-of-bounds neighbors through Ch
 
 ## Owned behavior
 
-Implement meshing context that resolves local out-of-bounds neighbors through Chunk::Collection.
+`ChunkMesher` inherits the complete generic meshing/occlusion/cache algorithm and overrides only the protected outside-volume neighbor hook. It converts the source Chunk plus out-of-range local coordinate to world/adjacent-Chunk lookup through `Chunk::Collection`.
 
 ## Explicitly not owned
 
 - Behavior assigned to sibling tickets or later epics.
+- A second cell-iteration, Shape-transform, occlusion, cache, or mesh-emission implementation.
+- Changes to standalone/VoxelModel outside-is-empty behavior.
 - Resolution of linked Open Decisions.
 - New balance values, content, schemas, or platform choices not approved by the user.
 
@@ -32,7 +34,7 @@ Implement meshing context that resolves local out-of-bounds neighbors through Ch
 
 ### Already defined values/data
 
-- Story intent: Implement meshing context that resolves local out-of-bounds neighbors through Chunk::Collection.
+- Story intent: implement only the ChunkMesher external-neighbor override defined by OD-025.
 - Required dependency contracts: EP-001, EP-032.
 - Test fixture rule: Use the smallest deterministic fixture that exposes the owned behavior. Record exact dimensions, cell coordinates, palette indices, transforms, expected vertices/state, and stable asset IDs in the test source; do not substitute an unspecified representative asset.
 
@@ -48,11 +50,13 @@ The operation validates identity, ownership, bounds, and dependency precondition
 
 ### Nominal behavior and integration interactions
 
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Chunk dimensions remain exactly 16³ and baseline voxelSize is exactly 1 world unit.` is observed exactly; no private-state shortcut is used.
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Same seed/content/generation version regenerates the same base Chunk cells after unload/reload.` is observed exactly; no private-state shortcut is used.
+- [ ] `ChunkMesher` derives from VoxelMesher and overrides only outside-volume neighbor resolution.
 - [ ] All six boundary directions resolve correct world coordinates.
 - [ ] Adjacent available Chunk cell is returned exactly.
-- [ ] Standalone model resolver behavior is not hard-coded into Chunk resolver.
+- [ ] A missing/unavailable adjacent Chunk returns `Voxel::Cell{}` and therefore remains visually empty.
+- [ ] The generic iteration, Shape transform, visibility evaluation, occlusion cache, and mesh emission are inherited without duplication.
+- [ ] Standalone/VoxelModel behavior remains in base VoxelMesher and contains no Chunk-specific branch.
+- [ ] ST-032-01 semantic boundary snapshots and approved textured PNGs remain unchanged.
 - [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
 - [ ] Identical deterministic inputs produce identical observable results.
 - [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
@@ -82,7 +86,7 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 
 ## Open decisions
 
-None.
+- [OD-025](../../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: ChunkMesher subclasses VoxelMesher and overrides only outside-volume lookup; the base owns the shared cache/algorithm.
 
 ## Completion evidence
 

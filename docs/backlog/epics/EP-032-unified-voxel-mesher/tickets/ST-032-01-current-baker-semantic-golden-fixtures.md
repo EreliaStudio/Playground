@@ -46,36 +46,30 @@ The operation validates identity, ownership, bounds, and dependency precondition
 
 ## Acceptance tests
 
-### Nominal behavior and integration interactions
+### Semantic golden fixtures
 
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Golden current Chunk fixture produces semantically equivalent geometry/material data through old Baker and new VoxelMesher.` is observed exactly; no private-state shortcut is used.
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Standalone volume treats outside-grid neighbors as empty.` is observed exactly; no private-state shortcut is used.
-- [ ] Fixtures include cube/slab/slope/stair/cross and chunk boundary cases.
-- [ ] Comparison checks positions/normals/material/UV or slot semantics and visible topology.
-- [ ] Old Baker remains available in test path until parity gate passes.
-- [ ] The new mesher rendered through the existing shader/atlas path matches EP-001 approved PNGs; no reference regeneration is allowed for this structural refactor.
-- [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
-- [ ] Identical deterministic inputs produce identical observable results.
-- [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
-- [ ] A rejected command leaves state, ownership, resources, version counters, scheduled work, and emitted authoritative events byte-for-byte or semantically unchanged.
-- [ ] Repeating the same seed, configuration, starting snapshot, and ordered commands produces the same result and event order.
-- [ ] Create → use → serialize where applicable → unload → restore/recreate → retry preserves stable IDs and does not duplicate the operation.
-- [ ] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
+- [x] Minimal deterministic fixtures cover cube, slab, slope, stair, cross, an unloaded adjacent Chunk, and an available occluding adjacent Chunk.
+- [x] Every fixture records exact Chunk/cell coordinates, stable Definition name/runtime ID, orientation, flip, topology, and atlas-slot expectations.
+- [x] Canonical snapshots compare triangle positions, normals, atlas UVs, winding, and visible topology.
+- [x] Canonicalization ignores triangle emission order, vertex-buffer indices, and cyclic starting vertices while preserving winding.
+- [x] Missing adjacent Chunk data is characterized as empty; the boundary cell keeps all 12 cube triangles.
+- [x] An available solid neighbor across local X boundaries `15 → 0` removes exactly the shared face, leaving 10 triangles.
+- [x] The old `Chunk::Baker` remains the exercised production implementation and test oracle; no `VoxelMesher` extraction begins in this ticket.
 
-### Boundaries and invalid/rejected operations
+### Boundaries, rejection, and determinism
 
-- [ ] Missing IDs, foreign ownership, malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category.
-- [ ] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
-
-### Determinism and lifecycle / retry / persistence
-
-- [ ] Deterministic iteration never depends on pointer values, hash-table accident, render frame rate, or wall-clock timing.
-- [ ] A duplicate/retried operation is either idempotent or rejected as already applied, according to the story contract, without duplicating state or events.
+- [x] The Chunk upper/lower boundary coordinates used for cross-Chunk lookup are exercised explicitly.
+- [x] An unknown runtime Definition ID throws `std::out_of_range`; the same Baker still produces the unchanged valid cube snapshot afterward.
+- [x] Repeating identical inputs produces byte-identical canonical semantic output.
+- [x] Tests are CPU/headless and do not depend on pointers, wall-clock time, render timing, or unordered triangle emission.
+- [x] Serialization, ownership transfer, version mutation, and retry effects are not operations owned by this read-only characterization ticket.
 
 ### Rendering / golden images
 
-- [ ] Render the deterministic fixture at `512 × 512`; compare against its reviewed PNG with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
-- [ ] Assert semantic geometry/material/transform values independently of the PNG comparison.
+- [x] Semantic geometry/material/transform assertions run independently of PNG comparison.
+- [x] The existing 20 approved textured Chunk references remain the graphical parity gate and pass unchanged.
+- [x] No expected image, comparison tolerance, camera, atlas, shader, or canonical runner changed.
+- [x] OD-024's approved `640 × 480` framebuffer remains authoritative; its resolved decision supersedes the generic `512 × 512` template wording.
 
 ## Rendering impact
 
@@ -84,11 +78,13 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 ## Open decisions
 
 - [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-024](../../../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) — Resolved: preserve the approved `640 × 480`, `windows-2025` textured baseline.
+- [OD-025](../../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved during delivery for the next extraction: one generic cached VoxelMesher plus a ChunkMesher outside-neighbor override.
 
 ## Completion evidence
 
-- Automated test names and passing CI run.
-- Exact fixtures and expected values checked into the test resources.
-- Error-path assertion proving no partial mutation.
-- Decision-file update and user approval reference when a gate was resolved.
-- For graphical work: expected, actual, and difference-image artifacts plus approval of any changed baseline.
+- `CurrentBakerSemanticGoldenTest` covers all seven fixed semantic snapshots, deterministic replay, and rejection recovery.
+- `SemanticMeshSnapshotTest` proves the comparison ignores harmless ordering and still detects reversed visible winding.
+- `tests/resources/current_baker_semantics.md` records the exact fixtures; seven `.mesh` resources store their canonical expected values.
+- Implementation commits: [`f11db3f`](https://github.com/EreliaStudio/Playground/commit/f11db3ff439ded33321937c1fc084a0a2b9165d4) plus cross-platform line-ending fix [`aa1b9c2`](https://github.com/EreliaStudio/Playground/commit/aa1b9c216a86476ebef0bd46000bf38b9c82e8a8), delivered by [PR #6](https://github.com/EreliaStudio/Playground/pull/6).
+- PR #6 [CI run 35501490841](https://github.com/EreliaStudio/Playground/actions/runs/35501490841) passed the CPU/headless semantic fixtures and unchanged Windows/OpenGL golden suite.

@@ -22,6 +22,8 @@ Move Shape expansion/transform from Chunk-specific code to volume-based meshing.
 
 Move Shape expansion/transform from Chunk-specific code to volume-based meshing.
 
+The extracted `VoxelMesher` is an inheritable common algorithm for both VoxelModel/standalone volumes and the later `ChunkMesher` specialization. This ticket owns deterministic iteration and scale-aware Shape expansion only; ST-032-03 owns the narrow outside-volume neighbor hook and cached visibility integration.
+
 ## Explicitly not owned
 
 - Behavior assigned to sibling tickets or later epics.
@@ -49,10 +51,11 @@ The operation validates identity, ownership, bounds, and dependency precondition
 ### Nominal behavior and integration interactions
 
 - [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Solid adjacent cube cells emit no internal shared face.` is observed exactly; no private-state shortcut is used.
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Chunk context resolves outside-grid neighbor from adjacent Chunk and preserves cross-Chunk occlusion.` is observed exactly; no private-state shortcut is used.
 - [ ] Shape vertex mapping includes voxel coordinate and uniform voxelSize.
 - [ ] Scale does not alter occupancy/neighbor decisions.
 - [ ] Normals remain unit/correct under uniform scale.
+- [ ] VoxelModel and Chunk-compatible volumes execute the same iteration and Shape-transform implementation; no second meshing loop is introduced.
+- [ ] The class remains inheritable for the OD-025 ChunkMesher specialization, but this ticket does not add Chunk collection/world lookup.
 - [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
 - [ ] Identical deterministic inputs produce identical observable results.
 - [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
@@ -83,6 +86,7 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 ## Open decisions
 
 - [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-025](../../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: one VoxelMesher owns the generic algorithm/cache and ChunkMesher overrides only outside-volume neighbor lookup.
 
 ## Completion evidence
 

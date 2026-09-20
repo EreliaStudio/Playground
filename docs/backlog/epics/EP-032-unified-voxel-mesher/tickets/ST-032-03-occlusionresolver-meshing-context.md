@@ -1,8 +1,8 @@
-# ST-032-03 — OcclusionResolver / meshing context
+# ST-032-03 — VoxelMesher boundary hook and cached occlusion
 
 ## Intent
 
-Define the generic meshing-facing OcclusionResolver and the standalone outside-is-empty policy without world or Chunk dependencies.
+Integrate cached occlusion into the generic VoxelMesher and define its narrow overridable outside-volume neighbor hook, whose standalone default is empty.
 
 ## Execution decision policy
 
@@ -20,11 +20,12 @@ Define the generic meshing-facing OcclusionResolver and the standalone outside-i
 
 ## Owned behavior
 
-Define the generic meshing-facing OcclusionResolver and the standalone outside-is-empty policy without world or Chunk dependencies.
+The generic VoxelMesher owns visibility/occlusion evaluation and the reusable transformed-polygon/occluder cache. In-bounds neighbors use the common volume read contract. Only out-of-volume coordinates reach a protected virtual hook, whose base implementation returns `Voxel::Cell{}`.
 
 ## Explicitly not owned
 
 - Behavior assigned to sibling tickets or later epics.
+- The `ChunkMesher` override and `Chunk::Collection`/world lookup, which belong to ST-004-02.
 - Resolution of linked Open Decisions.
 - New balance values, content, schemas, or platform choices not approved by the user.
 
@@ -32,7 +33,7 @@ Define the generic meshing-facing OcclusionResolver and the standalone outside-i
 
 ### Already defined values/data
 
-- Story intent: Define the generic meshing-facing OcclusionResolver and the standalone outside-is-empty policy without world or Chunk dependencies.
+- Story intent: keep occlusion evaluation/cache in VoxelMesher and define the OD-025 outside-volume hook/default policy without world or Chunk dependencies.
 - Required dependency contracts: EP-000, EP-001.
 - Test fixture rule: Use the smallest deterministic fixture that exposes the owned behavior. Record exact dimensions, cell coordinates, palette indices, transforms, expected vertices/state, and stable asset IDs in the test source; do not substitute an unspecified representative asset.
 
@@ -50,9 +51,12 @@ The operation validates identity, ownership, bounds, and dependency precondition
 
 - [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Slab/slope/stair/cross fixtures preserve current transformed geometry, normals and occlusion behavior.` is observed exactly; no private-state shortcut is used.
 - [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Identical cell arrangements at scale 1.0 and 0.1 have equivalent topology/material assignments while vertex positions/bounds scale by 10×.` is observed exactly; no private-state shortcut is used.
-- [ ] Standalone resolver returns empty outside bounds.
-- [ ] This contract contains no `Chunk::Collection`, streaming, or world lookup dependency; EP-004 supplies `ChunkOcclusionResolver`.
-- [ ] Resolver contract is unit-testable without mesh/GPU types.
+- [ ] In-bounds neighbors are read directly through the common VoxelVolume contract.
+- [ ] Only coordinates outside the volume reach the protected virtual neighbor hook.
+- [ ] The base hook returns `Voxel::Cell{}` so standalone and VoxelModel boundaries are empty.
+- [ ] VoxelMesher retains the reusable occlusion-result cache; identical polygon/occluder/transform combinations reuse cached visible remnants.
+- [ ] This base implementation contains no `Chunk::Collection`, streaming, world lookup, or concrete-volume type branch; ST-004-02 supplies `ChunkMesher`.
+- [ ] Neighbor policy and cached occlusion are testable headlessly without GPU types.
 - [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
 - [ ] Identical deterministic inputs produce identical observable results.
 - [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
@@ -83,6 +87,7 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 ## Open decisions
 
 - [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-025](../../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: VoxelMesher owns cached occlusion and exposes only a protected outside-volume hook; ChunkMesher supplies the world-aware override later.
 
 ## Completion evidence
 
