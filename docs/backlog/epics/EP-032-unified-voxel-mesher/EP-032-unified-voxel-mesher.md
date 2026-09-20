@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Implement one generalized, headless, scale-aware VoxelMesher and its narrow Chunk::Mesher outside-neighbor specialization while retaining the current Baker for a later consumer transition.
+Implement one generalized, headless, scale-aware `VoxelMesher`, its narrow `Chunk::Mesher` outside-neighbor specialization, and deterministic exact-compatible indexed output while preserving the textured semantic and visual baseline.
 
 ## Starting state
 
@@ -36,8 +36,8 @@ Implement one generalized, headless, scale-aware VoxelMesher and its narrow Chun
 - Generic cached occlusion inside VoxelMesher
 - Protected outside-volume neighbor hook with standalone outside-is-empty behavior
 - Chunk::Mesher specialization point without a second meshing algorithm
-- MaterialResolver per emitted polygon
-- Shape expansion, visibility, deterministic vertex/index and palette-element output
+- Shape expansion, visibility, and deterministic first-seen vertex/index output
+- Exact position/normal/UV compatible-vertex reuse with preserved hard normals
 
 ## Out of scope
 
@@ -67,21 +67,21 @@ Implement one generalized, headless, scale-aware VoxelMesher and its narrow Chun
 |---|---|---|
 | Current Baker semantic and textured-image characterization | [ST-032-01](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) | [ST-032-01](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) |
 | Shared iteration, Shape/scale transforms, cached occlusion, base boundary behavior, and Chunk specialization | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) |
-| MaterialResolver and deterministic vertex/index/palette-element output | [ST-032-04](tickets/ST-032-04-optimization-and-indexed-output.md) | [ST-032-04](tickets/ST-032-04-optimization-and-indexed-output.md) |
+| Deterministic exact-compatible vertex reuse and preserved hard-normal/UV seams | [ST-032-04](tickets/ST-032-04-optimization-and-indexed-output.md) | [ST-032-04](tickets/ST-032-04-optimization-and-indexed-output.md) |
 
 ## Ticket index
 
 - [ST-032-01 — Current Baker semantic golden fixtures](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) — Capture current mesh semantics before code extraction and build comparison helpers tolerant of harmless vertex ordering differences.
 - [ST-032-02 — Unified VoxelMesher and Chunk::Mesher implementation](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — Consolidates generic iteration/scale, cached occlusion, default boundary behavior, Chunk specialization, numerical evidence, and golden fixtures.
 - [ST-032-03 — Superseded by consolidated ST-032-02](tickets/ST-032-03-occlusionresolver-meshing-context.md) — Stable historical link; owns no remaining implementation.
-- [ST-032-04 — Optimization and indexed output](tickets/ST-032-04-optimization-and-indexed-output.md) — Preserve/remove hidden surfaces and emit efficient indexed mesh sections while profiling against the current Baker.
+- [ST-032-04 — Deterministic compatible-vertex reuse](tickets/ST-032-04-optimization-and-indexed-output.md) — Reuse exact position/normal/UV matches in first-seen order without merging polygons or smoothing normals.
 
 ## Epic integration acceptance tests
 
-1. Golden current Chunk fixture produces semantically equivalent geometry/material data through old Baker and new VoxelMesher.
+1. Retained ST-032-01 snapshots preserve the pre-change Baker geometry/material semantics through VoxelMesher.
 2. Solid adjacent cube cells emit no internal shared face.
 3. Slab/slope/stair/cross fixtures preserve current transformed geometry, normals and occlusion behavior.
-4. Orientation and vertical flip yield equivalent results to current Baker behavior.
+4. Orientation and vertical flip retain the pre-change Baker behavior locked by the semantic snapshots.
 5. Standalone volume treats outside-grid neighbors as empty.
 6. Chunk context resolves outside-grid neighbor from adjacent Chunk and preserves cross-Chunk occlusion.
 7. Identical cell arrangements at scale 1.0 and 0.1 have equivalent topology/material assignments while vertex positions/bounds scale by 10×.
@@ -98,7 +98,7 @@ Additional integration invariants:
 
 ## Decision gates
 
-- [OD-020](../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-020](../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Resolved: no polygon merging; exact position/normal/UV reuse in deterministic first-seen order; hard flat normals.
 - [OD-025](../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: one generic cached VoxelMesher algorithm with an outside-volume hook; Chunk::Mesher overrides only that hook.
 
 ## Rendering validation
@@ -111,7 +111,7 @@ Graphical tickets use OD-024's deterministic `640 × 480` Sparkle TestLibrary co
 
 ## Epic exit criteria
 
-- [ ] Every ticket's behavioral, boundary, rejection, determinism, lifecycle, integration, rendering, and evidence sections pass.
-- [ ] Every coverage-matrix row has implementation and test evidence.
-- [ ] Applicable decisions are resolved in their persistent OD files, with provenance.
-- [ ] No graphical baseline was replaced solely because a comparison failed.
+- [x] Every ticket's behavioral, boundary, rejection, determinism, lifecycle, integration, rendering, and evidence sections pass.
+- [x] Every coverage-matrix row has implementation and test evidence.
+- [x] Applicable decisions are resolved in their persistent OD files, with provenance.
+- [x] No graphical baseline was replaced solely because a comparison failed.

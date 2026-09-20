@@ -53,33 +53,33 @@ Reuse exactly compatible vertices in the common `VoxelMesher` output path withou
 
 ### Nominal behavior and integration interactions
 
-- [ ] Exact position, normal, and UV equality reuses the first-seen index; changing any participating attribute prevents sharing.
-- [ ] Different normals retain distinct vertices at hard polygon boundaries.
-- [ ] Atlas UV seams retain distinct vertices even when position and normal match.
-- [ ] Repeated identical inputs produce byte-identical ordered vertex and index buffers.
-- [ ] Existing orientation, vertical flip, uniform scaling, clipping, and cross-Chunk occlusion results remain valid.
-- [ ] Generic volume/model and Chunk bakes exercise the same indexing implementation; `Chunk::Mesher` contains no second emission or lookup loop.
-- [ ] Invalid Definition input throws `spk::Exception`, leaves no persistent indexing state, and cannot poison a later valid bake.
-- [ ] ST-032-01 semantic snapshots remain unchanged.
-- [ ] ST-032-02 fixtures remain semantically valid; only exact compatible-reuse vertex expectations may be updated after review, while index counts remain unchanged.
-- [ ] Before/after vertex and index counts are recorded for deterministic representative fixtures.
-- [ ] Representative timing is recorded only where the environment permits reliable measurement; no unstable timing assertion or unsupported performance claim is added.
+- [x] Exact position, normal, and UV equality reuses the first-seen index; changing any participating attribute prevents sharing.
+- [x] Different normals retain distinct vertices at hard polygon boundaries.
+- [x] Atlas UV seams retain distinct vertices even when position and normal match.
+- [x] Repeated identical inputs produce byte-identical ordered vertex and index buffers.
+- [x] Existing orientation, vertical flip, uniform scaling, clipping, and cross-Chunk occlusion results remain valid.
+- [x] Generic volume/model and Chunk bakes exercise the same indexing implementation; `Chunk::Mesher` contains no second emission or lookup loop.
+- [x] Invalid Definition input throws `spk::Exception`, leaves no persistent indexing state, and cannot poison a later valid bake.
+- [x] ST-032-01 semantic snapshots remain unchanged.
+- [x] ST-032-02 fixtures remain semantically valid; only exact compatible-reuse vertex expectations changed, while index counts remain unchanged.
+- [x] Before/after vertex and index counts are recorded for deterministic representative fixtures.
+- [x] Hosted CI is not a reliable timing environment, so no timing assertion or unsupported performance claim was added.
 
 ### Boundaries and invalid/rejected operations
 
-- [ ] Empty and minimum valid volumes continue to bake through the existing contract.
-- [ ] Unknown runtime Definition IDs retain the established `spk::Exception` failure and recovery behavior.
+- [x] Empty and minimum valid volumes continue to bake through the existing contract.
+- [x] Unknown runtime Definition IDs retain the established `spk::Exception` failure and recovery behavior.
 
 ### Determinism and lifecycle / retry / persistence
 
-- [ ] Deterministic output never depends on pointer values, hash-table iteration, render frame rate, or wall-clock timing.
-- [ ] The first deterministic encounter owns each emitted index, including after an earlier rejected bake.
+- [x] Deterministic output never depends on pointer values, hash-table iteration, render frame rate, or wall-clock timing.
+- [x] The first deterministic encounter owns each emitted index, including after an earlier rejected bake.
 
 ### Rendering / golden images
 
-- [ ] All 20 original Chunk and all 12 consolidated-mesher `640 × 480` references pass unchanged with existing tolerances.
-- [ ] On failure, retain expected images and inspect actual/difference artifacts; do not approve a structural-change baseline.
-- [ ] Semantic geometry/material/transform assertions pass independently of PNG comparison.
+- [x] All 20 original Chunk and all 12 consolidated-mesher `640 × 480` references pass unchanged with existing tolerances.
+- [x] No comparison failed; no expected image, tolerance, camera, atlas, or shader changed.
+- [x] Semantic geometry/material/transform assertions pass independently of PNG comparison.
 
 ## Rendering impact
 
@@ -92,7 +92,18 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 
 ## Completion evidence
 
-- Automated test names, exact before/after counts, implementation commit/PR, and both canonical CI lanes.
-- Error-path assertion proving a rejected bake cannot poison later deterministic output.
-- Confirmation that every approved expected PNG remained byte-for-byte unchanged.
-- ST-003-02 becomes the next checkpoint when this ticket is complete.
+- `VoxelMesherIndexingTest` proves existing stair-compatible reuse, hard-normal separation, atlas-UV seam separation, deterministic byte output, identical generic/Chunk output, and recovery after `spk::Exception` rejection.
+- Existing `VoxelMesherTest`, `VoxelMesherSemanticGoldenTest`, `ChunkMesherTest`, and `ChunkMesherTransformTest` retain scale, orientation, vertical flip, clipping, cache, six-direction neighbor, cross-Chunk occlusion, winding, and seven snapshot evidence.
+
+| Deterministic fixture | Vertices before | Vertices after | Indices before | Indices after |
+|---|---:|---:|---:|---:|
+| One existing `debug_stair` cell | 40 | 38 | 60 | 60 |
+| JSON/procedural cross-statue fixture | 290 | 288 | 432 | 432 |
+| Two adjacent stone cubes with atlas UV seams | 40 | 40 | 60 | 60 |
+| One stone cube | 24 | 24 | 36 | 36 |
+
+- The stair is the smallest existing production fixture with cross-polygon exact-compatible vertices: two first-seen indices are reused. No fixture content or UV semantics changed.
+- Implementation commit [`1120e1b`](https://github.com/EreliaStudio/Playground/commit/1120e1bd462f44ff128b59dad528c84e9988a123) on [PR #8](https://github.com/EreliaStudio/Playground/pull/8).
+- [CI run 35521204431](https://github.com/EreliaStudio/Playground/actions/runs/35521204431) passes both complete CPU/headless and Windows/OpenGL lanes. All 32 approved expected PNG files remained unchanged and passed at OD-024's `640 × 480` configuration.
+- No representative timing is reported: the available hosted runner is not a controlled reliable benchmark environment, and vertex-count reduction alone is not claimed as a performance improvement.
+- ST-003-02 is the next implementation checkpoint.

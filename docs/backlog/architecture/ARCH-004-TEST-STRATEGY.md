@@ -107,11 +107,11 @@ Image comparison should allow explicit tolerances for GPU/driver differences whi
 
 Use fixed fixtures and distributions, not one stopwatch sample. Measure separately:
 
-- current Chunk::Baker baseline;
-- generalized VoxelMesher on equivalent 16³ fixtures;
+- retained pre-change Baker semantic/count evidence where available;
+- pre/post-change generalized VoxelMesher on equivalent deterministic 16³ fixtures;
 - small/medium/large VoxelModel meshing;
 - mesh upload/cache hit/miss;
 - material rendering;
 - world generation and simulation.
 
-The generic abstraction is acceptable only if it does not introduce an unexplained terrain regression. Optimize storage/specialization behind the shared contract before splitting the meshing architecture.
+The generic abstraction is acceptable only if it does not introduce an unexplained terrain regression. Vertex-count reduction alone is not a performance claim, and hosted CI timings are not treated as reliable benchmarks. Optimize storage/specialization behind the shared contract before splitting the meshing architecture.

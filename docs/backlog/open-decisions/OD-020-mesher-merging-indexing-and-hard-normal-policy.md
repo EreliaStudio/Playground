@@ -10,7 +10,7 @@ The project requires an explicit choice for mesher merging, indexing, and hard-n
 
 ## Affected epics/tickets
 
-[EP-032](../epics/EP-032-unified-voxel-mesher/EP-032-unified-voxel-mesher.md). Each affected ticket links back to this record.
+[EP-032](../epics/EP-032-unified-voxel-mesher/EP-032-unified-voxel-mesher.md) and [ST-032-04](../epics/EP-032-unified-voxel-mesher/tickets/ST-032-04-optimization-and-indexed-output.md).
 
 ## Known constraints
 
