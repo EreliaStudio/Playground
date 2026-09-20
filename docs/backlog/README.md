@@ -12,7 +12,7 @@ See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the reposit
 - Original source/baseline GDD: **17 September 2026**, Playground commit `ed75feb5e9e9a748c8bb4df95e341a19648d0091`
 - Authoritative integrated GDD: **18 September 2026**, integration commit `d0e8bf6`
 - Sparkle architecture-planning baseline: `Version0.1.1` at `9784377d41509234d43e4adec16505382eef178f`
-- Current prebuilt Sparkle package: `0.1.1` at `68c260aa2108cd22c26ba09a2c8ca6f62913ad39`
+- Current prebuilt Sparkle package: `0.1.2` at `65c1091fcc3d3387f7d019486e3538c7df5572d6`
 
 The current Playground implementation already provides normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker` coupled to chunk-neighbor lookup. Those are the migration baseline, not disposable prototypes.
 

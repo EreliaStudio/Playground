@@ -5,9 +5,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # This is the single pin updated when Playground adopts a new Sparkle package.
-$version = '0.1.1'
-$revision = '68c260aa2108cd22c26ba09a2c8ca6f62913ad39'
-$sha256 = '337502f93d22c45f742e5b2a39c472a6068a6b131deebc028f610a6c118d79e2'
+$version = '0.1.2'
+$revision = '65c1091fcc3d3387f7d019486e3538c7df5572d6'
+$sha256 = '3bfa2ecf61e10078789ebf0cd2a0fc9e9d9d30572200afacf851cb4ade4a6997'
 $packageName = "sparkle-$version-g$revision-windows-x64-clangcl-static-release"
 $releaseTag = "sparkle-v$version-g$revision"
 $url = "https://github.com/EreliaStudio/Sparkle/releases/download/$releaseTag/$packageName.zip"

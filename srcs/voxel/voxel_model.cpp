@@ -4,7 +4,6 @@
 #include <map>
 #include <set>
 #include <string>
-#include <tuple>
 
 #include <exception.hpp>
 
@@ -41,11 +40,6 @@ namespace voxel
 			return Voxel::Cell(value, loadOrientation(reader), loadFlip(reader));
 		}
 
-		[[nodiscard]] std::tuple<std::int32_t, std::int32_t, std::int32_t> positionKey(spk::Vector3Int position)
-		{
-			return {position.x, position.y, position.z};
-		}
-
 		void validatePosition(const VoxelModel &model, const spk::JSON::Reader &reader, spk::Vector3Int position)
 		{
 			if (!model.contains(position))
@@ -54,13 +48,13 @@ namespace voxel
 
 		void loadVoxels(VoxelModel &model, const spk::JSON::Reader &reader)
 		{
-			std::set<std::tuple<std::int32_t, std::int32_t, std::int32_t>> positions;
+			std::set<spk::Vector3Int> positions;
 			auto editor = model.edit();
 			for (const auto &voxelReader : reader.childArray("voxels"))
 			{
 				const auto position = voxelReader.require<spk::Vector3Int>("position");
 				validatePosition(model, voxelReader, position);
-				if (!positions.insert(positionKey(position)).second)
+				if (!positions.insert(position).second)
 					throw spk::Exception(spk::JSON::detail::makeErrorMessage(voxelReader.file(), voxelReader.pathFor("position"), "duplicate voxel position"));
 				editor.set(position, loadCell(voxelReader));
 			}

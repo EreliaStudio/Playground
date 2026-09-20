@@ -1,6 +1,6 @@
 # Erelia Implementation Status
 
-**Last updated:** 19 September 2026
+**Last updated:** 20 September 2026
 
 **Implementation base:** `main` at `3e7a4d8b31b8c452ddd1acca8a0397a02a10982b`
 
@@ -55,7 +55,7 @@ VS-001 first playable                              🔭
 
 - ✅ Sparkle exports the optional installed `Sparkle::TestLibrary` component.
 - ✅ Playground resolves `sparkle CONFIG REQUIRED COMPONENTS TestLibrary` and links `Sparkle::TestLibrary` through `PlaygroundTestLibrary`.
-- ✅ CI downloads a checksum-pinned prebuilt Sparkle `0.1.1` package at `68c260aa2108cd22c26ba09a2c8ca6f62913ad39`; Playground does not rebuild Sparkle source.
+- ✅ CI downloads the checksum-pinned prebuilt Sparkle `0.1.2` package at `65c1091fcc3d3387f7d019486e3538c7df5572d6`; Playground does not rebuild Sparkle source.
 - ✅ CPU/headless and Windows/OpenGL jobs are separate and retain diagnostics/artifacts.
 - ✅ Architecture planning used the older Sparkle baseline `9784377d41509234d43e4adec16505382eef178f`; it is not presented as the currently consumed package.
 
@@ -108,6 +108,7 @@ VS-001 first playable                              🔭
 - ✅ An `8×8×16` model at scale `0.1` reports local bounds `0.8×0.8×1.6`.
 - ✅ `VoxelModel` inherits the common packed-cell read contract, batched editor, version notification, and `spk::Exception` validation policy without adding a model-specific mutation API.
 - ✅ A provisional `spk::JSON::Reader` constructor accepts runtime dimensions, voxel size, and sparse `{position, value, orientation, flip}` entries without changing packed Cell storage.
+- ✅ Sparse-loader duplicate detection uses `spk::Vector3Int` directly as an ordered key through Sparkle `0.1.2`; the temporary tuple adapter is removed.
 - ✅ Orientation and flip use reviewed named strings; `orientation` is required and omitted `flip` defaults to `positive-y`.
 - ✅ Duplicate or out-of-range positions, unknown fields/enum names, and values beyond packed Cell capacity fail with JSON file/path diagnostics.
 - ✅ Nine focused headless GoogleTests cover runtime storage plus the provisional sparse JSON loader and its rejection behavior.
