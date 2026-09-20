@@ -48,9 +48,10 @@ RGBA is the smallest payload that implements the approved base-color lookup with
 
 ## Validation / evidence
 
-- ST-003-02 Palette, VoxelMesh, mesher, command-validation, and Windows/OpenGL tests.
+- ST-003-02 Palette, VoxelMesh, mesher, command-validation, and Windows/OpenGL tests pass in [CI run 35538271204](https://github.com/EreliaStudio/Playground/actions/runs/35538271204).
 - The command-lifetime fixture constructs a command from a temporary Palette and retains it after the caller's Palette object leaves scope.
 - Palette candidate captures exercise two independently constructed model Palettes and one Chunk WorldPalette.
+- Existing approved textured references remain unchanged; Palette candidates in artifacts `10614200309` and `10613791231` await owner review.
 
 ## Resolution provenance
 

@@ -80,31 +80,31 @@ For every draw, the command validates that a Palette is present and that every m
 
 ### Nominal behavior and integration interactions
 
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `One generalized mesh representation can be rendered for both a Chunk-derived mesh and a VoxelModel-derived mesh.` is observed exactly; no private-state shortcut is used.
+- [x] Given the declared fixture and valid dependency state, when the public operation is performed, `One generalized mesh representation can be rendered for both a Chunk-derived mesh and a VoxelModel-derived mesh.` is observed exactly; no private-state shortcut is used.
 - [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Object-local material variation moves with a barrel/sword and does not swim as the object moves through world space.` is observed exactly; no private-state shortcut is used.
-- [ ] Existing atlas-backed Definition fixture continues to render during migration.
-- [ ] A base-color/palette Material can render a new definition without changing mesher logic.
-- [ ] Missing required material binding fails visibly/predictably rather than sampling garbage.
-- [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
-- [ ] Identical deterministic inputs produce identical observable results.
-- [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
-- [ ] A rejected command leaves state, ownership, resources, version counters, scheduled work, and emitted authoritative events byte-for-byte or semantically unchanged.
-- [ ] Repeating the same seed, configuration, starting snapshot, and ordered commands produces the same result and event order.
+- [x] Existing atlas-backed Definition fixture continues to render during migration.
+- [x] A base-color/palette Material can render a new definition without changing mesher logic.
+- [x] Missing required material binding fails visibly/predictably rather than sampling garbage.
+- [x] Invalid input is rejected atomically and leaves the previously valid state unchanged.
+- [x] Identical deterministic inputs produce identical observable results.
+- [x] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
+- [x] A rejected command leaves state, ownership, resources, version counters, scheduled work, and emitted authoritative events byte-for-byte or semantically unchanged.
+- [x] Repeating the same seed, configuration, starting snapshot, and ordered commands produces the same result and event order.
 - [ ] Create → use → serialize where applicable → unload → restore/recreate → retry preserves stable IDs and does not duplicate the operation.
-- [ ] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
+- [x] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
 
-- [ ] `VoxelRenderCommand` binds one independently owned Palette SSBO for the current renderable; the shader uses flat integer `paletteElementIndex` and has no global PaletteCollection buffer or GPU `paletteId` lookup.
+- [x] `VoxelRenderCommand` binds one independently owned Palette SSBO for the current renderable; the shader uses flat integer `paletteElementIndex` and has no global PaletteCollection buffer or GPU `paletteId` lookup.
 - [ ] The same cached mesh rendered with `HumanPalette` and `OrcPalette` produces two reviewed images while mesh bytes and mesh-cache identity remain identical.
-- [ ] Missing Palette, an empty Palette, and an out-of-range element index fail before draw with no stale prior-Palette binding accepted as success.
-- [ ] Chunk and VoxelModel commands use the same vertex semantics and shader; only their bound Palette resources and transforms differ.
-- [ ] A command trace proves the binding order: voxel program → vertex/index buffers → selected Palette SSBO → transform/render data → draw.
-- [ ] Two consecutive commands using different Palettes observe their own Palette values; command B cannot sample command A's buffer.
-- [ ] Two consecutive commands sharing `WorldPalette` may avoid a redundant bind only if the observable command result is unchanged.
-- [ ] A polygon with element `2` carries integer `2` on all of its vertices and reaches fragment processing without interpolation.
-- [ ] Model and Chunk meshes using element `2` both read entry `2` from their currently bound, potentially different, Palettes.
-- [ ] Changing a renderable from `HumanPalette` to compatible `OrcPalette` leaves positions, normals, indices, cache key, source model, and mesher-call counter unchanged.
-- [ ] A mesh referencing index `3` is rejected against a three-entry Palette whose valid indices are `0..2`; no draw is submitted.
-- [ ] A Palette resource destroyed or unavailable before command execution follows the validated resource-lifetime failure contract; the implementation must ask the user if that contract is not already defined by Sparkle.
+- [x] Missing Palette, an empty Palette, and an out-of-range element index fail before draw with no stale prior-Palette binding accepted as success.
+- [x] Chunk and VoxelModel commands use the same vertex semantics and shader; only their bound Palette resources and transforms differ.
+- [x] A command trace proves the binding order: voxel program → vertex/index buffers → selected Palette SSBO → transform/render data → draw.
+- [x] Two consecutive commands using different Palettes observe their own Palette values; command B cannot sample command A's buffer.
+- [x] Two consecutive commands sharing `WorldPalette` may avoid a redundant bind only if the observable command result is unchanged.
+- [x] A polygon with element `2` carries integer `2` on all of its vertices and reaches fragment processing without interpolation.
+- [x] Model and Chunk meshes using element `2` both read entry `2` from their currently bound, potentially different, Palettes.
+- [x] Changing a renderable from `HumanPalette` to compatible `OrcPalette` leaves positions, normals, indices, cache key, source model, and mesher-call counter unchanged.
+- [x] A mesh referencing index `3` is rejected against a three-entry Palette whose valid indices are `0..2`; no draw is submitted.
+- [x] A Palette resource destroyed or unavailable before command execution follows the validated resource-lifetime failure contract; the implementation must ask the user if that contract is not already defined by Sparkle.
 
 ### Boundaries and invalid/rejected operations
 
@@ -113,13 +113,13 @@ For every draw, the command validates that a Palette is present and that every m
 
 ### Determinism and lifecycle / retry / persistence
 
-- [ ] Deterministic iteration never depends on pointer values, hash-table accident, render frame rate, or wall-clock timing.
-- [ ] A duplicate/retried operation is either idempotent or rejected as already applied, according to the story contract, without duplicating state or events.
+- [x] Deterministic iteration never depends on pointer values, hash-table accident, render frame rate, or wall-clock timing.
+- [x] A duplicate/retried operation is either idempotent or rejected as already applied, according to the story contract, without duplicating state or events.
 
 ### Rendering / golden images
 
 - [ ] Render the deterministic fixture at `512 × 512`; compare against its reviewed PNG with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
-- [ ] Assert semantic geometry/material/transform values independently of the PNG comparison.
+- [x] Assert semantic geometry/material/transform values independently of the PNG comparison.
 
 ## Rendering impact
 
@@ -134,8 +134,10 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 
 ## Completion evidence
 
-- Automated test names and passing CI run.
-- Exact fixtures and expected values checked into the test resources.
-- Error-path assertion proving no partial mutation.
-- Decision-file update and user approval reference when a gate was resolved.
-- For graphical work: expected, actual, and difference-image artifacts plus approval of any changed baseline.
+- Implementation commits [`408d379`](https://github.com/EreliaStudio/Playground/commit/408d379a2dbea6358a6496c1da48855cbaac2c01), [`3538309`](https://github.com/EreliaStudio/Playground/commit/35383096d7b3e25f69bd084fe55c8be6d21f4278), and [`b5cbcdc`](https://github.com/EreliaStudio/Playground/commit/b5cbcdc814a608cf493b0cefe4eb9b2592997bf1) are delivered by [PR #9](https://github.com/EreliaStudio/Playground/pull/9).
+- [CI run 35538271204](https://github.com/EreliaStudio/Playground/actions/runs/35538271204) passes both `CPU/headless tests` and `Windows/OpenGL golden candidates` against the pinned Sparkle `0.1.2` package.
+- Focused tests cover typed Palette storage/editing and lifetime, integer vertex attributes, resolver context, material-safe compatible-vertex reuse, deterministic Chunk/VoxelModel parity, bounds rejection, rejection atomicity, and no-remesh Palette/transform swaps.
+- The GPU lane compiles the shared shader, draws Human and Orc Palettes sequentially from one mesh, draws a Chunk with WorldPalette, and retains the intentional textured-to-Palette difference image.
+- Existing 32 approved textured references and tolerances are unchanged. Artifact `10614200309` contains actual/difference evidence; artifact `10613791231` contains four Palette baseline candidates only.
+- Palette candidates remain unapproved. The two review-dependent checkboxes above stay open until the project owner reviews them; no generated PNG was promoted to an expected baseline.
+- The barrel/sword wording belongs to later ST-033-02 object-local material content and remains open; ST-003-02 proves the underlying per-draw transform/Palette contract with the deterministic model fixture.
