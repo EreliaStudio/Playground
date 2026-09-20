@@ -73,19 +73,23 @@ The model's detailed cells are visual data unless explicit gameplay systems say 
 
 ## One mesher
 
-Target architecture:
+Current meshing architecture:
 
 ```text
-VoxelVolume + OcclusionResolver + DefinitionCatalog
-                    ↓
-                VoxelMesher
-                    ↓
-          indexed mesh + material refs
+VoxelVolume + DefinitionCatalog
+              ↓
+ VoxelMesher (cached occlusion + exact compatible indexing)
+              ↑
+ Chunk::Mesher (outside-volume neighbor override only)
+              ↓
+ TextureMesh3D(position, hard normal, atlas UV)
 ```
 
-The mesher is independent of `Chunk::Collection`. A standalone model resolver returns empty outside its volume. A Chunk resolver can map out-of-bounds local neighbors through the surrounding collection.
+The base mesher is independent of `Chunk::Collection` and treats outside-volume cells as empty. `Chunk::Mesher` maps only out-of-bounds local neighbors through the surrounding collection; it does not duplicate the common algorithm.
 
 The mesher must preserve the current behavior for shape transforms, hidden-face elimination, partial neighbor exposure/occlusion supported by the existing implementation and material assignment.
+
+As resolved by [OD-020](../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md), emitted polygons are not merged. Vertices reuse the first deterministically encountered index only when stored position, hard polygon normal, and atlas UV are exactly equal. Palette-element data becomes another compatibility attribute when ST-003-02 introduces it; it is not part of the current textured mesh.
 
 ## Articulated characters
 

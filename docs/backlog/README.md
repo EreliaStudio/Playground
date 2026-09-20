@@ -1,6 +1,6 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
-> **Current position:** The installed test harness, reviewed textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, provisional sparse JSON loader, unified `VoxelMesher`, nested `Chunk::Mesher`, and production consumer transition are complete. The obsolete `Chunk::Baker` is removed after semantic and all 32 image references passed unchanged. OD-020 is the current optimization-policy decision gate; see [Erelia Implementation Status](CURRENT-STATUS.md).
+> **Current position:** The installed test harness, reviewed textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, unified `VoxelMesher`, nested `Chunk::Mesher`, production consumer transition, and deterministic compatible-vertex reuse are complete. OD-020 is resolved and all 32 image references still pass unchanged. ST-003-02 Palette binding and the unified voxel shader contract is next; see [Erelia Implementation Status](CURRENT-STATUS.md).
 
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 
@@ -41,19 +41,17 @@ normalized Voxel::Shape + material slots
       16³ / streaming /         arbitrary dimensions /
        generation / world        imported asset / entity
               ↘                    ↙
-                 MaterialResolver
-                       ↓
        VoxelMesher + shared occlusion cache
           default outside-volume = empty
                        ↑
   Chunk::Mesher overrides external lookup only
                        ↓
- VoxelMesh(position, normal, paletteElementIndex)
+ deterministic exact-compatible indexing
                        ↓
-       same voxel shader + bound Palette SSBO
+ TextureMesh3D(position, normal, atlas UV)
 ```
 
-[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. [OD-025](open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) resolves one generic VoxelMesher owning the common algorithm/cache, with Chunk::Mesher overriding only outside-volume lookup through `Chunk::Collection`. Vertex packing and buffer binding numbers remain later implementation decisions. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
+[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and inherits its cell ownership and editor/version implementation from that base. [OD-025](open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) resolves one generic VoxelMesher owning the common algorithm/cache, with Chunk::Mesher overriding only outside-volume lookup through `Chunk::Collection`. [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) adds deterministic exact position/normal/UV reuse without polygon merging or normal smoothing. Palette data and binding remain ST-003-02 work. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
 
 ## Safe migration rule
 
@@ -64,9 +62,10 @@ Do **not** rewrite the working world renderer and material system in one step.
 3. Introduce one `VoxelMesher` with cached occlusion/default-empty boundaries and its narrow `Chunk::Mesher` outside-neighbor override while retaining `Chunk::Baker` as an oracle.
 4. Prove JSON-loaded `VoxelModel`, procedural raw-volume, and filled cross-Chunk behavior through numerical, semantic, and reviewed textured-image evidence.
 5. Transition runtime Chunk consumers from `Chunk::Baker` only after the new mesher references and parity evidence are approved.
-6. Introduce the new Material abstraction alongside the current atlas path.
-7. Compare non-textured/palette output against the old textured references, review the resulting failures, and explicitly version approved new visual baselines before migrating content incrementally.
-8. Assemble the first articulated Hero from cached rigid voxel-volume parts.
+6. Reuse only exact position/normal/UV-compatible vertices in deterministic first-seen order while preserving polygons, hard normals, semantic snapshots, and all 32 references.
+7. Introduce the new Material abstraction alongside the current atlas path.
+8. Compare non-textured/palette output against the old textured references, review the resulting failures, and explicitly version approved new visual baselines before migrating content incrementally.
+9. Assemble the first articulated Hero from cached rigid voxel-volume parts.
 
 ## Character direction
 

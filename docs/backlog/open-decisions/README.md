@@ -23,7 +23,7 @@ Decision records are persistent architecture/design history. Resolve a decision 
 | [OD-017](OD-017-rich-shape-mapping-metadata-for-imported-assets.md) | Open | Rich Shape mapping metadata for imported assets. |
 | [OD-018](OD-018-first-material-effects-beyond-palette-color.md) | Open | First Material effects beyond palette color. |
 | [OD-019](OD-019-palette-variation-algorithm-and-sampling-declaration.md) | Open | Palette variation algorithm and sampling declaration. |
-| [OD-020](OD-020-mesher-merging-indexing-and-hard-normal-policy.md) | Open | Mesher merging, indexing, and hard-normal policy. |
+| [OD-020](OD-020-mesher-merging-indexing-and-hard-normal-policy.md) | Resolved | No polygon merging; exact position/normal/UV compatible-vertex reuse with deterministic first-seen indices and hard flat normals. |
 | [OD-021](OD-021-serialized-derivative-mesh-cache-versus-rebuild-on-load.md) | Open | Serialized derivative mesh cache versus rebuild on load. |
 | [OD-022](OD-022-assembly-anchor-and-animation-authoring-source.md) | Open | Assembly anchor and animation authoring source. |
 | [OD-023](OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) | Resolved | Preserve the existing packed Cell orientation and vertical flip until evidence requires a separate expansion decision. |

@@ -2,13 +2,13 @@
 
 **Last updated:** 20 September 2026
 
-**Implementation base:** `main` at `292637e9214ca8083b1b29e4d4268a322bac1091`
+**Implementation base:** `main` at `67d5471208d7da4188bb1034bc69d32a69eb1441`
 
-**Delivery:** [PR #7](https://github.com/EreliaStudio/Playground/pull/7) from `feat/chunk-mesher-consumer-transition`
+**Delivery:** [PR #8](https://github.com/EreliaStudio/Playground/pull/8) from `feature/st-032-04-indexed-voxel-output`
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** OD-020 — Decide mesher merging, indexing, and hard-normal policy before optimization work.
+**Current checkpoint:** ST-003-02 — Palette resource binding and unified voxel shader contract.
 
 This is the living answer to:
 
@@ -40,8 +40,8 @@ Runtime-sized VoxelModel                           ✅
 Current Baker semantic fixtures                    ✅
 VoxelMesher + Chunk::Mesher implementation         ✅
 Chunk::Mesher consumer transition                  ✅
-Mesher optimization policy (OD-020)                ⛔ CURRENT
-Palette rendering migration                        ⬜
+Mesher compatible-vertex reuse (ST-032-04)         ✅
+Palette rendering migration (ST-003-02)            🟡 CURRENT
 VS-000 unified voxel visual validation             ⬜
 VS-001 first playable                              🔭
 ```
@@ -75,7 +75,7 @@ VS-001 first playable                              🔭
 ### Planning and decisions
 
 - ✅ The backlog contains 34 epics, 137 tickets, and 25 persistent decision records.
-- ✅ Four decisions are resolved: OD-011, OD-023, OD-024, and OD-025. Twenty-one remain open.
+- ✅ Five decisions are resolved: OD-011, OD-020, OD-023, OD-024, and OD-025. Twenty remain open.
 - ✅ OD-011 selects one concrete vector-owning `VoxelVolume` base and explicitly accepts replacing Chunk's fixed array during ST-001-03.
 - ✅ OD-023 preserves the existing packed Cell orientation/vertical-flip representation until evidence justifies a separate expansion decision.
 
@@ -162,11 +162,23 @@ ST-032-03 and ST-004-02 are superseded by this approved consolidation.
 - ✅ Nested-type refinement: [`d0edb2a`](https://github.com/EreliaStudio/Playground/commit/d0edb2af4aacf4fc9e01b953a8a2143889a89f38).
 - ✅ PR #7 [CI run 35514737157](https://github.com/EreliaStudio/Playground/actions/runs/35514737157) passed both complete CPU/headless and Windows/OpenGL lanes with all 32 approved references.
 
-## Current decision gate
+### ST-032-04 — Deterministic compatible-vertex reuse
 
-### ⛔ OD-020 — Mesher merging, indexing, and hard-normal policy
+- ✅ OD-020 records the project-owner-approved policy: no polygon merging, exact position/normal/UV compatibility, deterministic first-seen indices, and preserved hard flat normals.
+- ✅ One bake-local lookup in `VoxelMesher` serves `VoxelVolume`, `VoxelModel`, and inherited `Chunk::Mesher`; no Chunk-specific indexing loop exists.
+- ✅ The smallest existing sharing fixture is one `debug_stair`: `40 → 38` vertices while indices remain `60`. The JSON/procedural fixture changes `290 → 288` vertices while retaining `432` indices.
+- ✅ A two-cube atlas-seam fixture remains `40` vertices/`60` indices, and a cube corner retains three distinct hard-normal vertices.
+- ✅ Focused tests prove exact compatible reuse, normal and UV separation, byte-identical repeated output, identical generic/Chunk output, and clean recovery after an invalid Definition throws `spk::Exception`.
+- ✅ Existing scale, orientation, vertical flip, clipped-polygon, six-direction Chunk-neighbor, cross-Chunk occlusion, winding, cache, and all seven ST-032-01 semantic snapshot results remain valid.
+- ✅ Implementation commit [`1120e1b`](https://github.com/EreliaStudio/Playground/commit/1120e1bd462f44ff128b59dad528c84e9988a123) is delivered by [PR #8](https://github.com/EreliaStudio/Playground/pull/8).
+- ✅ [CI run 35521204431](https://github.com/EreliaStudio/Playground/actions/runs/35521204431) passes both complete lanes; all 20 original Chunk and 12 consolidated-mesher `640 × 480` references pass unchanged.
+- ✅ No timing claim is made because the available hosted runner is not a controlled benchmark environment; no unstable timing assertion was added.
 
-Semantic and visual parity now exist for the unified mesher path. Optimization-only work remains blocked until profiling evidence is gathered and the project owner approves the merging, indexing, and hard-normal policy recorded in OD-020. This gate does not retroactively change ST-004-01 or its fixtures.
+## Current implementation checkpoint
+
+### 🟡 ST-003-02 — Palette resource binding and unified voxel shader contract
+
+Introduce the separately owned Palette resource, palette-element mesh data, per-draw Palette SSBO binding, and common voxel shader contract. The completed ST-032-04 textured output remains the structural baseline; Palette behavior was not pulled into mesher indexing work.
 
 ## Next implementation sequence
 
@@ -178,9 +190,9 @@ Semantic and visual parity now exist for the unified mesher path. Optimization-o
 | 4 | ✅ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) — current Baker semantic fixtures | Seven canonical fixtures now protect positions, normals, atlas UVs, winding, visible topology, and both Chunk-boundary outcomes. |
 | 5 | ✅ | [ST-032-02](epics/EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — unified VoxelMesher + Chunk::Mesher | Shared algorithm/cache, Chunk specialization, numerical/semantic evidence, and all twelve approved references pass both CI lanes. |
 | 6 | ✅ | [ST-004-01](epics/EP-004-chunk-world-generation/tickets/ST-004-01-chunk-mesher-integration.md) — transition Chunk consumers | Application, scheduler, tests, and golden renderer use the nested `Chunk::Mesher`; obsolete Baker code is removed. |
-| 7 | ⛔ CURRENT | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) when profiling/parity evidence exists | Parity now exists; final optimization policy still requires profiling evidence and project-owner approval. |
+| 7 | ✅ | [ST-032-04](epics/EP-032-unified-voxel-mesher/tickets/ST-032-04-optimization-and-indexed-output.md) — deterministic compatible-vertex reuse | OD-020 is resolved; exact first-seen position/normal/UV reuse preserves polygons, hard normals, semantics, and all 32 references. |
 | 8 | ✅ | Prove unchanged semantic mesh and textured golden-image parity after the consumer transition | Retained semantic fixtures and all 32 unchanged image references pass CI run 35514737157. |
-| 9 | ⬜ | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
+| 9 | 🟡 CURRENT | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
 | 10 | ⬜ | EP-033 palette/multi-scale visual fixtures | Intentionally changes the visual pipeline and creates reviewed versioned baselines. |
 | 11 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
 | 12 | ⬜ | [VS-000](milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) | Validates terrain, model, assembly, equipment, Palette, and performance together. |
@@ -188,7 +200,7 @@ Semantic and visual parity now exist for the unified mesher path. Optimization-o
 
 ## Known user gates
 
-- OD-020 when profiling/parity evidence is available for mesh merging/indexing/hard normals.
+- OD-020 is resolved: do not merge polygons; share only exact position/normal/UV matches in deterministic first-seen order and preserve hard flat normals.
 - OD-025 is resolved: VoxelMesher owns the common cached algorithm; Chunk::Mesher overrides only outside-volume neighbor lookup.
 - Approval of any model, assembly, animation, equipment, import, or material-mapping schema before it is frozen.
 - Review of expected, produced, and difference images before accepting the later Palette migration baseline.

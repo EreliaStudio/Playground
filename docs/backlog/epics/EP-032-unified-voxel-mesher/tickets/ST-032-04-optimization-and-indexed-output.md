@@ -1,8 +1,8 @@
-# ST-032-04 — Optimization and indexed output
+# ST-032-04 — Deterministic compatible-vertex reuse
 
 ## Intent
 
-Preserve/remove hidden surfaces and emit efficient indexed mesh sections while profiling against the current Baker.
+Reuse exactly compatible vertices in the common `VoxelMesher` output path without changing emitted polygons, triangle semantics, hard normals, atlas UVs, or rendered output.
 
 ## Execution decision policy
 
@@ -14,74 +14,72 @@ Preserve/remove hidden surfaces and emit efficient indexed mesh sections while p
 
 ## Starting state / prerequisites
 
-- The dependency contracts `EP-000, EP-001` used by this story are available; an epic dependency denotes a required contract, not global waterfall completion.
-- The test begins from an explicitly constructed, valid state with no pending operation unless the case says otherwise.
-- Rendering, authoring data, and display names are not authoritative gameplay state.
+- Merged PR #7 removed `Chunk::Baker` and moved all production consumers to the nested `Chunk::Mesher` specialization over the common `VoxelMesher` algorithm.
+- The pre-change `VoxelMesher` at merged main commit `67d5471208d7da4188bb1034bc69d32a69eb1441`, the retained ST-032-01 semantic snapshots, and the 32 approved PNG references are the comparison baseline.
+- ST-032-02 supplies generic `VoxelVolume`/`VoxelModel` iteration, scale-aware Shape transforms, cached occlusion/clipping, and the `Chunk::Mesher` external-neighbor override.
+- [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) resolves exact compatible-vertex reuse, deterministic first-seen indices, no polygon merging, and hard flat normals.
+- [OD-024](../../../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) fixes graphical validation at `640 × 480` on the canonical Windows/OpenGL lane.
 
 ## Owned behavior
 
-Preserve/remove hidden surfaces and emit efficient indexed mesh sections while profiling against the current Baker.
+- Add one bake-local compatible-vertex lookup to the shared `VoxelMesher` mesh-emission path.
+- Reuse a prior index only when position, stored polygon normal, and atlas UV are exactly equal.
+- Assign indices on first encounter while preserving established cell, polygon, polygon-vertex, and triangle traversal order.
+- Preserve every polygon currently emitted by authored and occlusion-clipped Shapes, including triangle topology/winding and hard flat normals.
+- Apply the same implementation to generic `VoxelVolume`/`VoxelModel` and inherited `Chunk::Mesher` bakes.
 
 ## Explicitly not owned
 
-- Behavior assigned to sibling tickets or later epics.
-- Resolution of linked Open Decisions.
-- New balance values, content, schemas, or platform choices not approved by the user.
+- Greedy, face, or adjacent-polygon merging and any invented optimization threshold.
+- Normal averaging, interpolation, recalculation, or smoothing.
+- Palette resources, palette-element vertex data, Palette binding/range validation, voxel shader changes, or material migration; ST-003-02 owns those contracts.
+- New fixture content or changed UV semantics merely to force a vertex reduction.
+- Mesh caching, Chunk scheduling/generation/editing/streaming/gameplay changes, or a Chunk-specific indexing loop.
+- Expected-PNG, comparison-tolerance, camera, atlas, or shader changes.
 
 ## Implementation inputs
 
 ### Already defined values/data
 
-- Story intent: Preserve/remove hidden surfaces and emit efficient indexed mesh sections while profiling against the current Baker.
-- Required dependency contracts: EP-000, EP-001.
-- Test fixture rule: Use the smallest deterministic fixture that exposes the owned behavior. Record exact dimensions, cell coordinates, palette indices, transforms, expected vertices/state, and stable asset IDs in the test source; do not substitute an unspecified representative asset.
-
-### User validation required before implementation
-
-Before implementing behavior controlled by an Open Decision below, ask the user to resolve it and record the approved choice in that OD file. Work that relies only on its fixed constraints may proceed.
+- Use the smallest existing production fixture that genuinely exposes exact cross-polygon compatible sharing.
+- If atlas seams prevent every existing production fixture from sharing across polygons, record that evidence and ask the project owner before adding content or changing UV semantics.
+- Deliberate failures originating in Playground continue to use `spk::Exception`.
 
 ## Behavioral contract
 
-The operation validates identity, ownership, bounds, and dependency preconditions before authoritative mutation. Success produces only the state and events owned above. Failure is atomic. Ordering and deterministic inputs are explicit and reproducible.
+`VoxelMesher::bake` validates all referenced Definitions before creating observable output. Its vertex lookup is temporary per bake. A failed bake cannot retain partial index state or affect a later valid bake. Lookup may use a hash table, but table iteration never emits vertices or indices.
 
 ## Acceptance tests
 
 ### Nominal behavior and integration interactions
 
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Orientation and vertical flip yield equivalent results to current Baker behavior.` is observed exactly; no private-state shortcut is used.
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Runtime-sized imported barrel uses exactly the same mesher implementation and Definition/Shape catalog resolution as a Chunk.` is observed exactly; no private-state shortcut is used.
-- [ ] No one-draw-call-per-voxel path is introduced.
-- [ ] Material boundaries are preserved.
-- [ ] Any performance regression versus current 16³ fixtures is measured and either fixed or explicitly accepted before old Baker removal.
-- [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
-- [ ] Identical deterministic inputs produce identical observable results.
-- [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
-- [ ] A rejected command leaves state, ownership, resources, version counters, scheduled work, and emitted authoritative events byte-for-byte or semantically unchanged.
-- [ ] Repeating the same seed, configuration, starting snapshot, and ordered commands produces the same result and event order.
-- [ ] Create → use → serialize where applicable → unload → restore/recreate → retry preserves stable IDs and does not duplicate the operation.
-- [ ] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
-
-- [ ] A model cell authored with `paletteElementIndex = 2` emits that index on every vertex of each emitted polygon; it never substitutes the Voxel/Definition ID.
-- [ ] A Chunk cube fixture resolves `top`, `side`, and `bottom` slots to three configured WorldPalette elements; a configured north-side override affects only the north polygon.
-- [ ] Two solid adjacent cube cells emit no internal face and retain correct palette indices on all remaining polygons.
-- [ ] Binding a second compatible Palette changes neither vertex/index bytes nor the VoxelMesher invocation count.
-- [ ] A mesh index outside the bound Palette range is detected before draw and produces the documented diagnostic rather than an out-of-bounds SSBO read.
-- [ ] Cube, slab, slope, stair, and cross fixtures produce deterministic positions, normals, indices, and per-polygon palette elements.
+- [x] Exact position, normal, and UV equality reuses the first-seen index; changing any participating attribute prevents sharing.
+- [x] Different normals retain distinct vertices at hard polygon boundaries.
+- [x] Atlas UV seams retain distinct vertices even when position and normal match.
+- [x] Repeated identical inputs produce byte-identical ordered vertex and index buffers.
+- [x] Existing orientation, vertical flip, uniform scaling, clipping, and cross-Chunk occlusion results remain valid.
+- [x] Generic volume/model and Chunk bakes exercise the same indexing implementation; `Chunk::Mesher` contains no second emission or lookup loop.
+- [x] Invalid Definition input throws `spk::Exception`, leaves no persistent indexing state, and cannot poison a later valid bake.
+- [x] ST-032-01 semantic snapshots remain unchanged.
+- [x] ST-032-02 fixtures remain semantically valid; only exact compatible-reuse vertex expectations changed, while index counts remain unchanged.
+- [x] Before/after vertex and index counts are recorded for deterministic representative fixtures.
+- [x] Hosted CI is not a reliable timing environment, so no timing assertion or unsupported performance claim was added.
 
 ### Boundaries and invalid/rejected operations
 
-- [ ] Missing IDs, foreign ownership, malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category.
-- [ ] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
+- [x] Empty and minimum valid volumes continue to bake through the existing contract.
+- [x] Unknown runtime Definition IDs retain the established `spk::Exception` failure and recovery behavior.
 
 ### Determinism and lifecycle / retry / persistence
 
-- [ ] Deterministic iteration never depends on pointer values, hash-table accident, render frame rate, or wall-clock timing.
-- [ ] A duplicate/retried operation is either idempotent or rejected as already applied, according to the story contract, without duplicating state or events.
+- [x] Deterministic output never depends on pointer values, hash-table iteration, render frame rate, or wall-clock timing.
+- [x] The first deterministic encounter owns each emitted index, including after an earlier rejected bake.
 
 ### Rendering / golden images
 
-- [ ] Render the deterministic fixture at `512 × 512`; compare against its reviewed PNG with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
-- [ ] Assert semantic geometry/material/transform values independently of the PNG comparison.
+- [x] All 20 original Chunk and all 12 consolidated-mesher `640 × 480` references pass unchanged with existing tolerances.
+- [x] No comparison failed; no expected image, tolerance, camera, atlas, or shader changed.
+- [x] Semantic geometry/material/transform assertions pass independently of PNG comparison.
 
 ## Rendering impact
 
@@ -89,12 +87,23 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 
 ## Open decisions
 
-- [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Resolved by the project owner: no polygon merging; exact position/normal/UV reuse; deterministic first-seen indices; hard flat normals.
+- [OD-024](../../../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) — Resolved: preserve the approved `640 × 480` canonical visual baseline.
 
 ## Completion evidence
 
-- Automated test names and passing CI run.
-- Exact fixtures and expected values checked into the test resources.
-- Error-path assertion proving no partial mutation.
-- Decision-file update and user approval reference when a gate was resolved.
-- For graphical work: expected, actual, and difference-image artifacts plus approval of any changed baseline.
+- `VoxelMesherIndexingTest` proves existing stair-compatible reuse, hard-normal separation, atlas-UV seam separation, deterministic byte output, identical generic/Chunk output, and recovery after `spk::Exception` rejection.
+- Existing `VoxelMesherTest`, `VoxelMesherSemanticGoldenTest`, `ChunkMesherTest`, and `ChunkMesherTransformTest` retain scale, orientation, vertical flip, clipping, cache, six-direction neighbor, cross-Chunk occlusion, winding, and seven snapshot evidence.
+
+| Deterministic fixture | Vertices before | Vertices after | Indices before | Indices after |
+|---|---:|---:|---:|---:|
+| One existing `debug_stair` cell | 40 | 38 | 60 | 60 |
+| JSON/procedural cross-statue fixture | 290 | 288 | 432 | 432 |
+| Two adjacent stone cubes with atlas UV seams | 40 | 40 | 60 | 60 |
+| One stone cube | 24 | 24 | 36 | 36 |
+
+- The stair is the smallest existing production fixture with cross-polygon exact-compatible vertices: two first-seen indices are reused. No fixture content or UV semantics changed.
+- Implementation commit [`1120e1b`](https://github.com/EreliaStudio/Playground/commit/1120e1bd462f44ff128b59dad528c84e9988a123) on [PR #8](https://github.com/EreliaStudio/Playground/pull/8).
+- [CI run 35521204431](https://github.com/EreliaStudio/Playground/actions/runs/35521204431) passes both complete CPU/headless and Windows/OpenGL lanes. All 32 approved expected PNG files remained unchanged and passed at OD-024's `640 × 480` configuration.
+- No representative timing is reported: the available hosted runner is not a controlled reliable benchmark environment, and vertex-count reduction alone is not claimed as a performance improvement.
+- ST-003-02 is the next implementation checkpoint.

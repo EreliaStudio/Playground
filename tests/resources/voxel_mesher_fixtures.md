@@ -16,7 +16,7 @@ Five isolated cells exercise the remaining current catalog Shapes and transforms
 | `(7,0,15)` | 6 | `debug_slope` | `positive-x`, `positive-y` |
 | `(7,3,15)` | 7 | `debug_stair` | `negative-x`, `negative-y` |
 
-The checked-in JSON model and a raw `VoxelVolume` filled through `VoxelVolume::Editor` describe the same fifteen cells. Both must produce identical semantic meshes with exactly `290` vertices and `432` indices. Four orthogonal captures are produced for each input, and a ninth capture renders both volumes beside one another.
+The checked-in JSON model and a raw `VoxelVolume` filled through `VoxelVolume::Editor` describe the same fifteen cells. Before ST-032-04 both emitted `290` vertices and `432` indices. Deterministic exact-compatible reuse shares the existing stair Shape's two repeated position/normal/UV vertices, so both now emit `288` vertices and the same `432` indices. Four orthogonal captures are produced for each input, and a ninth capture renders both volumes beside one another.
 
 ## Filled adjacent Chunks
 
