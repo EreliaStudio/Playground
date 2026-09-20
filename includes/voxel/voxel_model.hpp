@@ -1,5 +1,7 @@
 #pragma once
 
+#include <container/json/reader.hpp>
+
 #include "voxel/voxel_volume.hpp"
 
 namespace voxel
@@ -8,5 +10,6 @@ namespace voxel
 	{
 	public:
 		VoxelModel(spk::Vector3UInt dimensions, float voxelSize);
+		explicit VoxelModel(const spk::JSON::Reader &reader);
 	};
 }
