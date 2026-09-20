@@ -25,7 +25,6 @@ namespace voxel
 		class Collection;
 		class Generator;
 		class DebugGenerator;
-		class Baker;
 		class BakeScheduler;
 		class Requester;
 		class View;

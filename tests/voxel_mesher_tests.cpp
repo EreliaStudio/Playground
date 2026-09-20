@@ -2,7 +2,6 @@
 #include "voxel_mesher_fixture.hpp"
 #include "voxel_test_utils.hpp"
 
-#include "voxel/chunk_baker.hpp"
 #include "voxel/chunk_mesher.hpp"
 #include "voxel/voxel_mesher.hpp"
 
@@ -172,8 +171,6 @@ TEST(ChunkMesherTest, FilledAdjacentSectionsOccludeAcrossChunkBoundary)
 	voxel::ChunkMesher mesher(catalog, adjacent);
 	EXPECT_EQ(mesher.bake(*leftSource).indexCount(), 120);
 	EXPECT_EQ(mesher.bake(*rightSource).indexCount(), 120);
-	EXPECT_EQ(playground_test::semanticMeshSnapshot(mesher.bake(*leftSource)),
-		playground_test::semanticMeshSnapshot(voxel::Chunk::Baker(catalog, adjacent).bake(*leftSource)));
 }
 
 TEST(ChunkMesherTest, ResolvesAllSixExternalNeighborDirections)
