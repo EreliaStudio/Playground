@@ -1,6 +1,6 @@
 #include "voxel/chunk.hpp"
 
-#include <stdexcept>
+#include <exception.hpp>
 
 namespace voxel
 {
@@ -35,7 +35,7 @@ namespace voxel
 	{
 		if (!contains(local))
 		{
-			throw std::out_of_range("chunk local coordinate is out of range");
+			throw spk::Exception("chunk local coordinate is out of range");
 		}
 		return static_cast<std::size_t>((local.y * Size + local.z) * Size + local.x);
 	}

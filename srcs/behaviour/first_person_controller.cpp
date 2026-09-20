@@ -4,7 +4,8 @@
 #include <chrono>
 #include <cmath>
 #include <numbers>
-#include <stdexcept>
+
+#include <exception.hpp>
 
 namespace playground
 {
@@ -33,7 +34,7 @@ namespace playground
 	{
 		if (owner != nullptr && dynamic_cast<spk::Entity3D *>(owner) == nullptr)
 		{
-			throw std::invalid_argument("FirstPersonController can only be attached to an Entity3D");
+			throw spk::Exception("FirstPersonController can only be attached to an Entity3D");
 		}
 		spk::Behaviour::attach(owner);
 		_anglesInitialized = false;
@@ -54,19 +55,19 @@ namespace playground
 	{
 		if (configuration.movementSpeed < 0.0f)
 		{
-			throw std::invalid_argument("FirstPersonController movement speed cannot be negative");
+			throw spk::Exception("FirstPersonController movement speed cannot be negative");
 		}
 		if (configuration.sprintMultiplier < 0.0f)
 		{
-			throw std::invalid_argument("FirstPersonController sprint multiplier cannot be negative");
+			throw spk::Exception("FirstPersonController sprint multiplier cannot be negative");
 		}
 		if (configuration.mouseSensitivity < 0.0f)
 		{
-			throw std::invalid_argument("FirstPersonController mouse sensitivity cannot be negative");
+			throw spk::Exception("FirstPersonController mouse sensitivity cannot be negative");
 		}
 		if (configuration.maximumPitch < 0.0f || configuration.maximumPitch >= 90.0f)
 		{
-			throw std::invalid_argument("FirstPersonController maximum pitch must be in [0, 90)");
+			throw spk::Exception("FirstPersonController maximum pitch must be in [0, 90)");
 		}
 		return configuration;
 	}
@@ -94,7 +95,7 @@ namespace playground
 		auto *entity = dynamic_cast<spk::Entity3D *>(owner());
 		if (entity == nullptr)
 		{
-			throw std::logic_error("FirstPersonController is not attached to an Entity3D");
+			throw spk::Exception("FirstPersonController is not attached to an Entity3D");
 		}
 		return *entity;
 	}

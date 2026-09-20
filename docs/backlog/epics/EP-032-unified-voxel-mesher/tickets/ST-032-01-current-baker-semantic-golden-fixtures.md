@@ -59,7 +59,7 @@ The operation validates identity, ownership, bounds, and dependency precondition
 ### Boundaries, rejection, and determinism
 
 - [x] The Chunk upper/lower boundary coordinates used for cross-Chunk lookup are exercised explicitly.
-- [x] An unknown runtime Definition ID throws `std::out_of_range`; the same Baker still produces the unchanged valid cube snapshot afterward.
+- [x] An unknown runtime Definition ID throws `spk::Exception`; the same Baker still produces the unchanged valid cube snapshot afterward.
 - [x] Repeating identical inputs produces byte-identical canonical semantic output.
 - [x] Tests are CPU/headless and do not depend on pointers, wall-clock time, render timing, or unordered triangle emission.
 - [x] Serialization, ownership transfer, version mutation, and retry effects are not operations owned by this read-only characterization ticket.

@@ -11,5 +11,5 @@ TEST(VoxelCellTest, PreservesPackedDefinitionOrientationAndFlip)
 	EXPECT_EQ(Cell::fromPacked(0xE000002Au), transformed);
 	EXPECT_TRUE(Cell{}.empty());
 	EXPECT_EQ(Cell{}.packed(), 0);
-	EXPECT_THROW(static_cast<void>(Cell(Cell::IDMask + 1)), std::invalid_argument);
+	EXPECT_THROW(static_cast<void>(Cell(Cell::IDMask + 1)), spk::Exception);
 }

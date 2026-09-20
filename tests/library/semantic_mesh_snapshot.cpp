@@ -7,8 +7,9 @@
 #include <fstream>
 #include <iterator>
 #include <sstream>
-#include <stdexcept>
 #include <vector>
+
+#include <exception.hpp>
 
 namespace playground_test
 {
@@ -57,7 +58,7 @@ namespace playground_test
 	{
 		const auto vertices = mesh.layout().vertexBuffer().cast<spk::Texture3DVertex>();
 		const auto indices = mesh.layout().indexBuffer().cast<spk::TextureMesh3D::Index>();
-		if (indices.size() % 3 != 0) throw std::runtime_error("semantic mesh snapshot requires triangles");
+		if (indices.size() % 3 != 0) throw spk::Exception("semantic mesh snapshot requires triangles");
 		std::vector<SemanticTriangle> triangles;
 		triangles.reserve(indices.size() / 3);
 		for (std::size_t index = 0; index < indices.size(); index += 3)
@@ -77,7 +78,7 @@ namespace playground_test
 		const auto path = std::filesystem::path(PLAYGROUND_TEST_RESOURCE_DIR) /
 			"current_baker_semantics" / (std::string(name) + ".mesh");
 		std::ifstream stream(path, std::ios::binary);
-		if (!stream) throw std::runtime_error("cannot open semantic mesh snapshot '" + path.generic_string() + "'");
+		if (!stream) throw spk::Exception("cannot open semantic mesh snapshot '" + path.generic_string() + "'");
 		std::string result{std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
 		std::erase(result, '\r');
 		return result;

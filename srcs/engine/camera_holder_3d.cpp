@@ -6,7 +6,7 @@
 #include "engine/transform3d.hpp"
 #include "rendering/command/camera_ubo_render_command.hpp"
 
-#include <stdexcept>
+#include <exception.hpp>
 
 namespace spk
 {
@@ -21,7 +21,7 @@ namespace spk
 	{
 		if (owner != nullptr && dynamic_cast<Entity3D *>(owner) == nullptr)
 		{
-			throw std::invalid_argument("CameraHolder3D can only be attached to an Entity3D");
+			throw spk::Exception("CameraHolder3D can only be attached to an Entity3D");
 		}
 
 		Behaviour::attach(owner);

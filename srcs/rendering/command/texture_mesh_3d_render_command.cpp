@@ -1,7 +1,7 @@
 #include "rendering/command/texture_mesh_3d_render_command.hpp"
 
 #include <memory>
-#include <stdexcept>
+#include <exception.hpp>
 
 #include "graphics/opengl/program.hpp"
 #include "graphics/opengl/texture.hpp"
@@ -43,7 +43,7 @@ namespace spk
 	{
 		if (!texture)
 		{
-			throw std::invalid_argument("TextureMesh3D renderer texture cannot be null");
+			throw spk::Exception("TextureMesh3D renderer texture cannot be null");
 		}
 		_sampler.setTexture(texture);
 		_sampler.validate();

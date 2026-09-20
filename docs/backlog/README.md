@@ -1,6 +1,6 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
-> **Current position:** The installed test harness, reviewed current textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, provisional sparse JSON model loader, and focused headless tests are in place. ST-032-01 current Baker semantic fixtures are next; see [Erelia Implementation Status](CURRENT-STATUS.md).
+> **Current position:** The installed test harness, reviewed current textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, provisional sparse JSON model loader, focused headless tests, and ST-032-01 current Baker semantic fixtures are in place. ST-032-02 generic cell iteration and scale-aware Shape transform is next; see [Erelia Implementation Status](CURRENT-STATUS.md).
 
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 
@@ -149,6 +149,7 @@ See [`milestones/HORIZONS.md`](milestones/HORIZONS.md), [`milestones/VS-000-UNIF
 10. Every epic must pass its integration catalogue before it is Done.
 11. Every story must have executable acceptance tests before it is Done.
 12. Performance targets are measured with fixed fixtures and distributions, not one timing sample.
+13. Deliberate failures originating in Playground C++ code throw `spk::Exception`; do not explicitly throw or expose standard-library exception types for Playground validation and state errors.
 
 ## Mandatory execution rule
 

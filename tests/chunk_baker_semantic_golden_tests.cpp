@@ -5,9 +5,10 @@
 
 #include <gtest/gtest.h>
 
-#include <stdexcept>
 #include <string>
 #include <string_view>
+
+#include <exception.hpp>
 
 namespace
 {
@@ -28,7 +29,7 @@ namespace
 		auto chunk = playground_test::chunkWithCell({0, 0, 0}, position,
 			voxel::Voxel::Cell(catalog.id(std::string(definition)), orientation, flip));
 		voxel::Chunk *source = chunk.get();
-		if (!playground_test::publish(chunks, std::move(chunk))) throw std::runtime_error("fixture publication failed");
+		if (!playground_test::publish(chunks, std::move(chunk))) throw spk::Exception("fixture publication failed");
 		return voxel::Chunk::Baker(catalog, chunks).bake(*source);
 	}
 
@@ -38,11 +39,11 @@ namespace
 		voxel::Chunk::Collection chunks;
 		auto left = playground_test::chunkWithCell({0, 0, 0}, {15, 2, 3}, voxel::Voxel::Cell(catalog.id("stone")));
 		voxel::Chunk *source = left.get();
-		if (!playground_test::publish(chunks, std::move(left))) throw std::runtime_error("fixture publication failed");
+		if (!playground_test::publish(chunks, std::move(left))) throw spk::Exception("fixture publication failed");
 		if (publishNeighbor)
 		{
 			auto right = playground_test::chunkWithCell({1, 0, 0}, {0, 2, 3}, voxel::Voxel::Cell(catalog.id("stone")));
-			if (!playground_test::publish(chunks, std::move(right))) throw std::runtime_error("fixture publication failed");
+			if (!playground_test::publish(chunks, std::move(right))) throw spk::Exception("fixture publication failed");
 		}
 		return voxel::Chunk::Baker(catalog, chunks).bake(*source);
 	}
@@ -104,6 +105,6 @@ TEST(CurrentBakerSemanticGoldenTest, RejectedUnknownDefinitionDoesNotPoisonBaker
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(valid)));
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(invalid)));
 	voxel::Chunk::Baker baker(catalog, chunks);
-	EXPECT_THROW((void)baker.bake(*invalidSource), std::out_of_range);
+	EXPECT_THROW((void)baker.bake(*invalidSource), spk::Exception);
 	expectSnapshot(baker.bake(*validSource), "cube");
 }

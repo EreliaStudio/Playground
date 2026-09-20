@@ -4,7 +4,7 @@
 
 #include <filesystem>
 #include <iostream>
-#include <stdexcept>
+#include <exception.hpp>
 #include <string>
 
 namespace playground_test::golden
@@ -15,7 +15,7 @@ namespace playground_test::golden
 
 		void require(bool condition, std::string_view message)
 		{
-			if (!condition) throw std::runtime_error(std::string(message));
+			if (!condition) throw spk::Exception(std::string(message));
 		}
 
 		sparkle_test::ImageComparisonOptions comparisonOptions()

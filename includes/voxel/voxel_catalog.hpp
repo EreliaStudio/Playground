@@ -2,7 +2,7 @@
 
 #include <concepts>
 #include <filesystem>
-#include <stdexcept>
+#include <exception.hpp>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -54,7 +54,7 @@ namespace voxel::Voxel
 		void _insertShape(Shape shape)
 		{
 			if (_shapes.contains(shape.name))
-				throw std::runtime_error("duplicate voxel shape id '" + shape.name + "'");
+				throw spk::Exception("duplicate voxel shape id '" + shape.name + "'");
 			_shapes.emplace(shape.name, std::move(shape));
 		}
 
@@ -73,9 +73,9 @@ namespace voxel::Voxel
 		{
 			Definition &base = definition;
 			if (_ids.contains(base.name))
-				throw std::runtime_error("duplicate voxel id '" + base.name + "'");
+				throw spk::Exception("duplicate voxel id '" + base.name + "'");
 			if (_definitions.size() >= Cell::IDMask)
-				throw std::overflow_error("voxel catalog exceeds packed identifier capacity");
+				throw spk::Exception("voxel catalog exceeds packed identifier capacity");
 
 			base._resolve(_shapes, _atlas);
 			base.id = static_cast<ID>(_definitions.size() + 1);
@@ -114,7 +114,7 @@ namespace voxel::Voxel
 		[[nodiscard]] const TDefinition &definition(ID id) const
 		{
 			if (id == 0 || id > _definitions.size())
-				throw std::out_of_range("unknown voxel runtime id " + std::to_string(id));
+				throw spk::Exception("unknown voxel runtime id " + std::to_string(id));
 			return _definitions[id - 1];
 		}
 
@@ -127,7 +127,7 @@ namespace voxel::Voxel
 		{
 			const auto found = _ids.find(name);
 			if (found == _ids.end())
-				throw std::out_of_range("unknown voxel '" + name + "'");
+				throw spk::Exception("unknown voxel '" + name + "'");
 			return found->second;
 		}
 

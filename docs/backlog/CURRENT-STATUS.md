@@ -51,6 +51,7 @@ VS-001 first playable                              🔭
 
 - ✅ Data-driven voxel Shapes, Definitions, compact packed `Voxel::Cell`, fixed 16³ Chunk behavior, Collection/world lookup, and current `Chunk::Baker` exist.
 - ✅ The existing textured Chunk renderer is the protected visual baseline for structural work.
+- ✅ Deliberate failures originating in Playground C++ code use `spk::Exception`, including validation, state, catalog lookup, and test-library diagnostics.
 
 ### Installed test/package infrastructure
 
@@ -123,7 +124,7 @@ VS-001 first playable                              🔭
 - ✅ Canonical snapshots compare positions, normals, atlas UVs, winding, and visible topology while ignoring triangle emission order, vertex-buffer indices, and cyclic starting vertices.
 - ✅ Exact Chunk/cell coordinates, stable Definition names/runtime IDs, orientations, flips, topology, and atlas expectations are recorded with the fixtures.
 - ✅ Boundary coverage proves an absent adjacent Chunk is empty and an available solid neighbor removes only the shared face across local X coordinates `15 → 0`.
-- ✅ Repeated inputs produce byte-identical semantic output; an unknown Definition ID throws without poisoning subsequent valid bakes.
+- ✅ Repeated inputs produce byte-identical semantic output; an unknown Definition ID throws `spk::Exception` without poisoning subsequent valid bakes.
 - ✅ The current `Chunk::Baker` remains intact as the later `VoxelMesher` parity oracle.
 - ✅ No approved textured reference, comparison tolerance, camera, atlas, shader, or canonical runner changed.
 - ✅ OD-025 records the approved one-base-mesher design: shared cached occlusion in VoxelMesher and only external-neighbor lookup overridden by ChunkMesher.

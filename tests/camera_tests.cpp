@@ -4,7 +4,7 @@
 #include "engine/camera.hpp"
 
 #include <cmath>
-#include <stdexcept>
+#include <exception.hpp>
 
 namespace
 {
@@ -43,7 +43,7 @@ TEST(CameraTest, RejectsEmptyViewportWithoutChangingPreviousState)
 {
 	spk::Camera camera;
 	camera.setViewportSize({1600, 800});
-	EXPECT_THROW(camera.setViewportSize({1600, 0}), std::invalid_argument);
+	EXPECT_THROW(camera.setViewportSize({1600, 0}), spk::Exception);
 	EXPECT_EQ(camera.viewportSize(), spk::Vector2UInt(1600, 800));
 }
 
