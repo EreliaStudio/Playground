@@ -1,7 +1,9 @@
 #include "voxel_test_utils.hpp"
 
+#include "rendering/command/voxel_render_command.hpp"
 #include "voxel/chunk_mesher.hpp"
 #include "voxel/material_resolver.hpp"
+#include "voxel/palette.hpp"
 #include "voxel/voxel_mesher.hpp"
 #include "voxel/voxel_model.hpp"
 
@@ -53,6 +55,18 @@ namespace
 			EXPECT_EQ(context.coordinate, spk::Vector3Int(0, 0, 0));
 			EXPECT_EQ(context.definition.name, "grass");
 			EXPECT_EQ(context.cell.orientation(), voxel::Voxel::Orientation::PositiveX);
+			return 0;
+		}
+	};
+
+	class CountingResolver final : public voxel::MaterialResolver
+	{
+	public:
+		mutable std::size_t calls = 0;
+
+		[[nodiscard]] voxel::VoxelVertex::PaletteElementIndex resolve(const Context &) const override
+		{
+			++calls;
 			return 0;
 		}
 	};
@@ -161,4 +175,31 @@ TEST(VoxelMesherPaletteTest, ModelAndChunkUseTheSameDeterministicMeshRepresentat
 
 	EXPECT_TRUE(byteIdentical(first, repeated));
 	EXPECT_TRUE(byteIdentical(first, chunkMesh));
+}
+
+TEST(VoxelMesherPaletteTest, PaletteAndTransformChangesReuseTheSameMeshWithoutRemeshing)
+{
+	auto catalog = playground_test::loadVoxelCatalog();
+	voxel::VoxelModel model({1, 1, 1}, 1.0f);
+	setCell(model, catalog, {0, 0, 0}, "stone");
+	CountingResolver resolver;
+	const auto mesh = voxel::VoxelMesher(catalog).bake(model, resolver);
+	const auto vertices = std::vector<voxel::VoxelVertex>(
+		mesh.layout().vertexBuffer().cast<voxel::VoxelVertex>().begin(),
+		mesh.layout().vertexBuffer().cast<voxel::VoxelVertex>().end());
+	const auto indices = std::vector<voxel::VoxelMesh::Index>(
+		mesh.layout().indexBuffer().cast<voxel::VoxelMesh::Index>().begin(),
+		mesh.layout().indexBuffer().cast<voxel::VoxelMesh::Index>().end());
+	const voxel::Palette human({{{0.7f, 0.5f, 0.4f, 1.0f}}});
+	const voxel::Palette orc({{{0.2f, 0.5f, 0.1f, 1.0f}}});
+
+	voxel::VoxelRenderCommand(&human, mesh, spk::Matrix4x4::identity());
+	voxel::VoxelRenderCommand(&orc, mesh,
+		spk::Matrix4x4::translation(spk::Vector3{2.0f, 0.0f, 0.0f}));
+
+	EXPECT_EQ(resolver.calls, 6);
+	EXPECT_TRUE(byteIdentical(mesh.layout().vertexBuffer().cast<voxel::VoxelVertex>(),
+		std::span<const voxel::VoxelVertex>(vertices)));
+	EXPECT_TRUE(byteIdentical(mesh.layout().indexBuffer().cast<voxel::VoxelMesh::Index>(),
+		std::span<const voxel::VoxelMesh::Index>(indices)));
 }
