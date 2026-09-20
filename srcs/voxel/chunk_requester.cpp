@@ -1,6 +1,6 @@
 #include "voxel/chunk_requester.hpp"
 
-#include <stdexcept>
+#include <exception.hpp>
 #include <utility>
 
 namespace voxel
@@ -12,7 +12,7 @@ namespace voxel
 	{
 		if (horizontalRadius < 0 || verticalRadius < 0)
 		{
-			throw std::invalid_argument("chunk request radius cannot be negative");
+			throw spk::Exception("chunk request radius cannot be negative");
 		}
 	}
 

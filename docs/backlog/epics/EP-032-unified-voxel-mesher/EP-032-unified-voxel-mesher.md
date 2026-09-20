@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Extract the current Chunk baking logic into one generalized, headless, scale-aware VoxelMesher that consumes a volume plus an external occlusion-resolution context, preserving current terrain behavior before serving imported models.
+Implement one generalized, headless, scale-aware VoxelMesher and its narrow ChunkMesher outside-neighbor specialization while retaining the current Baker for a later consumer transition.
 
 ## Starting state
 
@@ -16,7 +16,7 @@ Extract the current Chunk baking logic into one generalized, headless, scale-awa
 - Stable content IDs are distinct from display names and file-system paths.
 - Invalid commands, content, or assets fail before partial authoritative mutation.
 - Open GDD values remain configuration or explicit decision gates rather than silently invented constants.
-- The mesher must not depend on `Chunk::Collection`, entity types, streaming or authoring formats.
+- The base VoxelMesher must not depend on `Chunk::Collection`, entity types, streaming or authoring formats; only the EP-004 ChunkMesher subclass may hold Chunk lookup context.
 - Start by preserving current textured output/UV/material-slot behavior; Material migration is EP-003/033.
 - Voxel scale multiplies positions only; visibility remains discrete-grid logic.
 - Shape normalization, current orientation and vertical flip semantics remain unchanged.
@@ -33,8 +33,9 @@ Extract the current Chunk baking logic into one generalized, headless, scale-awa
 
 ## Scope
 
-- Generic OcclusionResolver
-- Standalone outside-is-empty behavior
+- Generic cached occlusion inside VoxelMesher
+- Protected outside-volume neighbor hook with standalone outside-is-empty behavior
+- ChunkMesher specialization point without a second meshing algorithm
 - MaterialResolver per emitted polygon
 - Shape expansion, visibility, deterministic vertex/index and palette-element output
 
@@ -51,7 +52,7 @@ Extract the current Chunk baking logic into one generalized, headless, scale-awa
 - Stable content IDs are distinct from display names and file-system paths.
 - Invalid commands, content, or assets fail before partial authoritative mutation.
 - Open GDD values remain configuration or explicit decision gates rather than silently invented constants.
-- The mesher must not depend on `Chunk::Collection`, entity types, streaming or authoring formats.
+- The base VoxelMesher must not depend on `Chunk::Collection`, entity types, streaming or authoring formats; only the EP-004 ChunkMesher subclass may hold Chunk lookup context.
 - Start by preserving current textured output/UV/material-slot behavior; Material migration is EP-003/033.
 - Voxel scale multiplies positions only; visibility remains discrete-grid logic.
 - Shape normalization, current orientation and vertical flip semantics remain unchanged.
@@ -65,15 +66,14 @@ Extract the current Chunk baking logic into one generalized, headless, scale-awa
 | Subject / capability | Implemented by tickets | Tested by tickets |
 |---|---|---|
 | Current Baker semantic and textured-image characterization | [ST-032-01](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) | [ST-032-01](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) |
-| Shape expansion, cell iteration, scale, orientation, and flip | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) |
-| Generic OcclusionResolver and standalone outside-is-empty behavior | [ST-032-03](tickets/ST-032-03-occlusionresolver-meshing-context.md) | [ST-032-03](tickets/ST-032-03-occlusionresolver-meshing-context.md) |
+| Shared iteration, Shape/scale transforms, cached occlusion, base boundary behavior, and Chunk specialization | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) |
 | MaterialResolver and deterministic vertex/index/palette-element output | [ST-032-04](tickets/ST-032-04-optimization-and-indexed-output.md) | [ST-032-04](tickets/ST-032-04-optimization-and-indexed-output.md) |
 
 ## Ticket index
 
 - [ST-032-01 — Current Baker semantic golden fixtures](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) — Capture current mesh semantics before code extraction and build comparison helpers tolerant of harmless vertex ordering differences.
-- [ST-032-02 — Generic cell iteration and scale-aware Shape transform](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — Move Shape expansion/transform from Chunk-specific code to volume-based meshing.
-- [ST-032-03 — OcclusionResolver / meshing context](tickets/ST-032-03-occlusionresolver-meshing-context.md) — Externalize neighbor lookup so standalone and Chunk volumes use different boundary policies without mesher branching on type.
+- [ST-032-02 — Unified VoxelMesher and ChunkMesher implementation](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — Consolidates generic iteration/scale, cached occlusion, default boundary behavior, Chunk specialization, numerical evidence, and golden fixtures.
+- [ST-032-03 — Superseded by consolidated ST-032-02](tickets/ST-032-03-occlusionresolver-meshing-context.md) — Stable historical link; owns no remaining implementation.
 - [ST-032-04 — Optimization and indexed output](tickets/ST-032-04-optimization-and-indexed-output.md) — Preserve/remove hidden surfaces and emit efficient indexed mesh sections while profiling against the current Baker.
 
 ## Epic integration acceptance tests
@@ -85,7 +85,7 @@ Extract the current Chunk baking logic into one generalized, headless, scale-awa
 5. Standalone volume treats outside-grid neighbors as empty.
 6. Chunk context resolves outside-grid neighbor from adjacent Chunk and preserves cross-Chunk occlusion.
 7. Identical cell arrangements at scale 1.0 and 0.1 have equivalent topology/material assignments while vertex positions/bounds scale by 10×.
-8. Runtime-sized imported barrel uses exactly the same mesher implementation and Definition/Shape catalog resolution as a Chunk.
+8. The checked-in JSON cross statue and equivalent procedural raw volume use exactly the same mesher implementation and Definition/Shape catalog resolution as a Chunk.
 
 Additional integration invariants:
 
@@ -99,10 +99,11 @@ Additional integration invariants:
 ## Decision gates
 
 - [OD-020](../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-025](../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: one generic cached VoxelMesher algorithm with an outside-volume hook; ChunkMesher overrides only that hook.
 
 ## Rendering validation
 
-Graphical tickets use deterministic `512 × 512` Sparkle TestLibrary comparisons. Structural refactors preserve reviewed baselines. Intentional visual migrations retain old references until actual/difference images receive human approval, then create a versioned baseline.
+Graphical tickets use OD-024's deterministic `640 × 480` Sparkle TestLibrary comparisons. Structural refactors preserve reviewed baselines. New references remain candidates until actual/difference images receive human approval.
 
 ## Required user-provided inputs
 

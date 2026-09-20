@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <stdexcept>
+#include <exception.hpp>
 
 namespace voxel::Voxel
 {
@@ -73,7 +73,7 @@ namespace voxel::Voxel
 	spk::Vector3 Shape::_normalOf(const std::vector<Vertex> &vertices)
 	{
 		if (vertices.size() < 3)
-			throw std::runtime_error("voxel polygon needs at least three vertices");
+			throw spk::Exception("voxel polygon needs at least three vertices");
 
 		const auto firstEdge = vertices[1].position - vertices[0].position;
 		const auto secondEdge = vertices[2].position - vertices[0].position;

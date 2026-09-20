@@ -1,6 +1,6 @@
 # Erelia Implementation Backlog — Unified Multi-Scale Voxel Revision
 
-> **Current position:** The installed test harness, reviewed current textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, provisional sparse JSON model loader, and focused headless tests are in place. ST-032-01 current Baker semantic fixtures are next; see [Erelia Implementation Status](CURRENT-STATUS.md).
+> **Current position:** The installed test harness, reviewed current textured Chunk baseline, complete EP-001 `VoxelVolume`/Chunk/`VoxelModel` storage contract, provisional sparse JSON model loader, focused headless tests, and ST-032-01 current Baker semantic fixtures are in place. ST-032-02 generic cell iteration and scale-aware Shape transform is next; see [Erelia Implementation Status](CURRENT-STATUS.md).
 
 This folder is the **same progressively elaborated Erelia implementation backlog**, revised around the unified multi-scale voxel architecture. Unrelated gameplay, authority, economy, dungeon and networking epics are retained; the voxel/model/tooling assumptions have been rewritten rather than replaced with a second plan.
 
@@ -17,7 +17,7 @@ See [GDD alignment review](traceability/GDD-ALIGNMENT-REVIEW.md) for the reposit
 The current Playground implementation already provides normalized data-driven `Voxel::Shape` polygons, material-slot names, UVs, `Voxel::Definition`, a compact 32-bit `Voxel::Cell` with orientation/vertical flip, headless 16³ `Chunk` storage, `Chunk::Collection::worldCell`, and `Chunk::Baker` coupled to chunk-neighbor lookup. Those are the migration baseline, not disposable prototypes.
 
 
-Current package: **34 epics, 137 standalone implementation tickets, 24 persistent Open Decisions, and 9 capability/root meta-epics.** Acceptance-case totals are intentionally not hand-maintained; completeness is audited from the ticket files rather than constrained to an artificial count.
+Current package: **34 epics, 137 standalone implementation tickets, 25 persistent Open Decisions, and 9 capability/root meta-epics.** Acceptance-case totals are intentionally not hand-maintained; completeness is audited from the ticket files rather than constrained to an artificial count.
 
 ## Central architecture principle
 
@@ -41,16 +41,19 @@ normalized Voxel::Shape + material slots
       16³ / streaming /         arbitrary dimensions /
        generation / world        imported asset / entity
               ↘                    ↙
-        OcclusionResolver + MaterialResolver
+                 MaterialResolver
                        ↓
-                  VoxelMesher
+       VoxelMesher + shared occlusion cache
+          default outside-volume = empty
+                       ↑
+  ChunkMesher overrides external lookup only
                        ↓
  VoxelMesh(position, normal, paletteElementIndex)
                        ↓
        same voxel shader + bound Palette SSBO
 ```
 
-[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. Vertex packing and buffer binding numbers remain later implementation decisions. Cross-Chunk lookup belongs to `ChunkOcclusionResolver`; `VoxelMesher` never depends directly on `Chunk::Collection`. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
+[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. [OD-025](open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) resolves one generic VoxelMesher owning the common algorithm/cache, with ChunkMesher overriding only outside-volume lookup through `Chunk::Collection`. Vertex packing and buffer binding numbers remain later implementation decisions. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
 
 ## Safe migration rule
 
@@ -58,14 +61,12 @@ Do **not** rewrite the working world renderer and material system in one step.
 
 1. Characterize current chunk output with semantic fixtures and manually approved textured PNG references using SparkleTestLibrary image comparison.
 2. Extract generic volume access from `Chunk` without changing current output.
-3. Extract occlusion resolution from `Chunk::Baker`, using `ChunkOcclusionResolver` to preserve cross-Chunk behavior.
-4. Generalize the baker into one `VoxelMesher` while continuing to emit the current textured mesh representation.
-5. Prove terrain output/behavior parity, including unchanged textured PNG comparisons on the supported GPU runner.
-6. Add voxel scale and runtime-sized/imported `VoxelModel` volumes.
-7. Mesh a small prop through the exact same mesher.
-8. Introduce the new Material abstraction alongside the current atlas path.
-9. Compare non-textured/palette output against the old textured references, review the resulting failures, and explicitly version approved new visual baselines before migrating content incrementally.
-10. Assemble the first articulated Hero from cached rigid voxel-volume parts.
+3. Introduce one `VoxelMesher` with cached occlusion/default-empty boundaries and its narrow `ChunkMesher` outside-neighbor override while retaining `Chunk::Baker` as an oracle.
+4. Prove JSON-loaded `VoxelModel`, procedural raw-volume, and filled cross-Chunk behavior through numerical, semantic, and reviewed textured-image evidence.
+5. Transition runtime Chunk consumers from `Chunk::Baker` only after the new mesher references and parity evidence are approved.
+6. Introduce the new Material abstraction alongside the current atlas path.
+7. Compare non-textured/palette output against the old textured references, review the resulting failures, and explicitly version approved new visual baselines before migrating content incrementally.
+8. Assemble the first articulated Hero from cached rigid voxel-volume parts.
 
 ## Character direction
 
@@ -146,6 +147,7 @@ See [`milestones/HORIZONS.md`](milestones/HORIZONS.md), [`milestones/VS-000-UNIF
 10. Every epic must pass its integration catalogue before it is Done.
 11. Every story must have executable acceptance tests before it is Done.
 12. Performance targets are measured with fixed fixtures and distributions, not one timing sample.
+13. Deliberate failures originating in Playground C++ code throw `spk::Exception`; do not explicitly throw or expose standard-library exception types for Playground validation and state errors.
 
 ## Mandatory execution rule
 

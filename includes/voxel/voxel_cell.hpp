@@ -1,8 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <stdexcept>
 #include <type_traits>
+
+#include <exception.hpp>
 
 #include "voxel/voxel.hpp"
 
@@ -25,7 +26,7 @@ namespace voxel::Voxel
 		{
 			if (id > IDMask)
 			{
-				throw std::invalid_argument("voxel runtime identifier exceeds packed capacity");
+				throw spk::Exception("voxel runtime identifier exceeds packed capacity");
 			}
 		}
 

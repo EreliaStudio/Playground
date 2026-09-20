@@ -2,8 +2,9 @@
 
 #include "engine/engine.hpp"
 
-#include <stdexcept>
 #include <unordered_map>
+
+#include <exception.hpp>
 
 namespace spk
 {
@@ -63,7 +64,7 @@ namespace spk
 	{
 		if (configuration.verticalSize <= 0.0f || configuration.farPlane <= configuration.nearPlane)
 		{
-			throw std::invalid_argument("Invalid orthographic camera configuration");
+			throw spk::Exception("Invalid orthographic camera configuration");
 		}
 
 		const float aspectRatio = static_cast<float>(viewportSize.x) / static_cast<float>(viewportSize.y);
@@ -82,7 +83,7 @@ namespace spk
 	{
 		if (viewportSize.x == 0 || viewportSize.y == 0)
 		{
-			throw std::invalid_argument("Camera viewport dimensions must be non-zero");
+			throw spk::Exception("Camera viewport dimensions must be non-zero");
 		}
 
 		return std::visit(

@@ -15,8 +15,9 @@ Evolve the working terrain voxel implementation into one reusable multi-scale vo
 ## Meta-epic invariants
 
 - A 16³ Chunk and arbitrary VoxelModel expose the same meshing-facing cell/scale contract.
-- One mesher handles both; no terrain/model mesher fork exists in the first implementation.
-- `OcclusionResolver` and `MaterialResolver` remain separate inputs; `ChunkOcclusionResolver` and world lookup stay in EP-004.
+- One VoxelMesher base owns the common model/terrain algorithm and occlusion cache; no terrain/model meshing-loop fork exists.
+- Standalone boundaries default to empty through the VoxelMesher hook; `ChunkMesher` overrides only outside-volume lookup, and its `Chunk::Collection`/world context stays in EP-004.
+- `MaterialResolver` remains an independent input.
 - `VoxelMesh` carries a flat integer `paletteElementIndex` into the currently bound Palette SSBO. Chunk and model rendering use the same mesh/shader contract and no GPU palette ID.
 - Each Palette is independently bindable; CPU-side PaletteCollection management never forces one global PaletteCollection SSBO.
 - Existing cube/slab/slope/stair/cross shape behavior, orientation, vertical flip and cross-chunk occlusion remain covered by regression tests.

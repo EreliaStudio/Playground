@@ -1,93 +1,100 @@
-# ST-032-02 — Generic cell iteration and scale-aware Shape transform
+# ST-032-02 — Unified VoxelMesher and ChunkMesher implementation
 
 ## Intent
 
-Move Shape expansion/transform from Chunk-specific code to volume-based meshing.
+Implement one inheritable, scale-aware `VoxelMesher` for `VoxelVolume`/`VoxelModel` and its narrow `ChunkMesher` specialization, including cached occlusion, cross-Chunk lookup, exhaustive semantic evidence, and reviewed rendering fixtures.
 
 ## Execution decision policy
 
-- Do not invent, infer, or silently select behavior, data, assets, values, formulas, schemas, ownership, error policy, architecture, or technology that this ticket or an already-resolved linked decision does not define.
-- Treat every unspecified choice that can affect public behavior, compatibility, persistence, rendering, tests, or later tickets as an Open Decision.
-- Stop before implementing the affected portion, ask the user a focused clarification question, and record the approved answer in the applicable OD file—or create/link a new OD record when none exists.
-- Continue only with work that is independent of the missing decision.
-- Select an implementation detail without clarification only when this ticket explicitly delegates it and the choice cannot alter an observable contract.
+- Do not invent unspecified behavior, data, assets, values, formulas, schemas, ownership, error policy, architecture, or technology.
+- Treat every unspecified observable choice as an Open Decision and ask the project owner before implementing it.
+- Deliberate failures originating in Playground throw `spk::Exception`.
 
 ## Starting state / prerequisites
 
-- The dependency contracts `EP-000, EP-001` used by this story are available; an epic dependency denotes a required contract, not global waterfall completion.
-- The test begins from an explicitly constructed, valid state with no pending operation unless the case says otherwise.
-- Rendering, authoring data, and display names are not authoritative gameplay state.
+- ST-032-01 locks the current `Chunk::Baker` semantics and textured output.
+- ST-001-02/03/04 provide `VoxelVolume`, Chunk inheritance, `VoxelModel`, editing, scale, and the provisional sparse JSON Reader schema.
+- OD-025 resolves one shared cached algorithm with only outside-volume lookup specialized for Chunks.
+- OD-024 fixes the supported golden runner, tolerance policy, and `640 × 480` framebuffer.
+
+## Approved consolidation
+
+The project owner consolidated the former ST-032-02 Shape/iteration work, ST-032-03 boundary/cache work, and ST-004-02 Chunk specialization into this ticket on 20 September 2026. `Chunk::Baker` remains intact as the independent parity oracle. ST-004-01 separately owns the later migration of runtime consumers from `Chunk::Baker` to `ChunkMesher`.
 
 ## Owned behavior
 
-Move Shape expansion/transform from Chunk-specific code to volume-based meshing.
+- `VoxelMesher` owns deterministic volume iteration, Definition/Shape expansion, orientation/flip transforms, uniform-scale position mapping, material/UV propagation, visibility evaluation, mesh emission, and the reusable occlusion-result cache.
+- In-bounds neighbors use `VoxelVolume::at`. Only out-of-volume coordinates reach a protected virtual hook; the base returns `Voxel::Cell{}`.
+- `ChunkMesher` derives from `VoxelMesher`, inherits the entire algorithm/cache, and overrides only outside-volume lookup through the source Chunk coordinate and `Chunk::Collection`.
+- Invalid runtime Definition IDs fail validation before mesh/cache mutation.
+- The existing textured `spk::TextureMesh3D` representation is preserved; OD-020 continues to own later merging/indexing/hard-normal policy.
 
 ## Explicitly not owned
 
-- Behavior assigned to sibling tickets or later epics.
-- Resolution of linked Open Decisions.
-- New balance values, content, schemas, or platform choices not approved by the user.
+- Redirecting `Chunk::BakeScheduler`, views, application code, or other runtime consumers away from `Chunk::Baker`; ST-004-01 owns that transition.
+- Removing `Chunk::Baker` or its characterization fixtures before the later transition/parity gate.
+- Palette/material-SSBO migration, final mesh optimization, import formats, collision, anchors, animation, or gameplay behavior.
 
-## Implementation inputs
+## Approved fixtures
 
-### Already defined values/data
+### JSON model and raw volume
 
-- Story intent: Move Shape expansion/transform from Chunk-specific code to volume-based meshing.
-- Required dependency contracts: EP-000, EP-001.
-- Test fixture rule: Use the smallest deterministic fixture that exposes the owned behavior. Record exact dimensions, cell coordinates, palette indices, transforms, expected vertices/state, and stable asset IDs in the test source; do not substitute an unspecified representative asset.
+- Checked-in descriptor: `tests/resources/voxel_models/mesher_cross_statue.json`.
+- Provisional ST-001-04 schema: dimensions `8 × 8 × 16`, voxel size `0.1`, numeric current runtime IDs.
+- Ten stone cubes form a connected cross statue with nine internal adjacencies.
+- Five isolated cells exercise grass cube, cross/plant, flipped slab, rotated slope, and rotated/flipped stair Shapes.
+- A raw `VoxelVolume` is filled procedurally with the identical fifteen packed cells.
+- Both inputs must produce identical semantic output: exactly `290` vertices and `432` indices.
 
-### User validation required before implementation
+### Filled adjacent Chunks
 
-Before implementing behavior controlled by an Open Decision below, ask the user to resolve it and record the approved choice in that OD file. Work that relies only on its fixed constraints may proceed.
-
-## Behavioral contract
-
-The operation validates identity, ownership, bounds, and dependency preconditions before authoritative mutation. Success produces only the state and events owned above. Failure is atomic. Ordering and deterministic inputs are explicit and reproducible.
+- Chunk `(0,0,0)` contains stone at local `x=14..15`, `y=2..3`, `z=4..5`.
+- Chunk `(1,0,0)` contains stone at local `x=0..1`, `y=2..3`, `z=4..5`.
+- The left section emits `144` indices without its neighbor and `120` with the neighbor available; the right emits `120` and the combined meshes emit `240`.
+- Independent one-cell cases exercise correct lookup across all six Chunk boundary directions.
 
 ## Acceptance tests
 
-### Nominal behavior and integration interactions
+### Structure and shared algorithm
 
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Solid adjacent cube cells emit no internal shared face.` is observed exactly; no private-state shortcut is used.
-- [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Chunk context resolves outside-grid neighbor from adjacent Chunk and preserves cross-Chunk occlusion.` is observed exactly; no private-state shortcut is used.
-- [ ] Shape vertex mapping includes voxel coordinate and uniform voxelSize.
-- [ ] Scale does not alter occupancy/neighbor decisions.
-- [ ] Normals remain unit/correct under uniform scale.
-- [ ] Invalid input is rejected atomically and leaves the previously valid state unchanged.
-- [ ] Identical deterministic inputs produce identical observable results.
-- [ ] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
-- [ ] A rejected command leaves state, ownership, resources, version counters, scheduled work, and emitted authoritative events byte-for-byte or semantically unchanged.
-- [ ] Repeating the same seed, configuration, starting snapshot, and ordered commands produces the same result and event order.
-- [ ] Create → use → serialize where applicable → unload → restore/recreate → retry preserves stable IDs and does not duplicate the operation.
-- [ ] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
+- [x] `VoxelMesher` works directly with `VoxelVolume` and `VoxelModel` and contains no Chunk/world dependency or concrete-volume branch.
+- [x] `ChunkMesher` derives from `VoxelMesher` and overrides only protected outside-volume neighbor resolution.
+- [x] No second iteration, Shape transform, visibility, cache, or mesh-emission loop exists in `ChunkMesher`.
+- [x] `Chunk::Baker` remains present and exercised as a separate production parity oracle.
 
-### Boundaries and invalid/rejected operations
+### Semantic and numerical behavior
 
-- [ ] Missing IDs, foreign ownership, malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category.
-- [ ] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
+- [x] The JSON-loaded model and procedurally filled raw volume produce byte-identical canonical semantic meshes.
+- [x] The cross statue emits exactly `290` vertices and `432` indices, proving internal face removal alongside every current Shape family.
+- [x] Identical arrangements at scale `1.0` and `0.1` preserve topology, indices, normals, UVs, and materials while positions scale by exactly ten.
+- [x] Standalone out-of-volume lookup returns empty and exposes all six faces of a boundary cube.
+- [x] Cache misses/entry count stabilize after the first bake while cache hits increase on an identical repeated bake.
+- [x] Cube, slab, slope, stair, cross, unloaded-neighbor, and loaded-neighbor outputs match all ST-032-01 semantic snapshots.
+- [x] Filled adjacent Chunk sections produce the approved `144 → 120 + 120` index counts and match `Chunk::Baker` semantics.
+- [x] All six Chunk boundary directions resolve the exact adjacent cell and remove only the shared face.
+- [x] An invalid Definition ID throws `spk::Exception`, leaves cache statistics unchanged, and does not poison a later valid bake.
+- [x] CPU/headless tests require no Window or OpenGL context.
 
-### Determinism and lifecycle / retry / persistence
+### Golden rendering
 
-- [ ] Deterministic iteration never depends on pointer values, hash-table accident, render frame rate, or wall-clock timing.
-- [ ] A duplicate/retried operation is either idempotent or rejected as already applied, according to the story contract, without duplicating state or events.
-
-### Rendering / golden images
-
-- [ ] Render the deterministic fixture at `512 × 512`; compare against its reviewed PNG with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
-- [ ] Assert semantic geometry/material/transform values independently of the PNG comparison.
-
-## Rendering impact
-
-Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, and supported GPU runner. Structural refactors must match the reviewed current baseline; intentional migrations require human review before a new versioned baseline is accepted.
+- [x] All captures use the OD-024 `640 × 480` framebuffer and existing atlas/shader/tolerances on the canonical Windows software-OpenGL runner.
+- [x] Four orthogonal JSON-model views and four procedural-volume views are generated and pairwise pixel-identical.
+- [x] One scene renders the JSON model and procedural volume beside one another.
+- [x] Chunk captures show left without neighbor, left with an available-but-undrawn neighbor, and both adjacent Chunks rendered.
+- [x] Existing 20 current-Chunk golden references remain unchanged and passing.
+- [x] The twelve new candidate references were reviewed and approved by the project owner, then checked in byte-for-byte from artifact `10606095311`.
 
 ## Open decisions
 
-- [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
+- [OD-020](../../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) remains open and is not selected by this structural implementation.
+- [OD-024](../../../open-decisions/OD-024-current-chunk-golden-fixtures-and-runner.md) supplies the authoritative visual runner/size/tolerance contract.
+- [OD-025](../../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) supplies the implemented inheritance and cache-ownership contract.
 
 ## Completion evidence
 
-- Automated test names and passing CI run.
-- Exact fixtures and expected values checked into the test resources.
-- Error-path assertion proving no partial mutation.
-- Decision-file update and user approval reference when a gate was resolved.
-- For graphical work: expected, actual, and difference-image artifacts plus approval of any changed baseline.
+- `VoxelMesherTest`, `VoxelMesherSemanticGoldenTest`, and `ChunkMesherTest` provide headless numerical, semantic, cache, scale, failure, and six-direction boundary evidence.
+- `CurrentChunkGoldenTest.VoxelMesherJsonAndProceduralVolumes` and `CurrentChunkGoldenTest.ChunkMesherCrossChunkOcclusion` cover the twelve approved references.
+- Candidate artifact `10606095311` from CI run `35510619947`, SHA-256 `91bb25488ec4a2c0f5c4c47184559ae1f6e9b44922e82e4a1f7abff36ec447d4`, was explicitly approved by the project owner on 20 September 2026.
+- Commit `ae1deac` checks in those exact twelve `640 × 480` PNGs without changing existing references, tolerances, cameras, atlas data, or shaders.
+- Commit `6e0054f` protects JSON/procedural parity inputs from Sparkle's successful-comparison artifact cleanup without changing any reference.
+- CI run `35513348937` passes both the complete CPU/headless and Windows/OpenGL lanes with all 32 approved references.

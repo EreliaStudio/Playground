@@ -1,7 +1,7 @@
 #include "current_chunk_golden_fixture.hpp"
 
 #include <algorithm>
-#include <stdexcept>
+#include <exception.hpp>
 
 namespace playground_test::golden
 {
@@ -79,7 +79,7 @@ namespace playground_test::golden
 	{
 		static const auto scenes = declaredScenes();
 		const auto found = std::ranges::find(scenes, name, &Scene::name);
-		if (found == scenes.end()) throw std::logic_error("unknown current Chunk golden fixture");
+		if (found == scenes.end()) throw spk::Exception("unknown current Chunk golden fixture");
 		return *found;
 	}
 

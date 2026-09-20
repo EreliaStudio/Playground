@@ -1,11 +1,15 @@
 #include "current_chunk_golden_fixture.hpp"
+#include "voxel_mesher_fixture.hpp"
+#include "voxel_test_utils.hpp"
 
 #include "engine/camera.hpp"
 #include "rendering/command/camera_ubo_render_command.hpp"
 #include "rendering/command/texture_mesh_3d_render_command.hpp"
 #include "voxel/chunk_baker.hpp"
+#include "voxel/chunk_mesher.hpp"
 #include "voxel/chunk_editor.hpp"
 #include "voxel/debug_chunk_generator.hpp"
+#include "voxel/voxel_mesher.hpp"
 
 #include <GL/glew.h>
 #include <sparkle_test.hpp>
@@ -13,7 +17,7 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
-#include <stdexcept>
+#include <exception.hpp>
 #include <string>
 
 namespace playground_test::golden
@@ -25,7 +29,7 @@ namespace playground_test::golden
 
 		void require(bool condition, std::string_view message)
 		{
-			if (!condition) throw std::runtime_error(std::string(message));
+			if (!condition) throw spk::Exception(std::string(message));
 		}
 
 		Catalog loadCatalog() { return Catalog::load("resources/catalog_config.json"); }
@@ -105,6 +109,49 @@ namespace playground_test::golden
 					spk::Matrix4x4::translation(spk::Vector3(origin))).execute(context);
 			}
 		}
+
+		Camera rotatedCamera(const Camera &source, std::size_t quarterTurns)
+		{
+			Camera result = source;
+			const float dx = source.position.x - source.target.x;
+			const float dz = source.position.z - source.target.z;
+			switch (quarterTurns % ViewCount)
+			{
+			case 1: result.position.x = source.target.x - dz; result.position.z = source.target.z + dx; break;
+			case 2: result.position.x = source.target.x - dx; result.position.z = source.target.z - dz; break;
+			case 3: result.position.x = source.target.x + dz; result.position.z = source.target.z - dx; break;
+			default: break;
+			}
+			return result;
+		}
+
+		void renderVolume(const Catalog &catalog, const voxel::VoxelVolume &volume,
+			spk::Vector3 translation, spk::RenderContext &context)
+		{
+			auto mesh = voxel::VoxelMesher(catalog).bake(volume);
+			spk::TextureMesh3DRenderCommand(&catalog.atlas(), std::move(mesh),
+				spk::Matrix4x4::translation(translation)).execute(context);
+		}
+
+		std::unique_ptr<voxel::Chunk> filledBoundaryChunk(voxel::Chunk::Coordinate coordinate, int firstX)
+		{
+			auto chunk = std::make_unique<voxel::Chunk>(coordinate);
+			auto editor = chunk->edit();
+			for (int x = firstX; x < firstX + 2; ++x)
+				for (int y = 2; y < 4; ++y)
+					for (int z = 4; z < 6; ++z)
+						editor.set({x, y, z}, voxel::Voxel::Cell(3));
+			return chunk;
+		}
+
+		void renderMeshedChunk(const Catalog &catalog, const voxel::Chunk::Collection &chunks,
+			const voxel::Chunk &chunk, spk::RenderContext &context)
+		{
+			auto mesh = voxel::ChunkMesher(catalog, chunks).bake(chunk);
+			const auto origin = voxel::Chunk::worldOrigin(chunk.coordinate());
+			spk::TextureMesh3DRenderCommand(&catalog.atlas(), std::move(mesh),
+				spk::Matrix4x4::translation(spk::Vector3(origin))).execute(context);
+		}
 	}
 
 	void configureTestPaths()
@@ -142,6 +189,52 @@ namespace playground_test::golden
 		auto &context = openGL.renderContext();
 		configureCamera(seededSceneCameras().at(viewIndex), context);
 		renderChunks(catalog, chunks, coordinates, context, false);
+		openGL.save(path);
+	}
+
+	void renderVoxelMesherModel(bool procedural, std::size_t viewIndex, const std::filesystem::path &path)
+	{
+		auto catalog = loadCatalog();
+		auto model = loadVoxelMesherModel();
+		auto volume = makeVoxelMesherVolume();
+		auto &openGL = sparkle_test::OpenGLTestContext::instance();
+		prepareContext(openGL);
+		auto &context = openGL.renderContext();
+		const Camera primary{{2.3f, 1.7f, 2.7f}, {0.4f, 0.3f, 0.8f}, 0.72f, 0.05f, 20.0f};
+		configureCamera(rotatedCamera(primary, viewIndex), context);
+		renderVolume(catalog, procedural ? *volume : *model, {}, context);
+		openGL.save(path);
+	}
+
+	void renderVoxelMesherPair(const std::filesystem::path &path)
+	{
+		auto catalog = loadCatalog();
+		auto model = loadVoxelMesherModel();
+		auto volume = makeVoxelMesherVolume();
+		auto &openGL = sparkle_test::OpenGLTestContext::instance();
+		prepareContext(openGL);
+		auto &context = openGL.renderContext();
+		configureCamera({{3.4f, 1.8f, 3.2f}, {1.0f, 0.3f, 0.8f}, 0.72f, 0.05f, 25.0f}, context);
+		renderVolume(catalog, *model, {}, context);
+		renderVolume(catalog, *volume, {1.2f, 0.0f, 0.0f}, context);
+		openGL.save(path);
+	}
+
+	void renderChunkMesherOcclusion(bool publishNeighbor, bool renderNeighbor, const std::filesystem::path &path)
+	{
+		auto catalog = loadCatalog();
+		voxel::Chunk::Collection chunks;
+		auto left = filledBoundaryChunk({0, 0, 0}, 14);
+		voxel::Chunk *leftSource = left.get();
+		require(playground_test::publish(chunks, std::move(left)), "left Chunk publication failed");
+		if (publishNeighbor)
+			require(playground_test::publish(chunks, filledBoundaryChunk({1, 0, 0}, 0)), "right Chunk publication failed");
+		auto &openGL = sparkle_test::OpenGLTestContext::instance();
+		prepareContext(openGL);
+		auto &context = openGL.renderContext();
+		configureCamera({{23.0f, 7.0f, 10.0f}, {15.5f, 3.0f, 5.0f}, 0.58f, 0.1f, 50.0f}, context);
+		renderMeshedChunk(catalog, chunks, *leftSource, context);
+		if (renderNeighbor) renderMeshedChunk(catalog, chunks, *chunks.find({1, 0, 0}), context);
 		openGL.save(path);
 	}
 }

@@ -1,7 +1,7 @@
 #include "voxel/chunk.hpp"
 
 #include <gtest/gtest.h>
-#include <stdexcept>
+#include <exception.hpp>
 #include <type_traits>
 
 TEST(ChunkStorageTest, HasFixedDimensionsAndCoordinateIndexing)
@@ -32,6 +32,6 @@ TEST(ChunkStorageTest, RejectsCoordinatesOutsideChunk)
 	for (const auto outside : {spk::Vector3Int{-1, 0, 0}, {16, 0, 0}, {0, -1, 0}, {0, 16, 0}, {0, 0, -1}, {0, 0, 16}})
 	{
 		EXPECT_FALSE(voxel::Chunk::contains(outside));
-		EXPECT_THROW(static_cast<void>(voxel::Chunk::index(outside)), std::out_of_range);
+		EXPECT_THROW(static_cast<void>(voxel::Chunk::index(outside)), spk::Exception);
 	}
 }

@@ -1,7 +1,8 @@
 #include "voxel/chunk_collection.hpp"
 
-#include <stdexcept>
 #include <utility>
+
+#include <exception.hpp>
 
 namespace voxel
 {
@@ -32,16 +33,16 @@ namespace voxel
 	{
 		if (!chunk)
 		{
-			throw std::invalid_argument("cannot publish a null chunk");
+			throw spk::Exception("cannot publish a null chunk");
 		}
 		const auto coordinate = chunk->coordinate();
 		if (_chunks.contains(coordinate))
 		{
-			throw std::logic_error("duplicate chunk publication");
+			throw spk::Exception("duplicate chunk publication");
 		}
 		if (!_pending.erase(coordinate))
 		{
-			throw std::logic_error("published chunk was not pending");
+			throw spk::Exception("published chunk was not pending");
 		}
 		Entry entry;
 		entry.chunk = std::move(chunk);
