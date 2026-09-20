@@ -78,6 +78,8 @@ namespace playground_test
 			"current_baker_semantics" / (std::string(name) + ".mesh");
 		std::ifstream stream(path, std::ios::binary);
 		if (!stream) throw std::runtime_error("cannot open semantic mesh snapshot '" + path.generic_string() + "'");
-		return {std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
+		std::string result{std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
+		std::erase(result, '\r');
+		return result;
 	}
 }
