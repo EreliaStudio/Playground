@@ -39,6 +39,16 @@ TEST_F(CurrentChunkGoldenTest, SeededDebugChunks)
 	EXPECT_TRUE(playground_test::golden::compareSeededScene());
 }
 
+TEST_F(CurrentChunkGoldenTest, VoxelMesherJsonAndProceduralVolumes)
+{
+	EXPECT_TRUE(playground_test::golden::compareVoxelMesherModels());
+}
+
+TEST_F(CurrentChunkGoldenTest, ChunkMesherCrossChunkOcclusion)
+{
+	EXPECT_TRUE(playground_test::golden::compareChunkMesherOcclusion());
+}
+
 TEST_F(CurrentChunkGoldenTest, DetectsControlledUvRegression)
 {
 	EXPECT_NO_THROW(playground_test::golden::proveUvSensitivity());

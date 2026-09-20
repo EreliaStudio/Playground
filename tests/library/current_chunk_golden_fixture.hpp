@@ -42,7 +42,12 @@ namespace playground_test::golden
 	void configureTestPaths();
 	void renderScene(const Scene &scene, std::size_t viewIndex, const std::filesystem::path &path, bool alterFirstUv = false);
 	void renderSeededScene(std::size_t viewIndex, const std::filesystem::path &path);
+	void renderVoxelMesherModel(bool procedural, std::size_t viewIndex, const std::filesystem::path &path);
+	void renderVoxelMesherPair(const std::filesystem::path &path);
+	void renderChunkMesherOcclusion(bool publishNeighbor, bool renderNeighbor, const std::filesystem::path &path);
 	[[nodiscard]] bool compareScene(std::string_view name);
 	[[nodiscard]] bool compareSeededScene();
+	[[nodiscard]] bool compareVoxelMesherModels();
+	[[nodiscard]] bool compareChunkMesherOcclusion();
 	void proveUvSensitivity();
 }
