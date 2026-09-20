@@ -2,13 +2,13 @@
 
 **Last updated:** 20 September 2026
 
-**Implementation base:** `main` at `7d7eb7b45e9274b88540682d864df60cdb05ce01`
+**Implementation base:** `main` at `292637e9214ca8083b1b29e4d4268a322bac1091`
 
-**Delivery:** [PR #6](https://github.com/EreliaStudio/Playground/pull/6) from `feat/current-baker-semantic-fixtures`
+**Delivery:** [PR #7](https://github.com/EreliaStudio/Playground/pull/7) from `feat/chunk-mesher-consumer-transition`
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** ST-004-01 — Transition Chunk consumers from Baker to Chunk::Mesher.
+**Current checkpoint:** OD-020 — Decide mesher merging, indexing, and hard-normal policy before optimization work.
 
 This is the living answer to:
 
@@ -38,8 +38,9 @@ VoxelVolume contract + batched editor/versioning   ✅
 Chunk inheritance / storage/editor migration       ✅
 Runtime-sized VoxelModel                           ✅
 Current Baker semantic fixtures                    ✅
-VoxelMesher + Chunk::Mesher implementation           ✅
-Chunk::Baker consumer transition                   🟡 CURRENT
+VoxelMesher + Chunk::Mesher implementation         ✅
+Chunk::Mesher consumer transition                  ✅
+Mesher optimization policy (OD-020)                ⛔ CURRENT
 Palette rendering migration                        ⬜
 VS-000 unified voxel visual validation             ⬜
 VS-001 first playable                              🔭
@@ -49,7 +50,8 @@ VS-001 first playable                              🔭
 
 ### Current implementation baseline
 
-- ✅ Data-driven voxel Shapes, Definitions, compact packed `Voxel::Cell`, fixed 16³ Chunk behavior, Collection/world lookup, and current `Chunk::Baker` exist.
+- ✅ Data-driven voxel Shapes, Definitions, compact packed `Voxel::Cell`, fixed 16³ Chunk behavior, Collection/world lookup, and the unified `VoxelMesher`/`Chunk::Mesher` path exist.
+- ✅ The duplicated `Chunk::Baker` implementation is retired; its approved semantic snapshots remain as independent historical parity fixtures.
 - ✅ The existing textured Chunk renderer is the protected visual baseline for structural work.
 - ✅ Deliberate failures originating in Playground C++ code use `spk::Exception`, including validation, state, catalog lookup, and test-library diagnostics.
 
@@ -63,7 +65,7 @@ VS-001 first playable                              🔭
 
 ### ST-001-01 — Current Chunk characterization
 
-- ✅ Semantic tests cover storage/indexing, coordinates, Collection, Editor, scheduler, baker, transforms, catalog, Shape, and packed Cell behavior.
+- ✅ Semantic tests cover storage/indexing, coordinates, Collection, Editor, scheduler, meshing, transforms, catalog, Shape, and packed Cell behavior.
 - ✅ The Windows/OpenGL harness covers five scene families from four fixed views each.
 - ✅ All 20 approved current textured Chunk PNG references are checked in.
 - ✅ The controlled UV-regression sensitivity path proves an altered UV fails comparison without changing tolerances or references.
@@ -125,7 +127,7 @@ VS-001 first playable                              🔭
 - ✅ Exact Chunk/cell coordinates, stable Definition names/runtime IDs, orientations, flips, topology, and atlas expectations are recorded with the fixtures.
 - ✅ Boundary coverage proves an absent adjacent Chunk is empty and an available solid neighbor removes only the shared face across local X coordinates `15 → 0`.
 - ✅ Repeated inputs produce byte-identical semantic output; an unknown Definition ID throws `spk::Exception` without poisoning subsequent valid bakes.
-- ✅ The current `Chunk::Baker` remains intact as the later `VoxelMesher` parity oracle.
+- ✅ At this checkpoint, `Chunk::Baker` remained intact as the later `VoxelMesher` parity oracle; ST-004-01 subsequently retired its implementation after parity passed.
 - ✅ No approved textured reference, comparison tolerance, camera, atlas, shader, or canonical runner changed.
 - ✅ OD-025 records the approved one-base-mesher design: shared cached occlusion in VoxelMesher and only external-neighbor lookup overridden by Chunk::Mesher.
 - ✅ Semantic-fixture implementation: [`aa1b9c2`](https://github.com/EreliaStudio/Playground/commit/aa1b9c216a86476ebef0bd46000bf38b9c82e8a8).
@@ -138,7 +140,7 @@ VS-001 first playable                              🔭
 - base outside-volume lookup returns `Voxel::Cell{}`, while derived `Chunk::Mesher` overrides only that hook through `Chunk::Collection`;
 - an `8 × 8 × 16`, scale-`0.1` JSON cross statue and identical procedural raw volume emit the same `290` vertices/`432` indices and pixel-identical four-view captures;
 - filled adjacent Chunk sections prove `144 → 120 + 120` indices, hidden-neighbor occlusion, both-rendered output, and correct lookup in all six directions;
-- all seven ST-032-01 snapshots match, rejected IDs use `spk::Exception`, repeated bakes reuse the cache, and the existing Baker remains untouched as the parity oracle;
+- all seven ST-032-01 snapshots match, rejected IDs use `spk::Exception`, repeated bakes reuse the cache, and the existing Baker remained untouched at this checkpoint as the parity oracle;
 - candidate artifact `10606095311` from CI run `35510619947`, SHA-256 `91bb25488ec4a2c0f5c4c47184559ae1f6e9b44922e82e4a1f7abff36ec447d4`, was explicitly approved by the project owner;
 - commit [`ae1deac`](https://github.com/EreliaStudio/Playground/commit/ae1deac7a3d1ac7dbf2e8d75f08780b863845c35) checks in those exact twelve `640 × 480` PNGs while preserving the existing 20 references;
 - comparison-lifecycle fix [`6e0054f`](https://github.com/EreliaStudio/Playground/commit/6e0054f098a241193cec0781090ddf17d67f44c0) protects JSON/procedural parity inputs from successful-comparison cleanup;
@@ -146,11 +148,25 @@ VS-001 first playable                              🔭
 
 ST-032-03 and ST-004-02 are superseded by this approved consolidation.
 
-## Current implementation checkpoint
+### ST-004-01 — Transition Chunk consumers from Baker to Chunk::Mesher
 
-### 🟡 ST-004-01 — Transition Chunk consumers from Baker to Chunk::Mesher
+- ✅ `Chunk::Mesher` is a directly declared nested Chunk specialization in `chunk_mesher.hpp`; no compatibility alias or prefixed top-level class was introduced.
+- ✅ The application owns one `Chunk::Mesher`, and `Chunk::BakeScheduler` uses that instance without a second adapter or meshing loop.
+- ✅ Scheduler tests preserve completion delivery, empty/solid mesh index counts, version invalidation, and exactly-once rebuild scheduling for the edited Chunk plus every available face-neighbor.
+- ✅ Invalid Definition data throws `spk::Exception`; repairing it requeues and successfully bakes both the source and available neighbor.
+- ✅ Seeded generation is unchanged in the approved rendered fixture and now has explicit replay coverage across different request orders.
+- ✅ The retained ST-032-01 snapshots independently protect old Baker semantics while all consolidated VoxelMesher numerical/semantic tests remain unchanged.
+- ✅ The obsolete Baker declaration, implementation, private occlusion cache, and Baker-only tests were removed; no production or test source references `Chunk::Baker`.
+- ✅ All 20 current textured Chunk references and all 12 consolidated-mesher references remain byte-for-byte unchanged.
+- ✅ Consumer-transition implementation: [`7fd8029`](https://github.com/EreliaStudio/Playground/commit/7fd8029b849b5244324ef5c4fafd91e344e13689).
+- ✅ Nested-type refinement: [`d0edb2a`](https://github.com/EreliaStudio/Playground/commit/d0edb2af4aacf4fc9e01b953a8a2143889a89f38).
+- ✅ PR #7 [CI run 35514737157](https://github.com/EreliaStudio/Playground/actions/runs/35514737157) passed both complete CPU/headless and Windows/OpenGL lanes with all 32 approved references.
 
-Redirect production scheduler, application, and view consumers from `Chunk::Baker` to the approved `Chunk::Mesher`. Preserve scheduling, invalidation, transforms, current semantic meshes, all 32 approved `640 × 480` references, and the existing textured rendering behavior. Remove the old Baker only after no production or retained test consumer requires it.
+## Current decision gate
+
+### ⛔ OD-020 — Mesher merging, indexing, and hard-normal policy
+
+Semantic and visual parity now exist for the unified mesher path. Optimization-only work remains blocked until profiling evidence is gathered and the project owner approves the merging, indexing, and hard-normal policy recorded in OD-020. This gate does not retroactively change ST-004-01 or its fixtures.
 
 ## Next implementation sequence
 
@@ -161,9 +177,9 @@ Redirect production scheduler, application, and view consumers from `Chunk::Bake
 | 3 | ✅ | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel semantic type | One semantic model type now forwards runtime dimensions and scale to shared storage and inherits editing/versioning unchanged. |
 | 4 | ✅ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) — current Baker semantic fixtures | Seven canonical fixtures now protect positions, normals, atlas UVs, winding, visible topology, and both Chunk-boundary outcomes. |
 | 5 | ✅ | [ST-032-02](epics/EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — unified VoxelMesher + Chunk::Mesher | Shared algorithm/cache, Chunk specialization, numerical/semantic evidence, and all twelve approved references pass both CI lanes. |
-| 6 | 🟡 | [ST-004-01](epics/EP-004-chunk-world-generation/tickets/ST-004-01-chunk-mesher-integration.md) — transition Chunk consumers | Redirect scheduler/application/view use while protecting the approved semantic and visual baselines. |
-| 7 | ⛔ | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) when profiling/parity evidence exists | Final optimization policy remains evidence-driven. |
-| 8 | ⬜ | Prove unchanged semantic mesh and textured golden-image parity after the consumer transition | Runtime migration is not complete without both forms of evidence. |
+| 6 | ✅ | [ST-004-01](epics/EP-004-chunk-world-generation/tickets/ST-004-01-chunk-mesher-integration.md) — transition Chunk consumers | Application, scheduler, tests, and golden renderer use the nested `Chunk::Mesher`; obsolete Baker code is removed. |
+| 7 | ⛔ CURRENT | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) when profiling/parity evidence exists | Parity now exists; final optimization policy still requires profiling evidence and project-owner approval. |
+| 8 | ✅ | Prove unchanged semantic mesh and textured golden-image parity after the consumer transition | Retained semantic fixtures and all 32 unchanged image references pass CI run 35514737157. |
 | 9 | ⬜ | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
 | 10 | ⬜ | EP-033 palette/multi-scale visual fixtures | Intentionally changes the visual pipeline and creates reviewed versioned baselines. |
 | 11 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
