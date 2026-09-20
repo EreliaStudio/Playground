@@ -82,3 +82,14 @@ TEST(VoxelModelJSONTest, RejectsValuesOutsidePackedCellCapacity)
 		"voxels": [{"position": [0, 0, 0], "value": 536870912, "orientation": "positive-z"}]
 	})", "model.json:$.voxels[0].value:");
 }
+
+TEST(VoxelModelJSONTest, RejectsUnknownModelAndVoxelFields)
+{
+	expectInvalidModel(R"({
+		"dimensions": [1, 1, 1], "voxelSize": 1.0, "name": "prototype", "voxels": []
+	})", "model.json:$.name:");
+	expectInvalidModel(R"({
+		"dimensions": [1, 1, 1], "voxelSize": 1.0,
+		"voxels": [{"position": [0, 0, 0], "value": 1, "orientation": "positive-z", "material": 2}]
+	})", "model.json:$.voxels[0].material:");
+}

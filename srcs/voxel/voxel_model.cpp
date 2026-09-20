@@ -1,5 +1,6 @@
 #include "voxel/voxel_model.hpp"
 
+#include <cstdint>
 #include <map>
 #include <set>
 #include <string>
