@@ -105,11 +105,20 @@ namespace playground_test::golden
 			const auto volumeActual = sparkle_test::resultImagePath(VoxelMesherCategory, volumeName + "_actual");
 			renderVoxelMesherModel(false, viewIndex, jsonActual);
 			renderVoxelMesherModel(true, viewIndex, volumeActual);
+			const auto parityJson = sparkle_test::resultImagePath(VoxelMesherCategory, jsonName + "_parity_json");
+			const auto parityVolume = sparkle_test::resultImagePath(VoxelMesherCategory, jsonName + "_parity_volume");
+			std::filesystem::copy_file(jsonActual, parityJson, std::filesystem::copy_options::overwrite_existing);
+			std::filesystem::copy_file(volumeActual, parityVolume, std::filesystem::copy_options::overwrite_existing);
+			const auto parityDifference = sparkle_test::resultImagePath(VoxelMesherCategory, jsonName + "_parity_difference");
+			const auto parity = sparkle_test::compareImages(parityJson, parityVolume, parityDifference, comparisonOptions());
+			if (!parity.matches) matches = false;
+			else
+			{
+				std::filesystem::remove(parityJson);
+				std::filesystem::remove(parityVolume);
+			}
 			if (!compareCandidate(VoxelMesherCategory, jsonName, jsonActual)) matches = false;
 			if (!compareCandidate(VoxelMesherCategory, volumeName, volumeActual)) matches = false;
-			const auto parityDifference = sparkle_test::resultImagePath(VoxelMesherCategory, jsonName + "_parity_difference");
-			if (!sparkle_test::compareImages(jsonActual, volumeActual, parityDifference, comparisonOptions()).matches)
-				matches = false;
 		}
 		const std::string pairName = "json_and_procedural_cross_statues";
 		const auto pairActual = sparkle_test::resultImagePath(VoxelMesherCategory, pairName + "_actual");
