@@ -10,7 +10,7 @@ Chunk and runtime-sized VoxelModel data require the same cell iteration, Shape e
 
 ## Affected epics/tickets
 
-[EP-032](../epics/EP-032-unified-voxel-mesher/EP-032-unified-voxel-mesher.md), [ST-032-02](../epics/EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md), [ST-032-03](../epics/EP-032-unified-voxel-mesher/tickets/ST-032-03-occlusionresolver-meshing-context.md), and [ST-004-02](../epics/EP-004-chunk-world-generation/tickets/ST-004-02-chunk-occlusion-resolver.md).
+[EP-032](../epics/EP-032-unified-voxel-mesher/EP-032-unified-voxel-mesher.md), consolidated [ST-032-02](../epics/EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md), and the later [ST-004-01](../epics/EP-004-chunk-world-generation/tickets/ST-004-01-chunk-mesher-integration.md) consumer transition. ST-032-03 and ST-004-02 remain superseded historical links.
 
 ## Known constraints
 
@@ -41,16 +41,15 @@ Inheritance expresses the one intentional behavioral specialization while keepin
 
 ## Consequences
 
-- EP-032 introduces the common VoxelMesher and its default outside-is-empty hook.
-- EP-004 supplies the concrete ChunkMesher override and Chunk/world coordinate conversion.
+- Consolidated ST-032-02 introduces the common VoxelMesher, default outside-is-empty hook, and concrete ChunkMesher override together.
+- EP-004/ST-004-01 later redirects production Chunk consumers from `Chunk::Baker` to the already validated `ChunkMesher`.
 - The earlier standalone `OcclusionResolver`/`ChunkOcclusionResolver` strategy-object plan is superseded.
 - Future specializations may override only external neighbor resolution unless another user-approved decision expands the inheritance contract.
 
 ## Validation / evidence
 
 - ST-032-01 canonical fixtures remain the parity oracle for positions, normals, atlas UVs, winding, visible topology, and Chunk-boundary outcomes.
-- ST-032-03 must prove standalone outside-is-empty behavior and that the shared occlusion cache is used by the base algorithm.
-- ST-004-02 must prove adjacent Chunk lookup, missing-neighbor fallback, and unchanged cross-Chunk occlusion through `ChunkMesher`.
+- Consolidated ST-032-02 proves standalone outside-is-empty behavior, cache reuse, adjacent/missing Chunk lookup, all six boundary directions, and unchanged cross-Chunk occlusion.
 
 ## Resolution provenance
 

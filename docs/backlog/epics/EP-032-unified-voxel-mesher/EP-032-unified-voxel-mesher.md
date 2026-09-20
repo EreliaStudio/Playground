@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Extract the current Chunk baking logic into one generalized, headless, scale-aware VoxelMesher. It owns the common iteration, Shape, visibility, mesh-emission, and cached-occlusion algorithm; a later ChunkMesher subclass overrides only outside-volume neighbor lookup.
+Implement one generalized, headless, scale-aware VoxelMesher and its narrow ChunkMesher outside-neighbor specialization while retaining the current Baker for a later consumer transition.
 
 ## Starting state
 
@@ -66,15 +66,14 @@ Extract the current Chunk baking logic into one generalized, headless, scale-awa
 | Subject / capability | Implemented by tickets | Tested by tickets |
 |---|---|---|
 | Current Baker semantic and textured-image characterization | [ST-032-01](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) | [ST-032-01](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) |
-| Shape expansion, cell iteration, scale, orientation, and flip | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) |
-| Cached occlusion and VoxelMesher outside-volume hook/default-empty behavior | [ST-032-03](tickets/ST-032-03-occlusionresolver-meshing-context.md) | [ST-032-03](tickets/ST-032-03-occlusionresolver-meshing-context.md) |
+| Shared iteration, Shape/scale transforms, cached occlusion, base boundary behavior, and Chunk specialization | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) | [ST-032-02](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) |
 | MaterialResolver and deterministic vertex/index/palette-element output | [ST-032-04](tickets/ST-032-04-optimization-and-indexed-output.md) | [ST-032-04](tickets/ST-032-04-optimization-and-indexed-output.md) |
 
 ## Ticket index
 
 - [ST-032-01 — Current Baker semantic golden fixtures](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) — Capture current mesh semantics before code extraction and build comparison helpers tolerant of harmless vertex ordering differences.
-- [ST-032-02 — Generic cell iteration and scale-aware Shape transform](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — Move Shape expansion/transform from Chunk-specific code to volume-based meshing.
-- [ST-032-03 — VoxelMesher boundary hook and cached occlusion](tickets/ST-032-03-occlusionresolver-meshing-context.md) — Keep cached visibility in the base mesher and expose only the outside-volume lookup specialization point.
+- [ST-032-02 — Unified VoxelMesher and ChunkMesher implementation](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — Consolidates generic iteration/scale, cached occlusion, default boundary behavior, Chunk specialization, numerical evidence, and golden fixtures.
+- [ST-032-03 — Superseded by consolidated ST-032-02](tickets/ST-032-03-occlusionresolver-meshing-context.md) — Stable historical link; owns no remaining implementation.
 - [ST-032-04 — Optimization and indexed output](tickets/ST-032-04-optimization-and-indexed-output.md) — Preserve/remove hidden surfaces and emit efficient indexed mesh sections while profiling against the current Baker.
 
 ## Epic integration acceptance tests
@@ -86,7 +85,7 @@ Extract the current Chunk baking logic into one generalized, headless, scale-awa
 5. Standalone volume treats outside-grid neighbors as empty.
 6. Chunk context resolves outside-grid neighbor from adjacent Chunk and preserves cross-Chunk occlusion.
 7. Identical cell arrangements at scale 1.0 and 0.1 have equivalent topology/material assignments while vertex positions/bounds scale by 10×.
-8. Runtime-sized imported barrel uses exactly the same mesher implementation and Definition/Shape catalog resolution as a Chunk.
+8. The checked-in JSON cross statue and equivalent procedural raw volume use exactly the same mesher implementation and Definition/Shape catalog resolution as a Chunk.
 
 Additional integration invariants:
 
@@ -104,7 +103,7 @@ Additional integration invariants:
 
 ## Rendering validation
 
-Graphical tickets use deterministic `512 × 512` Sparkle TestLibrary comparisons. Structural refactors preserve reviewed baselines. Intentional visual migrations retain old references until actual/difference images receive human approval, then create a versioned baseline.
+Graphical tickets use OD-024's deterministic `640 × 480` Sparkle TestLibrary comparisons. Structural refactors preserve reviewed baselines. New references remain candidates until actual/difference images receive human approval.
 
 ## Required user-provided inputs
 

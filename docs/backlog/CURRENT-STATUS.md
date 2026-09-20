@@ -8,7 +8,7 @@
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** ST-032-02 — Generic cell iteration and scale-aware Shape transform.
+**Current checkpoint:** ST-032-02 — Unified VoxelMesher/ChunkMesher candidate review.
 
 This is the living answer to:
 
@@ -38,8 +38,8 @@ VoxelVolume contract + batched editor/versioning   ✅
 Chunk inheritance / storage/editor migration       ✅
 Runtime-sized VoxelModel                           ✅
 Current Baker semantic fixtures                    ✅
-Scale-aware VoxelMesher structural extraction      🟡 CURRENT
-VoxelMesher boundary hook + ChunkMesher override   ⬜
+VoxelMesher + ChunkMesher implementation           🟡 CANDIDATE REVIEW
+Chunk::Baker consumer transition                   ⬜
 Palette rendering migration                        ⬜
 VS-000 unified voxel visual validation             ⬜
 VS-001 first playable                              🔭
@@ -134,18 +134,18 @@ VS-001 first playable                              🔭
 
 ## Current implementation checkpoint
 
-### 🟡 ST-032-02 — Generic cell iteration and scale-aware Shape transform
+### 🟡 ST-032-02 — Unified VoxelMesher and ChunkMesher implementation
 
-The next implementation must:
+Implemented and passing headlessly:
 
-- move Shape expansion and deterministic cell iteration from Chunk-specific code toward the common volume-based meshing path;
-- map each vertex through the integer voxel coordinate and the volume's uniform `voxelSize` while keeping occupancy/neighbor decisions on the discrete grid;
-- preserve unit/correct normals, current orientation and vertical-flip semantics, material/UV behavior, and the ST-032-01 canonical snapshots;
-- keep the current Baker available as the semantic and textured-output oracle until the later parity gate passes;
-- follow resolved OD-025: the generic VoxelMesher owns the common algorithm and occlusion cache, while only outside-volume lookup is virtual and defaults to `Voxel::Cell{}`;
-- keep final merging, indexing, and hard-normal behavior blocked on OD-020 rather than selecting it during structural extraction.
+- one base `VoxelMesher` owns deterministic iteration, scale-aware Shape transforms, textured mesh emission, visibility, and the reusable occlusion cache;
+- base outside-volume lookup returns `Voxel::Cell{}`, while derived `ChunkMesher` overrides only that hook through `Chunk::Collection`;
+- an `8 × 8 × 16`, scale-`0.1` JSON cross statue and identical procedural raw volume emit the same `290` vertices/`432` indices and pixel-identical four-view captures;
+- filled adjacent Chunk sections prove `144 → 120 + 120` indices, hidden-neighbor occlusion, both-rendered output, and correct lookup in all six directions;
+- all seven ST-032-01 snapshots match, rejected IDs use `spk::Exception`, repeated bakes reuse the cache, and the existing Baker remains untouched as the parity oracle;
+- CI run 35510619947 passes the complete CPU/headless lane and renders every new `640 × 480` candidate while preserving all existing golden references.
 
-ST-032-03 owns the outside-volume hook and default empty-boundary behavior. EP-004/ST-004-02 then supplies the `ChunkMesher` override backed by `Chunk::Collection`; neither ticket may duplicate the generic meshing/cache algorithm. Any newly discovered observable ambiguity becomes an Open Decision rather than an improvised implementation.
+The only remaining gate is project-owner review of the twelve published candidate images. ST-032-03 and ST-004-02 are superseded by this approved consolidation. After approval, ST-004-01 becomes current and migrates production consumers from `Chunk::Baker` to `ChunkMesher`.
 
 ## Next implementation sequence
 
@@ -155,22 +155,22 @@ ST-032-03 owns the outside-volume hook and default empty-boundary behavior. EP-0
 | 2 | ✅ | [ST-001-03](epics/EP-001-unified-voxel-volume/tickets/ST-001-03-chunk-adapter-specialization.md) — Chunk inheritance/storage/editor migration | Chunk now uses inherited 16³/1.0 storage, reads, editing, and versioning while retaining Chunk-only behavior and unchanged rendering. |
 | 3 | ✅ | [ST-001-04](epics/EP-001-unified-voxel-volume/tickets/ST-001-04-runtime-sized-voxelmodel-storage.md) — runtime-sized VoxelModel semantic type | One semantic model type now forwards runtime dimensions and scale to shared storage and inherits editing/versioning unchanged. |
 | 4 | ✅ | [ST-032-01](epics/EP-032-unified-voxel-mesher/tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) — current Baker semantic fixtures | Seven canonical fixtures now protect positions, normals, atlas UVs, winding, visible topology, and both Chunk-boundary outcomes. |
-| 5 | 🟡 | [ST-032-02](epics/EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — generic iteration and scale-aware Shape transform | Extracts the common volume/scale transform without selecting later optimization or occlusion policy. |
-| 6 | ⬜ | [ST-032-03](epics/EP-032-unified-voxel-mesher/tickets/ST-032-03-occlusionresolver-meshing-context.md) — base boundary hook and cached occlusion | Adds the default outside-is-empty hook while keeping occlusion evaluation/cache in VoxelMesher. |
-| 7 | ⬜ | [ST-004-02](epics/EP-004-chunk-world-generation/tickets/ST-004-02-chunk-occlusion-resolver.md) — ChunkMesher override | Restores cross-Chunk lookup by overriding only external-neighbor resolution. |
-| 8 | ⛔ | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) when profiling/parity evidence exists | Final optimization policy remains evidence-driven. |
-| 9 | ⬜ | Prove unchanged semantic mesh and textured golden-image parity | Structural migration is not complete without both forms of evidence. |
-| 10 | ⬜ | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
-| 11 | ⬜ | EP-033 palette/multi-scale visual fixtures | Intentionally changes the visual pipeline and creates reviewed versioned baselines. |
-| 12 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
-| 13 | ⬜ | [VS-000](milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) | Validates terrain, model, assembly, equipment, Palette, and performance together. |
-| 14 | 🔭 | [VS-001](milestones/VS-001-FIRST-PLAYABLE.md) | Starts the gameplay vertical slice after the visual/runtime foundation. |
+| 5 | 🟡 | [ST-032-02](epics/EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — unified VoxelMesher + ChunkMesher | Implementation and headless evidence pass; twelve `640 × 480` candidates await owner approval. |
+| 6 | ⬜ | [ST-004-01](epics/EP-004-chunk-world-generation/tickets/ST-004-01-chunk-mesher-integration.md) — transition Chunk consumers | Redirects scheduler/application/view use only after the new mesher baseline is approved. |
+| 7 | ⛔ | Resolve [OD-020](open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) when profiling/parity evidence exists | Final optimization policy remains evidence-driven. |
+| 8 | ⬜ | Prove unchanged semantic mesh and textured golden-image parity after the consumer transition | Runtime migration is not complete without both forms of evidence. |
+| 9 | ⬜ | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
+| 10 | ⬜ | EP-033 palette/multi-scale visual fixtures | Intentionally changes the visual pipeline and creates reviewed versioned baselines. |
+| 11 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
+| 12 | ⬜ | [VS-000](milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) | Validates terrain, model, assembly, equipment, Palette, and performance together. |
+| 13 | 🔭 | [VS-001](milestones/VS-001-FIRST-PLAYABLE.md) | Starts the gameplay vertical slice after the visual/runtime foundation. |
 
 ## Known user gates
 
 - OD-020 when profiling/parity evidence is available for mesh merging/indexing/hard normals.
 - OD-025 is resolved: VoxelMesher owns the common cached algorithm; ChunkMesher overrides only outside-volume neighbor lookup.
 - Approval of any model, assembly, animation, equipment, import, or material-mapping schema before it is frozen.
+- Review of the twelve ST-032-02 VoxelMesher/ChunkMesher candidate images before accepting them as references.
 - Review of expected, produced, and difference images before accepting the later Palette migration baseline.
 
 Additional ambiguity discovered during implementation becomes an Open Decision. The executing agent must not improvise it.

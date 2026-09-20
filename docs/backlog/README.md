@@ -61,14 +61,12 @@ Do **not** rewrite the working world renderer and material system in one step.
 
 1. Characterize current chunk output with semantic fixtures and manually approved textured PNG references using SparkleTestLibrary image comparison.
 2. Extract generic volume access from `Chunk` without changing current output.
-3. Generalize the baker into one `VoxelMesher` with cached occlusion and a default outside-is-empty hook while continuing to emit the current textured mesh representation.
-4. Add `ChunkMesher` as the narrow external-neighbor lookup specialization that preserves cross-Chunk behavior without duplicating the meshing algorithm.
-5. Prove terrain output/behavior parity, including unchanged textured PNG comparisons on the supported GPU runner.
-6. Add voxel scale and runtime-sized/imported `VoxelModel` volumes.
-7. Mesh a small prop through the exact same mesher.
-8. Introduce the new Material abstraction alongside the current atlas path.
-9. Compare non-textured/palette output against the old textured references, review the resulting failures, and explicitly version approved new visual baselines before migrating content incrementally.
-10. Assemble the first articulated Hero from cached rigid voxel-volume parts.
+3. Introduce one `VoxelMesher` with cached occlusion/default-empty boundaries and its narrow `ChunkMesher` outside-neighbor override while retaining `Chunk::Baker` as an oracle.
+4. Prove JSON-loaded `VoxelModel`, procedural raw-volume, and filled cross-Chunk behavior through numerical, semantic, and reviewed textured-image evidence.
+5. Transition runtime Chunk consumers from `Chunk::Baker` only after the new mesher references and parity evidence are approved.
+6. Introduce the new Material abstraction alongside the current atlas path.
+7. Compare non-textured/palette output against the old textured references, review the resulting failures, and explicitly version approved new visual baselines before migrating content incrementally.
+8. Assemble the first articulated Hero from cached rigid voxel-volume parts.
 
 ## Character direction
 
