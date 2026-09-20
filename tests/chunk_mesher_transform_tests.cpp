@@ -32,7 +32,7 @@ TEST(ChunkMesherTransformTest, VerticalFlipChangesBoundaryOcclusion)
 	voxel::Chunk *upperSource = upper.get();
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(lower)));
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(upper)));
-	voxel::ChunkMesher mesher(catalog, chunks);
+	voxel::Chunk::Mesher mesher(catalog, chunks);
 	EXPECT_EQ(mesher.bake(*lowerSource).indexCount(), 36);
 	EXPECT_EQ(mesher.bake(*upperSource).indexCount(), 36);
 }
@@ -57,5 +57,5 @@ TEST(ChunkMesherTransformTest, PreservesCounterClockwiseWindingForAllTransforms)
 	}
 	voxel::Chunk *source = transformed.get();
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(transformed)));
-	expectCounterClockwise(voxel::ChunkMesher(catalog, chunks).bake(*source));
+	expectCounterClockwise(voxel::Chunk::Mesher(catalog, chunks).bake(*source));
 }

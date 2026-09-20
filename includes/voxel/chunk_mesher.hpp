@@ -5,16 +5,16 @@
 
 namespace voxel
 {
-	class ChunkMesher final : public VoxelMesher
+	class Chunk::Mesher final : public VoxelMesher
 	{
 	private:
-		const Chunk::Collection &_chunks;
+		const Collection &_chunks;
 
 		[[nodiscard]] Voxel::Cell _outsideCell(
 			const VoxelVolume &volume, spk::Vector3Int coordinate) const override;
 
 	public:
-		ChunkMesher(const Voxel::Catalog<Voxel::Definition> &catalog, const Chunk::Collection &chunks);
+		Mesher(const Voxel::Catalog<Voxel::Definition> &catalog, const Collection &chunks);
 
 		[[nodiscard]] spk::TextureMesh3D bake(const Chunk &chunk) const;
 	};

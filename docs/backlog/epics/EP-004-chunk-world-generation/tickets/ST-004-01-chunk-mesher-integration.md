@@ -1,8 +1,8 @@
-# ST-004-01 — Transition Chunk consumers from Baker to ChunkMesher
+# ST-004-01 — Transition Chunk consumers from Baker to Chunk::Mesher
 
 ## Intent
 
-After consolidated ST-032-02 is complete, replace runtime use of `Chunk::Baker` with the validated `ChunkMesher` without changing Chunk output, scheduling, invalidation, or rendering behavior.
+After consolidated ST-032-02 is complete, replace runtime use of `Chunk::Baker` with the validated `Chunk::Mesher` without changing Chunk output, scheduling, invalidation, or rendering behavior.
 
 ## Execution decision policy
 
@@ -12,13 +12,13 @@ After consolidated ST-032-02 is complete, replace runtime use of `Chunk::Baker` 
 
 ## Starting state / prerequisites
 
-- Consolidated ST-032-02 provides the reviewed `VoxelMesher` and `ChunkMesher` implementations plus semantic/numerical/golden evidence.
+- Consolidated ST-032-02 provides the reviewed `VoxelMesher` and `Chunk::Mesher` implementations plus semantic/numerical/golden evidence.
 - `Chunk::Baker` remains the current runtime implementation and independent parity oracle.
 - Existing `Chunk::BakeScheduler`, views, application setup, and current textured references are passing.
 
 ## Owned behavior
 
-- Redirect `Chunk::BakeScheduler`, application setup, and other production Chunk-mesh consumers to one appropriately owned `ChunkMesher`.
+- Redirect `Chunk::BakeScheduler`, application setup, and other production Chunk-mesh consumers to one appropriately owned `Chunk::Mesher`.
 - Preserve scheduler contracts, version/dirty behavior, neighbor rebuild scheduling, Chunk transforms, atlas use, and render-command behavior.
 - Prove complete semantic and approved textured-image parity before removing obsolete `Chunk::Baker` implementation files.
 - Remove `Chunk::Baker` only after no production or test consumer requires it and the parity evidence remains independently meaningful in retained fixtures.
@@ -31,9 +31,9 @@ After consolidated ST-032-02 is complete, replace runtime use of `Chunk::Baker` 
 
 ## Acceptance tests
 
-- [ ] `Chunk::BakeScheduler` produces the same completion events and meshes through `ChunkMesher`.
+- [ ] `Chunk::BakeScheduler` produces the same completion events and meshes through `Chunk::Mesher`.
 - [ ] Editing a Chunk still schedules itself and every available face-neighbor exactly once under the existing contract.
-- [ ] Application and view wiring use `ChunkMesher` without a second adapter or meshing loop.
+- [ ] Application and view wiring use `Chunk::Mesher` without a second adapter or meshing loop.
 - [ ] All ST-032-01 semantic snapshots and consolidated ST-032-02 numerical/semantic tests remain unchanged.
 - [ ] All 20 current textured Chunk references and all approved consolidated-mesher references remain unchanged.
 - [ ] Seeded generation output and deterministic replay remain unchanged.

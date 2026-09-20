@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Implement one generalized, headless, scale-aware VoxelMesher and its narrow ChunkMesher outside-neighbor specialization while retaining the current Baker for a later consumer transition.
+Implement one generalized, headless, scale-aware VoxelMesher and its narrow Chunk::Mesher outside-neighbor specialization while retaining the current Baker for a later consumer transition.
 
 ## Starting state
 
@@ -16,7 +16,7 @@ Implement one generalized, headless, scale-aware VoxelMesher and its narrow Chun
 - Stable content IDs are distinct from display names and file-system paths.
 - Invalid commands, content, or assets fail before partial authoritative mutation.
 - Open GDD values remain configuration or explicit decision gates rather than silently invented constants.
-- The base VoxelMesher must not depend on `Chunk::Collection`, entity types, streaming or authoring formats; only the EP-004 ChunkMesher subclass may hold Chunk lookup context.
+- The base VoxelMesher must not depend on `Chunk::Collection`, entity types, streaming or authoring formats; only the EP-004 Chunk::Mesher subclass may hold Chunk lookup context.
 - Start by preserving current textured output/UV/material-slot behavior; Material migration is EP-003/033.
 - Voxel scale multiplies positions only; visibility remains discrete-grid logic.
 - Shape normalization, current orientation and vertical flip semantics remain unchanged.
@@ -35,7 +35,7 @@ Implement one generalized, headless, scale-aware VoxelMesher and its narrow Chun
 
 - Generic cached occlusion inside VoxelMesher
 - Protected outside-volume neighbor hook with standalone outside-is-empty behavior
-- ChunkMesher specialization point without a second meshing algorithm
+- Chunk::Mesher specialization point without a second meshing algorithm
 - MaterialResolver per emitted polygon
 - Shape expansion, visibility, deterministic vertex/index and palette-element output
 
@@ -52,7 +52,7 @@ Implement one generalized, headless, scale-aware VoxelMesher and its narrow Chun
 - Stable content IDs are distinct from display names and file-system paths.
 - Invalid commands, content, or assets fail before partial authoritative mutation.
 - Open GDD values remain configuration or explicit decision gates rather than silently invented constants.
-- The base VoxelMesher must not depend on `Chunk::Collection`, entity types, streaming or authoring formats; only the EP-004 ChunkMesher subclass may hold Chunk lookup context.
+- The base VoxelMesher must not depend on `Chunk::Collection`, entity types, streaming or authoring formats; only the EP-004 Chunk::Mesher subclass may hold Chunk lookup context.
 - Start by preserving current textured output/UV/material-slot behavior; Material migration is EP-003/033.
 - Voxel scale multiplies positions only; visibility remains discrete-grid logic.
 - Shape normalization, current orientation and vertical flip semantics remain unchanged.
@@ -72,7 +72,7 @@ Implement one generalized, headless, scale-aware VoxelMesher and its narrow Chun
 ## Ticket index
 
 - [ST-032-01 — Current Baker semantic golden fixtures](tickets/ST-032-01-current-baker-semantic-golden-fixtures.md) — Capture current mesh semantics before code extraction and build comparison helpers tolerant of harmless vertex ordering differences.
-- [ST-032-02 — Unified VoxelMesher and ChunkMesher implementation](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — Consolidates generic iteration/scale, cached occlusion, default boundary behavior, Chunk specialization, numerical evidence, and golden fixtures.
+- [ST-032-02 — Unified VoxelMesher and Chunk::Mesher implementation](tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) — Consolidates generic iteration/scale, cached occlusion, default boundary behavior, Chunk specialization, numerical evidence, and golden fixtures.
 - [ST-032-03 — Superseded by consolidated ST-032-02](tickets/ST-032-03-occlusionresolver-meshing-context.md) — Stable historical link; owns no remaining implementation.
 - [ST-032-04 — Optimization and indexed output](tickets/ST-032-04-optimization-and-indexed-output.md) — Preserve/remove hidden surfaces and emit efficient indexed mesh sections while profiling against the current Baker.
 
@@ -99,7 +99,7 @@ Additional integration invariants:
 ## Decision gates
 
 - [OD-020](../../open-decisions/OD-020-mesher-merging-indexing-and-hard-normal-policy.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
-- [OD-025](../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: one generic cached VoxelMesher algorithm with an outside-volume hook; ChunkMesher overrides only that hook.
+- [OD-025](../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: one generic cached VoxelMesher algorithm with an outside-volume hook; Chunk::Mesher overrides only that hook.
 
 ## Rendering validation
 

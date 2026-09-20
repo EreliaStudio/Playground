@@ -13,7 +13,7 @@ TEST(ChunkMesherTest, PropagatesMaterialSlotsIntoAtlasUvs)
 	auto chunk = playground_test::chunkWithCell({0, 0, 0}, {0, 0, 0}, voxel::Voxel::Cell(content.id("grass")));
 	voxel::Chunk *source = chunk.get();
 	ASSERT_TRUE(playground_test::publish(chunks, std::move(chunk)));
-	const auto mesh = voxel::ChunkMesher(content, chunks).bake(*source);
+	const auto mesh = voxel::Chunk::Mesher(content, chunks).bake(*source);
 	const auto vertices = mesh.layout().vertexBuffer().cast<spk::Texture3DVertex>();
 	ASSERT_EQ(mesh.indexCount(), 36);
 	ASSERT_EQ(vertices.size(), 24);
@@ -46,7 +46,7 @@ TEST(ChunkMesherTest, ResolvesAdjacentChunkAndPartialOcclusion)
 	EXPECT_EQ(chunks.worldCell({15, 0, 0}), voxel::Voxel::Cell(content.id("stone")));
 	EXPECT_EQ(chunks.worldCell({16, 0, 0}), voxel::Voxel::Cell(content.id("stone")));
 	EXPECT_FALSE(chunks.worldCell({32, 0, 0}).has_value());
-	voxel::ChunkMesher mesher(content, chunks);
+	voxel::Chunk::Mesher mesher(content, chunks);
 	EXPECT_EQ(mesher.bake(*leftSource).indexCount(), 30);
 	EXPECT_EQ(mesher.bake(*rightSource).indexCount(), 30);
 
@@ -58,5 +58,5 @@ TEST(ChunkMesherTest, ResolvesAdjacentChunkAndPartialOcclusion)
 	}
 	voxel::Chunk *partialSource = slab.get();
 	ASSERT_TRUE(playground_test::publish(partial, std::move(slab)));
-	EXPECT_EQ(voxel::ChunkMesher(content, partial).bake(*partialSource).indexCount(), 66);
+	EXPECT_EQ(voxel::Chunk::Mesher(content, partial).bake(*partialSource).indexCount(), 66);
 }

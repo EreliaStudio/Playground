@@ -5,7 +5,7 @@
 
 namespace voxel
 {
-	Chunk::BakeScheduler::BakeScheduler(Collection &chunks, const ChunkMesher &mesher, spk::Profiler *profiler) :
+	Chunk::BakeScheduler::BakeScheduler(Collection &chunks, const Mesher &mesher, spk::Profiler *profiler) :
 		_chunks(chunks),
 		_mesher(mesher),
 		_profiler(profiler),

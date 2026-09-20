@@ -159,7 +159,7 @@ TEST(ChunkMesherTest, FilledAdjacentSectionsOccludeAcrossChunkBoundary)
 	auto isolatedLeft = filledBoundaryChunk({0, 0, 0}, 14);
 	voxel::Chunk *isolatedSource = isolatedLeft.get();
 	ASSERT_TRUE(playground_test::publish(isolated, std::move(isolatedLeft)));
-	EXPECT_EQ(voxel::ChunkMesher(catalog, isolated).bake(*isolatedSource).indexCount(), 144);
+	EXPECT_EQ(voxel::Chunk::Mesher(catalog, isolated).bake(*isolatedSource).indexCount(), 144);
 
 	voxel::Chunk::Collection adjacent;
 	auto left = filledBoundaryChunk({0, 0, 0}, 14);
@@ -168,7 +168,7 @@ TEST(ChunkMesherTest, FilledAdjacentSectionsOccludeAcrossChunkBoundary)
 	voxel::Chunk *rightSource = right.get();
 	ASSERT_TRUE(playground_test::publish(adjacent, std::move(left)));
 	ASSERT_TRUE(playground_test::publish(adjacent, std::move(right)));
-	voxel::ChunkMesher mesher(catalog, adjacent);
+	voxel::Chunk::Mesher mesher(catalog, adjacent);
 	EXPECT_EQ(mesher.bake(*leftSource).indexCount(), 120);
 	EXPECT_EQ(mesher.bake(*rightSource).indexCount(), 120);
 }
@@ -185,7 +185,7 @@ TEST(ChunkMesherTest, ResolvesAllSixExternalNeighborDirections)
 		voxel::Chunk *neighborChunk = neighbor.get();
 		ASSERT_TRUE(playground_test::publish(chunks, std::move(source)));
 		ASSERT_TRUE(playground_test::publish(chunks, std::move(neighbor)));
-		voxel::ChunkMesher mesher(catalog, chunks);
+		voxel::Chunk::Mesher mesher(catalog, chunks);
 		EXPECT_EQ(mesher.bake(*sourceChunk).indexCount(), 30);
 		EXPECT_EQ(mesher.bake(*neighborChunk).indexCount(), 30);
 	}

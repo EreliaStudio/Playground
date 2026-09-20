@@ -16,7 +16,7 @@ namespace voxel
 
 	private:
 		Collection &_chunks;
-		const ChunkMesher &_mesher;
+		const Mesher &_mesher;
 		spk::Profiler *_profiler = nullptr;
 		BakeCompletionProvider _bakeCompletions;
 		std::set<Coordinate> _dirty;
@@ -28,7 +28,7 @@ namespace voxel
 		void _invalidateNeighbors(Coordinate coordinate);
 
 	public:
-		BakeScheduler(Collection &chunks, const ChunkMesher &mesher, spk::Profiler *profiler = nullptr);
+		BakeScheduler(Collection &chunks, const Mesher &mesher, spk::Profiler *profiler = nullptr);
 
 		[[nodiscard]] std::size_t pendingCount() const noexcept
 		{

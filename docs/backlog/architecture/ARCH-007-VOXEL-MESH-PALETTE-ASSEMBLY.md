@@ -7,7 +7,7 @@ VoxelVolume + MaterialResolver
               ↓
  VoxelMesher (cached occlusion + default empty boundary)
               ↑
- ChunkMesher (external-neighbor override only)
+ Chunk::Mesher (external-neighbor override only)
                          ↓
                      VoxelMesh
                          ↓
@@ -16,9 +16,9 @@ VoxelVolume + MaterialResolver
 
 - `VoxelVolume` owns one runtime-sized vector of cells, generic versioning, and a batched RAII editor. It exposes dimensions, uniform voxel scale, bounds, checked coordinate access, and a read-only span. One changed edit session publishes one invalidation; it owns no world lookup, palette, animation, or rendering behavior.
 - `VoxelMesher` owns the common iteration, Shape expansion/transform, visibility evaluation, mesh emission, and reusable occlusion-result cache. In-bounds neighbors come from the common volume read contract; its protected outside-volume hook returns `Voxel::Cell{}` by default.
-- `ChunkMesher` is the EP-004 world-aware subclass. It overrides only outside-volume neighbor lookup through Chunk world/collection state so a voxel in Chunk B can occlude a boundary polygon in Chunk A.
+- `Chunk::Mesher` is the EP-004 world-aware subclass. It overrides only outside-volume neighbor lookup through Chunk world/collection state so a voxel in Chunk B can occlude a boundary polygon in Chunk A.
 - `MaterialResolver` independently selects the `paletteElementIndex` for each emitted polygon.
-- Base `VoxelMesher` never depends directly on `Chunk::Collection`; `ChunkMesher` does not duplicate the generic algorithm or cache.
+- Base `VoxelMesher` never depends directly on `Chunk::Collection`; `Chunk::Mesher` does not duplicate the generic algorithm or cache.
 
 ## Epic ownership
 
@@ -26,7 +26,7 @@ VoxelVolume + MaterialResolver
 |---|---|---|
 | EP-001 | Concrete owning volume contract; dimensions/cell access/uniform scale/bounds; batched editing/versioning; fixed-dimension 16³ Chunk adaptation; semantic runtime-sized VoxelModel type | World lookup, streaming, external occlusion, meshing, rendering |
 | EP-032 | Generic VoxelMesher; cached occlusion; default outside-is-empty hook; MaterialResolver contract; Shape expansion; visibility; deterministic VoxelMesh output | Chunk::Collection, streaming, GPU upload |
-| EP-004 | ChunkMesher outside-neighbor override; world/local lookup; Chunk integration; bake scheduling; dirty/version and neighbor invalidation; streaming/generation integration | A second meshing algorithm or duplicate occlusion cache |
+| EP-004 | Chunk::Mesher outside-neighbor override; world/local lookup; Chunk integration; bake scheduling; dirty/version and neighbor invalidation; streaming/generation integration | A second meshing algorithm or duplicate occlusion cache |
 
 The structural order is EP-001 → EP-032 → EP-004 at the required-contract level. EP-001 plus EP-029 feeds EP-030. EP-001, EP-030, and EP-032 feed EP-002; EP-002 then feeds EP-031.
 
@@ -53,7 +53,7 @@ Chunks and VoxelModels use the same VoxelMesh format and voxel shader. Changing 
 ## Visual-regression sequence
 
 1. Capture and manually approve current textured Chunk images.
-2. Introduce VoxelVolume, the generic cached VoxelMesher/default boundary hook, and the ChunkMesher override.
+2. Introduce VoxelVolume, the generic cached VoxelMesher/default boundary hook, and the Chunk::Mesher override.
 3. Prove semantic mesh parity and unchanged textured images.
 4. Introduce palette-based rendering as a separate intentional migration.
 5. Review expected, produced, and difference images manually.

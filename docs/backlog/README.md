@@ -46,14 +46,14 @@ normalized Voxel::Shape + material slots
        VoxelMesher + shared occlusion cache
           default outside-volume = empty
                        ↑
-  ChunkMesher overrides external lookup only
+  Chunk::Mesher overrides external lookup only
                        ↓
  VoxelMesh(position, normal, paletteElementIndex)
                        ↓
        same voxel shader + bound Palette SSBO
 ```
 
-[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. [OD-025](open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) resolves one generic VoxelMesher owning the common algorithm/cache, with ChunkMesher overriding only outside-volume lookup through `Chunk::Collection`. Vertex packing and buffer binding numbers remain later implementation decisions. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
+[OD-011](open-decisions/OD-011-c-ownership-and-view-design-for-voxelvolume.md) resolves `VoxelVolume` as one concrete vector-owning base with generic batched editing/versioning; Chunk remains fixed at 16³ and now inherits its cell ownership and editor/version implementation from that base. [OD-025](open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) resolves one generic VoxelMesher owning the common algorithm/cache, with Chunk::Mesher overriding only outside-volume lookup through `Chunk::Collection`. Vertex packing and buffer binding numbers remain later implementation decisions. See [ARCH-007](architecture/ARCH-007-VOXEL-MESH-PALETTE-ASSEMBLY.md).
 
 ## Safe migration rule
 
@@ -61,7 +61,7 @@ Do **not** rewrite the working world renderer and material system in one step.
 
 1. Characterize current chunk output with semantic fixtures and manually approved textured PNG references using SparkleTestLibrary image comparison.
 2. Extract generic volume access from `Chunk` without changing current output.
-3. Introduce one `VoxelMesher` with cached occlusion/default-empty boundaries and its narrow `ChunkMesher` outside-neighbor override while retaining `Chunk::Baker` as an oracle.
+3. Introduce one `VoxelMesher` with cached occlusion/default-empty boundaries and its narrow `Chunk::Mesher` outside-neighbor override while retaining `Chunk::Baker` as an oracle.
 4. Prove JSON-loaded `VoxelModel`, procedural raw-volume, and filled cross-Chunk behavior through numerical, semantic, and reviewed textured-image evidence.
 5. Transition runtime Chunk consumers from `Chunk::Baker` only after the new mesher references and parity evidence are approved.
 6. Introduce the new Material abstraction alongside the current atlas path.

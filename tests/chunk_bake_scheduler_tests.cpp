@@ -24,7 +24,7 @@ TEST(ChunkBakeSchedulerTest, NotifiesEverySubscriberForInitialBakeAndEdit)
 {
 	auto catalog = playground_test::loadVoxelCatalog();
 	voxel::Chunk::Collection chunks;
-	voxel::ChunkMesher mesher(catalog, chunks);
+	voxel::Chunk::Mesher mesher(catalog, chunks);
 	voxel::Chunk::BakeScheduler scheduler(chunks, mesher);
 	std::vector<std::size_t> firstMeshes;
 	int secondConsumer = 0;
@@ -48,7 +48,7 @@ TEST(ChunkBakeSchedulerTest, RebuildsEditedChunkAndEveryAvailableFaceNeighbor)
 {
 	auto catalog = playground_test::loadVoxelCatalog();
 	voxel::Chunk::Collection chunks;
-	voxel::ChunkMesher mesher(catalog, chunks);
+	voxel::Chunk::Mesher mesher(catalog, chunks);
 	voxel::Chunk::BakeScheduler scheduler(chunks, mesher);
 	std::set<voxel::Chunk::Coordinate> rebuilt;
 	auto completion = scheduler.subscribeToBakeCompletion(
@@ -67,7 +67,7 @@ TEST(ChunkBakeSchedulerTest, InvalidDefinitionDoesNotPoisonLaterSchedulingOrBaki
 {
 	auto catalog = playground_test::loadVoxelCatalog();
 	voxel::Chunk::Collection chunks;
-	voxel::ChunkMesher mesher(catalog, chunks);
+	voxel::Chunk::Mesher mesher(catalog, chunks);
 	voxel::Chunk::BakeScheduler scheduler(chunks, mesher);
 	std::set<voxel::Chunk::Coordinate> rebuilt;
 	auto completion = scheduler.subscribeToBakeCompletion(
