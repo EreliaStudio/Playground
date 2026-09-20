@@ -128,8 +128,9 @@ VS-001 first playable                              🔭
 - ✅ The current `Chunk::Baker` remains intact as the later `VoxelMesher` parity oracle.
 - ✅ No approved textured reference, comparison tolerance, camera, atlas, shader, or canonical runner changed.
 - ✅ OD-025 records the approved one-base-mesher design: shared cached occlusion in VoxelMesher and only external-neighbor lookup overridden by ChunkMesher.
-- ✅ Implementation head: [`aa1b9c2`](https://github.com/EreliaStudio/Playground/commit/aa1b9c216a86476ebef0bd46000bf38b9c82e8a8).
-- ✅ PR #6 [CI run 35501490841](https://github.com/EreliaStudio/Playground/actions/runs/35501490841) passed both `CPU/headless tests` and `Windows/OpenGL golden candidates`.
+- ✅ Semantic-fixture implementation: [`aa1b9c2`](https://github.com/EreliaStudio/Playground/commit/aa1b9c216a86476ebef0bd46000bf38b9c82e8a8).
+- ✅ Playground-wide Sparkle-exception refinement: [`f0db728`](https://github.com/EreliaStudio/Playground/commit/f0db728d49360e78e9d7e44ff16d2fe83d715ff8).
+- ✅ PR #6 [CI run 35502696771](https://github.com/EreliaStudio/Playground/actions/runs/35502696771) passed both `CPU/headless tests` and `Windows/OpenGL golden candidates` after the exception-policy refinement.
 
 ## Current implementation checkpoint
 
