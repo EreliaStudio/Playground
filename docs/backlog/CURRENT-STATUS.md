@@ -113,8 +113,8 @@ VS-001 first playable                              🔭
 - ✅ Duplicate or out-of-range positions, unknown fields/enum names, and values beyond packed Cell capacity fail with JSON file/path diagnostics.
 - ✅ Nine focused headless GoogleTests cover runtime storage plus the provisional sparse JSON loader and its rejection behavior.
 - ✅ No stable asset format, file-loading API, catalog mapping, rendering, Palette, GPU, transform, anchor, animation, or Chunk-world behavior was added.
-- ✅ Implementation head: [`6d413e6`](https://github.com/EreliaStudio/Playground/commit/6d413e651b6f137ad17406692ed0f508500ab8b7).
-- ✅ PR #5 [CI run 35497085545](https://github.com/EreliaStudio/Playground/actions/runs/35497085545) passed both `CPU/headless tests` and `Windows/OpenGL golden candidates`.
+- ✅ Implementation head: [`affc850`](https://github.com/EreliaStudio/Playground/commit/affc850945e233928acfa813e7add7d7a8a6cf69).
+- ✅ PR #5 [CI run 35498639959](https://github.com/EreliaStudio/Playground/actions/runs/35498639959) passed both `CPU/headless tests` and `Windows/OpenGL golden candidates`.
 
 ## Current implementation checkpoint
 
