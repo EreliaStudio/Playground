@@ -17,6 +17,12 @@ namespace voxel
 		return VoxelMesher::bake(chunk);
 	}
 
+	VoxelMesh Chunk::Mesher::bake(
+		const Chunk &chunk, const MaterialResolver &materialResolver) const
+	{
+		return VoxelMesher::bake(chunk, materialResolver);
+	}
+
 	Voxel::Cell Chunk::Mesher::_outsideCell(const VoxelVolume &volume, spk::Vector3Int coordinate) const
 	{
 		const auto *chunk = dynamic_cast<const Chunk *>(&volume);

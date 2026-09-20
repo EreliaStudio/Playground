@@ -3,7 +3,9 @@
 #include <cstddef>
 #include <memory>
 
+#include "voxel/material_resolver.hpp"
 #include "voxel/voxel_catalog.hpp"
+#include "voxel/voxel_mesh.hpp"
 #include "voxel/voxel_volume.hpp"
 
 namespace voxel
@@ -21,21 +23,23 @@ namespace voxel
 
 	private:
 		class OcclusionCache;
-		class IndexingBuilder;
+		class PolygonBuilder;
+		class TextureIndexingBuilder;
+		class PaletteIndexingBuilder;
 
 		const Voxel::Catalog<Voxel::Definition> &_catalog;
 		mutable std::unique_ptr<OcclusionCache> _occlusionCache;
 
 		void _validateDefinitions(const VoxelVolume &volume) const;
-		void _appendCells(IndexingBuilder &builder, const VoxelVolume &volume) const;
-		void _appendCell(IndexingBuilder &builder, const VoxelVolume &volume,
+		void _appendCells(PolygonBuilder &builder, const VoxelVolume &volume) const;
+		void _appendCell(PolygonBuilder &builder, const VoxelVolume &volume,
 			spk::Vector3Int coordinate, Voxel::Cell cell) const;
-		void _appendVisiblePolygon(IndexingBuilder &builder, const VoxelVolume &volume,
+		void _appendVisiblePolygon(PolygonBuilder &builder, const VoxelVolume &volume,
 			const Voxel::Shape::Polygon &polygon, const Voxel::Definition &definition,
 			spk::Vector3Int coordinate, Voxel::Cell cell) const;
-		void _appendPolygon(IndexingBuilder &builder, const VoxelVolume &volume,
+		void _appendPolygon(PolygonBuilder &builder, const VoxelVolume &volume,
 			const Voxel::Shape::Polygon &polygon, const Voxel::Definition &definition,
-			spk::Vector3Int coordinate, bool mirrored) const;
+			spk::Vector3Int coordinate, Voxel::Cell cell) const;
 		[[nodiscard]] Voxel::Cell _neighbor(const VoxelVolume &volume, spk::Vector3Int coordinate) const;
 
 	protected:
@@ -53,5 +57,7 @@ namespace voxel
 		VoxelMesher &operator=(VoxelMesher &&) noexcept = delete;
 
 		[[nodiscard]] spk::TextureMesh3D bake(const VoxelVolume &volume) const;
+		[[nodiscard]] VoxelMesh bake(
+			const VoxelVolume &volume, const MaterialResolver &materialResolver) const;
 	};
 }

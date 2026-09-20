@@ -45,6 +45,8 @@ The following is the target contract owned by ST-003-02 and later Palette ticket
 
 A CPU-side `PaletteCollection` may manage Palette resources, but it is not uploaded as one global GPU buffer. Each `Palette` is independently associated with its own SSBO. A render command binds the program, mesh vertex/index buffers, the Palette required by that renderable, transform data, and then draws.
 
+As resolved by [OD-026](../open-decisions/OD-026-initial-palette-element-resolver-and-command-lifetime.md), `Palette::Data` initially contains one RGBA color. Palette owns a Sparkle SSBO by composition and retains a typed SSBO `View` over its CPU-side storage; editing through `Palette::data(index)` requires an explicit `validate()`. `MaterialResolver` receives immutable volume, Definition, transformed-polygon, coordinate, and Cell context and returns only the element index. The render command stores a Palette value copy, which shares and retains Sparkle's underlying GPU resource.
+
 `VoxelMesh` vertices semantically carry at least `position`, `normal`, and integer `paletteElementIndex`. The index is flat/non-interpolated and addresses the currently bound Palette SSBO. It is not a Voxel ID, and no GPU `paletteId` exists in the initial design.
 
 Palette selection belongs to the renderable/part instance, not the pure model asset. Consequently one cached arm mesh can render with Human, Orc, or Undead palettes without remeshing. All referenced indices must exist in the bound Palette; an out-of-range reference is detected and rejected.

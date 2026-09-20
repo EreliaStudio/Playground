@@ -29,3 +29,4 @@ Decision records are persistent architecture/design history. Resolve a decision 
 | [OD-023](OD-023-whether-cell-orientation-and-flip-must-be-expanded.md) | Resolved | Preserve the existing packed Cell orientation and vertical flip until evidence requires a separate expansion decision. |
 | [OD-024](OD-024-current-chunk-golden-fixtures-and-runner.md) | Resolved | Current Chunk golden fixtures, capture size, and canonical runner. |
 | [OD-025](OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) | Resolved | One generic VoxelMesher with cached occlusion and a Chunk::Mesher external-neighbor override. |
+| [OD-026](OD-026-initial-palette-element-resolver-and-command-lifetime.md) | Resolved | RGBA Palette data, SSBO composition/view, explicit validation, full resolver context, and value-copy command lifetime. |

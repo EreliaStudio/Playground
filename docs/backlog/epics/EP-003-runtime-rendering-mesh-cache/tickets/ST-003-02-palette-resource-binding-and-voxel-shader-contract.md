@@ -63,10 +63,14 @@ These choices are closed for this ticket and must not be redesigned during imple
 12. `MaterialResolver` selects an element per emitted polygon. For Chunks it may use both semantic `materialSlot` and spatial `outerSide`; these concepts remain distinct.
 13. All vertices of one emitted polygon normally carry the same resolved element index.
 14. Palette grouping or redundant-bind avoidance may be added later as a measured optimization without changing this resource model.
+15. OD-026 selects one RGBA base color as the initial Palette element; effects beyond it remain blocked by OD-018.
+16. `MaterialResolver` receives immutable volume, Definition, transformed-polygon, coordinate, and Cell context and returns only the Palette element index without defining content precedence.
+17. `VoxelRenderCommand` stores a validated Palette value copy; Sparkle's shared GPU-resource copy semantics retain the exact SSBO through deferred execution.
+18. Palette owns `ShaderStorageBuffer` by composition and retains its existing typed `View<void, Palette::Data>`; mutable data access requires an explicit `Palette::validate()` upload. Sparkle inheritance remains separate [issue #5](https://github.com/EreliaStudio/Sparkle/issues/5).
 
 ### User validation required before implementation
 
-No user clarification is required for the 14 confirmed choices above. Ask the user before implementing any unspecified behavior, especially Palette serialization, ownership that changes lifetime semantics, missing-Palette fallback behavior beyond fail-closed validation, or Shape/material mapping precedence. Before accepting a changed image baseline, present old, produced, and difference images for human approval.
+No user clarification is required for the confirmed choices above. Ask the user before implementing any unspecified behavior, especially Palette serialization, ownership that changes lifetime semantics, missing-Palette fallback behavior beyond fail-closed validation, or Shape/material mapping precedence. Before accepting a changed image baseline, present old, produced, and difference images for human approval.
 
 ## Behavioral contract
 
@@ -126,6 +130,7 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 - [OD-018](../../../open-decisions/OD-018-first-material-effects-beyond-palette-color.md) — Does not block base Palette binding; blocks only effects beyond the agreed Palette material lookup.
 - [OD-019](../../../open-decisions/OD-019-palette-variation-algorithm-and-sampling-declaration.md) — Does not block direct element lookup; blocks procedural/variation sampling behavior.
 - [OD-021](../../../open-decisions/OD-021-serialized-derivative-mesh-cache-versus-rebuild-on-load.md) — Does not block runtime Palette binding; blocks only serialized derivative mesh-cache policy.
+- [OD-026](../../../open-decisions/OD-026-initial-palette-element-resolver-and-command-lifetime.md) — Resolved: RGBA base element, full immutable resolver context, and value-copy command lifetime.
 
 ## Completion evidence
 
