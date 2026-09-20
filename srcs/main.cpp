@@ -42,9 +42,9 @@ int main()
 
 	voxel::Chunk::Collection chunks;
 	voxel::Chunk::DebugGenerator generator(chunks, catalog, 0xE7E11AULL);
-	voxel::Chunk::Baker baker(catalog, chunks);
+	voxel::Chunk::Mesher mesher(catalog, chunks);
 	voxel::Chunk::ViewCollection views(engine, &catalog.atlas(), chunks);
-	voxel::Chunk::BakeScheduler scheduler(chunks, baker, &window.profiler());
+	voxel::Chunk::BakeScheduler scheduler(chunks, mesher, &window.profiler());
 	auto bakedChunks = scheduler.subscribeToBakeCompletion([&views](voxel::Chunk::Coordinate coordinate, const spk::TextureMesh3D &mesh) {
 		views.setMesh(coordinate, mesh);
 	});

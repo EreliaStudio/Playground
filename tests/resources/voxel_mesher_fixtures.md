@@ -1,4 +1,4 @@
-# `VoxelMesher` and `ChunkMesher` fixtures
+# `VoxelMesher` and `Chunk::Mesher` fixtures
 
 All GPU captures use the Sparkle TestLibrary's fixed `640 × 480` OpenGL framebuffer, the pinned `windows-2025` software-OpenGL runner, and the existing atlas/catalog. Candidate references are published under the `voxel_mesher` category; they are not approved merely because they were generated.
 

@@ -24,15 +24,15 @@ Chunk and runtime-sized VoxelModel data require the same cell iteration, Shape e
 
 - Inject independent `OcclusionResolver` and `ChunkOcclusionResolver` strategy objects.
 - Put Chunk lookup directly into one mesher and branch on the concrete volume type.
-- Keep one inheritable `VoxelMesher` algorithm with a narrow overridable outside-volume neighbor hook, then derive `ChunkMesher` only for Chunk lookup.
+- Keep one inheritable `VoxelMesher` algorithm with a narrow overridable outside-volume neighbor hook, then derive `Chunk::Mesher` only for Chunk lookup.
 
 ## Decision
 
 - `VoxelMesher` owns deterministic volume iteration, in-bounds cell lookup, Shape expansion/transform, visibility/occlusion evaluation, mesh emission, and the reusable occlusion-result cache.
 - Neighbor coordinates inside the volume are resolved directly by `VoxelMesher` through the common read contract.
 - Only an out-of-volume coordinate reaches a protected virtual neighbor hook. The base implementation returns `Voxel::Cell{}`, so standalone VoxelVolume and VoxelModel boundaries are empty.
-- `ChunkMesher` derives from `VoxelMesher` and overrides only that hook. It maps the out-of-volume coordinate through the source Chunk coordinate and `Chunk::Collection` to query an adjacent available Chunk; missing Chunk data returns `Voxel::Cell{}`.
-- `ChunkMesher` must not duplicate the iteration, Shape, occlusion, cache, or mesh-emission algorithm.
+- `Chunk::Mesher` derives from `VoxelMesher` and overrides only that hook. It maps the out-of-volume coordinate through the source Chunk coordinate and `Chunk::Collection` to query an adjacent available Chunk; missing Chunk data returns `Voxel::Cell{}`.
+- `Chunk::Mesher` must not duplicate the iteration, Shape, occlusion, cache, or mesh-emission algorithm.
 - The exact protected method name is an implementation detail; its call boundary and semantics are the contract.
 
 ## Rationale
@@ -41,8 +41,8 @@ Inheritance expresses the one intentional behavioral specialization while keepin
 
 ## Consequences
 
-- Consolidated ST-032-02 introduces the common VoxelMesher, default outside-is-empty hook, and concrete ChunkMesher override together.
-- EP-004/ST-004-01 later redirects production Chunk consumers from `Chunk::Baker` to the already validated `ChunkMesher`.
+- Consolidated ST-032-02 introduces the common VoxelMesher, default outside-is-empty hook, and concrete Chunk::Mesher override together.
+- EP-004/ST-004-01 later redirects production Chunk consumers from `Chunk::Baker` to the already validated `Chunk::Mesher`.
 - The earlier standalone `OcclusionResolver`/`ChunkOcclusionResolver` strategy-object plan is superseded.
 - Future specializations may override only external neighbor resolution unless another user-approved decision expands the inheritance contract.
 
@@ -53,4 +53,4 @@ Inheritance expresses the one intentional behavioral specialization while keepin
 
 ## Resolution provenance
 
-Resolved by the project owner during ST-032-01 execution on 20 September 2026: one generic VoxelMesher base, a ChunkMesher subclass that overrides external-neighbor lookup, and retention of the shared occlusion-result cache.
+Resolved by the project owner during ST-032-01 execution on 20 September 2026: one generic VoxelMesher base, a Chunk::Mesher subclass that overrides external-neighbor lookup, and retention of the shared occlusion-result cache.

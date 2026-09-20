@@ -5,7 +5,6 @@
 #include "engine/camera.hpp"
 #include "rendering/command/camera_ubo_render_command.hpp"
 #include "rendering/command/texture_mesh_3d_render_command.hpp"
-#include "voxel/chunk_baker.hpp"
 #include "voxel/chunk_mesher.hpp"
 #include "voxel/chunk_editor.hpp"
 #include "voxel/debug_chunk_generator.hpp"
@@ -82,13 +81,13 @@ namespace playground_test::golden
 		void renderChunks(const Catalog &catalog, const voxel::Chunk::Collection &chunks,
 			const std::vector<voxel::Chunk::Coordinate> &coordinates, spk::RenderContext &context, bool alterFirstUv)
 		{
-			voxel::Chunk::Baker baker(catalog, chunks);
+			voxel::Chunk::Mesher mesher(catalog, chunks);
 			bool alterationPending = alterFirstUv;
 			for (const auto coordinate : coordinates)
 			{
 				const voxel::Chunk *chunk = chunks.find(coordinate);
 				require(chunk != nullptr, "render fixture references an absent Chunk");
-				auto mesh = baker.bake(*chunk);
+				auto mesh = mesher.bake(*chunk);
 				if (alterationPending)
 				{
 					spk::TextureMesh3D::Builder altered;
@@ -147,7 +146,7 @@ namespace playground_test::golden
 		void renderMeshedChunk(const Catalog &catalog, const voxel::Chunk::Collection &chunks,
 			const voxel::Chunk &chunk, spk::RenderContext &context)
 		{
-			auto mesh = voxel::ChunkMesher(catalog, chunks).bake(chunk);
+			auto mesh = voxel::Chunk::Mesher(catalog, chunks).bake(chunk);
 			const auto origin = voxel::Chunk::worldOrigin(chunk.coordinate());
 			spk::TextureMesh3DRenderCommand(&catalog.atlas(), std::move(mesh),
 				spk::Matrix4x4::translation(spk::Vector3(origin))).execute(context);

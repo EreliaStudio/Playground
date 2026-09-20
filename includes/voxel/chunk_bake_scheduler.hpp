@@ -4,8 +4,8 @@
 #include <set>
 #include <unordered_map>
 
-#include "voxel/chunk_baker.hpp"
 #include "voxel/chunk_coordinate_hash.hpp"
+#include "voxel/chunk_mesher.hpp"
 
 namespace voxel
 {
@@ -16,7 +16,7 @@ namespace voxel
 
 	private:
 		Collection &_chunks;
-		const Baker &_baker;
+		const Mesher &_mesher;
 		spk::Profiler *_profiler = nullptr;
 		BakeCompletionProvider _bakeCompletions;
 		std::set<Coordinate> _dirty;
@@ -28,7 +28,7 @@ namespace voxel
 		void _invalidateNeighbors(Coordinate coordinate);
 
 	public:
-		BakeScheduler(Collection &chunks, const Baker &baker, spk::Profiler *profiler = nullptr);
+		BakeScheduler(Collection &chunks, const Mesher &mesher, spk::Profiler *profiler = nullptr);
 
 		[[nodiscard]] std::size_t pendingCount() const noexcept
 		{

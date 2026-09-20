@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Preserve the current headless 16³ Chunk world runtime while transitioning production consumers from `Chunk::Baker` to the validated `ChunkMesher` supplied by consolidated ST-032-02.
+Preserve the current headless 16³ Chunk world runtime while transitioning production consumers from `Chunk::Baker` to the validated `Chunk::Mesher` supplied by consolidated ST-032-02.
 
 ## Starting state
 
@@ -19,7 +19,7 @@ Preserve the current headless 16³ Chunk world runtime while transitioning produ
 - Chunk remains a semantic world specialization with 16³ cells and voxelSize 1.0 for the baseline world.
 - Generation, streaming, collection membership and world/local coordinate conversion remain outside generic volume code.
 - Same ServerSeed + WorldID + generation/content version yields the same immutable base cells.
-- `Chunk::Collection` remains the source of cross-Chunk world cell availability; only the `ChunkMesher` subclass depends on it, while base VoxelMesher remains world-agnostic.
+- `Chunk::Collection` remains the source of cross-Chunk world cell availability; only the `Chunk::Mesher` subclass depends on it, while base VoxelMesher remains world-agnostic.
 - World runtime remains headless and does not own GPU meshes.
 - Current Chunk editing/version/bake scheduling behavior is preserved or migrated under explicit tests.
 
@@ -31,7 +31,7 @@ Preserve the current headless 16³ Chunk world runtime while transitioning produ
 
 ## Scope
 
-- ChunkMesher outside-neighbor override and cross-Chunk lookup
+- Chunk::Mesher outside-neighbor override and cross-Chunk lookup
 - World/local coordinate conversion
 - Bake scheduling and dirty/version propagation
 - Streaming and generation integration without duplicate VoxelVolume adaptation
@@ -52,7 +52,7 @@ Preserve the current headless 16³ Chunk world runtime while transitioning produ
 - Chunk remains a semantic world specialization with 16³ cells and voxelSize 1.0 for the baseline world.
 - Generation, streaming, collection membership and world/local coordinate conversion remain outside generic volume code.
 - Same ServerSeed + WorldID + generation/content version yields the same immutable base cells.
-- `Chunk::Collection` remains the source of cross-Chunk world cell availability; only the `ChunkMesher` subclass depends on it, while base VoxelMesher remains world-agnostic.
+- `Chunk::Collection` remains the source of cross-Chunk world cell availability; only the `Chunk::Mesher` subclass depends on it, while base VoxelMesher remains world-agnostic.
 - World runtime remains headless and does not own GPU meshes.
 - Current Chunk editing/version/bake scheduling behavior is preserved or migrated under explicit tests.
 
@@ -60,14 +60,14 @@ Preserve the current headless 16³ Chunk world runtime while transitioning produ
 
 | Subject / capability | Implemented by tickets | Tested by tickets |
 |---|---|---|
-| Transition current Chunk mesh consumers from Baker to ChunkMesher | [ST-004-01](tickets/ST-004-01-chunk-mesher-integration.md) | [ST-004-01](tickets/ST-004-01-chunk-mesher-integration.md) |
-| ChunkMesher external-neighbor override, cross-Chunk lookup, and world/local conversion | [ST-032-02](../EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) | [ST-032-02](../EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) |
+| Transition current Chunk mesh consumers from Baker to Chunk::Mesher | [ST-004-01](tickets/ST-004-01-chunk-mesher-integration.md) | [ST-004-01](tickets/ST-004-01-chunk-mesher-integration.md) |
+| Chunk::Mesher external-neighbor override, cross-Chunk lookup, and world/local conversion | [ST-032-02](../EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) | [ST-032-02](../EP-032-unified-voxel-mesher/tickets/ST-032-02-generic-cell-iteration-and-scale-aware-shape-transform.md) |
 | Deterministic generation and streaming | [ST-004-03](tickets/ST-004-03-deterministic-world-generation-streaming.md) | [ST-004-03](tickets/ST-004-03-deterministic-world-generation-streaming.md) |
 | Bake scheduling, dirty/version propagation, and neighbor invalidation | [ST-004-04](tickets/ST-004-04-bake-scheduling-after-unified-mesher.md) | [ST-004-04](tickets/ST-004-04-bake-scheduling-after-unified-mesher.md) |
 
 ## Ticket index
 
-- [ST-004-01 — Transition Chunk consumers from Baker to ChunkMesher](tickets/ST-004-01-chunk-mesher-integration.md) — Migrate scheduler/application/view consumers only after consolidated mesher parity is approved.
+- [ST-004-01 — Transition Chunk consumers from Baker to Chunk::Mesher](tickets/ST-004-01-chunk-mesher-integration.md) — Migrate scheduler/application/view consumers only after consolidated mesher parity is approved.
 - [ST-004-02 — Superseded by consolidated ST-032-02](tickets/ST-004-02-chunk-occlusion-resolver.md) — Stable historical link; owns no remaining implementation.
 - [ST-004-03 — Deterministic World generation/streaming](tickets/ST-004-03-deterministic-world-generation-streaming.md) — Keep seeded generation, request/publish/remove and regeneration behavior independent of rendering.
 - [ST-004-04 — Bake scheduling after unified mesher](tickets/ST-004-04-bake-scheduling-after-unified-mesher.md) — Route Chunk mesh requests through EP-032 while preserving dirty/version and neighbor invalidation semantics.
@@ -94,7 +94,7 @@ Additional integration invariants:
 
 ## Decision gates
 
-- [OD-025](../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: ChunkMesher overrides only outside-volume lookup and inherits the generic meshing/cache algorithm.
+- [OD-025](../../open-decisions/OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) — Resolved: Chunk::Mesher overrides only outside-volume lookup and inherits the generic meshing/cache algorithm.
 
 ## Rendering validation
 
