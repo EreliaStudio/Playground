@@ -1,6 +1,8 @@
 #include "voxel/voxel_mesher.hpp"
 
 #include <cstdint>
+#include <functional>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -9,6 +11,69 @@
 
 namespace voxel
 {
+	class VoxelMesher::IndexingBuilder final
+	{
+	private:
+		struct VertexHash
+		{
+			[[nodiscard]] std::size_t operator()(const spk::Texture3DVertex &vertex) const noexcept;
+		};
+
+		struct VertexEqual
+		{
+			[[nodiscard]] bool operator()(const spk::Texture3DVertex &left,
+				const spk::Texture3DVertex &right) const noexcept;
+		};
+
+		spk::TextureMesh3D::Builder _builder;
+		std::unordered_map<spk::Texture3DVertex, spk::TextureMesh3D::Index, VertexHash, VertexEqual> _indices;
+
+	public:
+		[[nodiscard]] spk::TextureMesh3D::Index addVertex(const spk::Texture3DVertex &vertex);
+		void addTriangle(spk::TextureMesh3D::Index a, spk::TextureMesh3D::Index b,
+			spk::TextureMesh3D::Index c);
+		[[nodiscard]] spk::TextureMesh3D build() &&;
+	};
+
+	std::size_t VoxelMesher::IndexingBuilder::VertexHash::operator()(
+		const spk::Texture3DVertex &vertex) const noexcept
+	{
+		std::size_t result = std::hash<spk::Vector3>{}(vertex.position);
+		auto combine = [&result](std::size_t value) {
+			result ^= value + 0x9e3779b9 + (result << 6) + (result >> 2);
+		};
+		combine(std::hash<spk::Vector3>{}(vertex.normal));
+		combine(std::hash<spk::Vector2>{}(vertex.uv));
+		return result;
+	}
+
+	bool VoxelMesher::IndexingBuilder::VertexEqual::operator()(
+		const spk::Texture3DVertex &left, const spk::Texture3DVertex &right) const noexcept
+	{
+		return left.position == right.position && left.normal == right.normal && left.uv == right.uv;
+	}
+
+	spk::TextureMesh3D::Index VoxelMesher::IndexingBuilder::addVertex(
+		const spk::Texture3DVertex &vertex)
+	{
+		if (const auto iterator = _indices.find(vertex); iterator != _indices.end())
+			return iterator->second;
+		const auto index = _builder.addVertex(vertex);
+		_indices.emplace(vertex, index);
+		return index;
+	}
+
+	void VoxelMesher::IndexingBuilder::addTriangle(
+		spk::TextureMesh3D::Index a, spk::TextureMesh3D::Index b, spk::TextureMesh3D::Index c)
+	{
+		_builder.addTriangle(a, b, c);
+	}
+
+	spk::TextureMesh3D VoxelMesher::IndexingBuilder::build() &&
+	{
+		return std::move(_builder).build();
+	}
+
 	VoxelMesher::VoxelMesher(const Voxel::Catalog<Voxel::Definition> &catalog) :
 		_catalog(catalog),
 		_occlusionCache(std::make_unique<OcclusionCache>())
@@ -20,7 +85,7 @@ namespace voxel
 	spk::TextureMesh3D VoxelMesher::bake(const VoxelVolume &volume) const
 	{
 		_validateDefinitions(volume);
-		spk::TextureMesh3D::Builder builder;
+		IndexingBuilder builder;
 		_appendCells(builder, volume);
 		return std::move(builder).build();
 	}
@@ -33,7 +98,7 @@ namespace voxel
 		}
 	}
 
-	void VoxelMesher::_appendCells(spk::TextureMesh3D::Builder &builder, const VoxelVolume &volume) const
+	void VoxelMesher::_appendCells(IndexingBuilder &builder, const VoxelVolume &volume) const
 	{
 		const auto dimensions = volume.dimensions();
 		for (std::uint32_t y = 0; y < dimensions.y; ++y)
@@ -46,7 +111,7 @@ namespace voxel
 				}
 	}
 
-	void VoxelMesher::_appendCell(spk::TextureMesh3D::Builder &builder, const VoxelVolume &volume,
+	void VoxelMesher::_appendCell(IndexingBuilder &builder, const VoxelVolume &volume,
 		spk::Vector3Int coordinate, Voxel::Cell cell) const
 	{
 		const auto &definition = _catalog.definition(cell.id());
@@ -66,7 +131,7 @@ namespace voxel
 		return {};
 	}
 
-	void VoxelMesher::_appendVisiblePolygon(spk::TextureMesh3D::Builder &builder, const VoxelVolume &volume,
+	void VoxelMesher::_appendVisiblePolygon(IndexingBuilder &builder, const VoxelVolume &volume,
 		const Voxel::Shape::Polygon &polygon, const Voxel::Definition &definition,
 		spk::Vector3Int coordinate, Voxel::Cell cell) const
 	{
@@ -87,7 +152,7 @@ namespace voxel
 			_appendPolygon(builder, volume, visible, definition, coordinate, cell.flip() == Voxel::Flip::NegativeY);
 	}
 
-	void VoxelMesher::_appendPolygon(spk::TextureMesh3D::Builder &builder, const VoxelVolume &volume,
+	void VoxelMesher::_appendPolygon(IndexingBuilder &builder, const VoxelVolume &volume,
 		const Voxel::Shape::Polygon &polygon, const Voxel::Definition &definition,
 		spk::Vector3Int coordinate, bool mirrored) const
 	{

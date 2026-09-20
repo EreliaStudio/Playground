@@ -21,18 +21,19 @@ namespace voxel
 
 	private:
 		class OcclusionCache;
+		class IndexingBuilder;
 
 		const Voxel::Catalog<Voxel::Definition> &_catalog;
 		mutable std::unique_ptr<OcclusionCache> _occlusionCache;
 
 		void _validateDefinitions(const VoxelVolume &volume) const;
-		void _appendCells(spk::TextureMesh3D::Builder &builder, const VoxelVolume &volume) const;
-		void _appendCell(spk::TextureMesh3D::Builder &builder, const VoxelVolume &volume,
+		void _appendCells(IndexingBuilder &builder, const VoxelVolume &volume) const;
+		void _appendCell(IndexingBuilder &builder, const VoxelVolume &volume,
 			spk::Vector3Int coordinate, Voxel::Cell cell) const;
-		void _appendVisiblePolygon(spk::TextureMesh3D::Builder &builder, const VoxelVolume &volume,
+		void _appendVisiblePolygon(IndexingBuilder &builder, const VoxelVolume &volume,
 			const Voxel::Shape::Polygon &polygon, const Voxel::Definition &definition,
 			spk::Vector3Int coordinate, Voxel::Cell cell) const;
-		void _appendPolygon(spk::TextureMesh3D::Builder &builder, const VoxelVolume &volume,
+		void _appendPolygon(IndexingBuilder &builder, const VoxelVolume &volume,
 			const Voxel::Shape::Polygon &polygon, const Voxel::Definition &definition,
 			spk::Vector3Int coordinate, bool mirrored) const;
 		[[nodiscard]] Voxel::Cell _neighbor(const VoxelVolume &volume, spk::Vector3Int coordinate) const;
