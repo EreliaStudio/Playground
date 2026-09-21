@@ -61,6 +61,14 @@ namespace playground_test::golden
 		renderPaletteModel(true, orc);
 		renderPaletteModelPair(pair);
 		renderWorldPaletteChunk(world);
+		const auto oldExpected = sparkle_test::expectedImagePath("voxel_mesher", "json_cross_statue");
+		const auto difference = sparkle_test::resultImagePath(PaletteCategory, "textured_to_palette_difference");
+		if (!std::filesystem::is_regular_file(oldExpected))
+			throw spk::Exception("approved textured reference is missing");
+		if (sparkle_test::compareImages(human, oldExpected, difference).matches)
+			throw spk::Exception("Palette candidate unexpectedly matches the textured reference");
+		if (!std::filesystem::is_regular_file(human) || !std::filesystem::is_regular_file(difference))
+			throw spk::Exception("Palette migration evidence was not preserved");
 		bool matches = true;
 		for (const auto &[name, actual] : std::array{
 				std::pair{"human_palette_model", human},
@@ -70,14 +78,6 @@ namespace playground_test::golden
 		{
 			if (!compareApproved(name, actual)) matches = false;
 		}
-		const auto oldExpected = sparkle_test::expectedImagePath("voxel_mesher", "json_cross_statue");
-		const auto difference = sparkle_test::resultImagePath(PaletteCategory, "textured_to_palette_difference");
-		if (!std::filesystem::is_regular_file(oldExpected))
-			throw spk::Exception("approved textured reference is missing");
-		if (sparkle_test::compareImages(human, oldExpected, difference).matches)
-			throw spk::Exception("Palette candidate unexpectedly matches the textured reference");
-		if (!std::filesystem::is_regular_file(human) || !std::filesystem::is_regular_file(difference))
-			throw spk::Exception("Palette migration evidence was not preserved");
 		return matches;
 	}
 }
