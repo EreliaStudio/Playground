@@ -102,7 +102,7 @@ Once Sparkle provides logging, each recoverable missing visual binding should em
 
 Until that logger is available in the Playground-consumed Sparkle package, the fallback behavior is implemented without a console-warning requirement. Missing logging must not block ST-033-01.
 
-A separate Sparkle issue will request the logger for the `0.1.3` line.
+Sparkle issue [#7](https://github.com/EreliaStudio/Sparkle/issues/7) tracks the logger for the `0.1.3` line. Until Playground consumes that released/package version, warning emission remains deferred.
 
 ## Rationale
 
@@ -151,4 +151,4 @@ Resolved by the project owner during the H0 open-decision review on 21 September
 - `Palette::setDefault(index)` owns the fallback element index;
 - opaque magenta is the H0 fallback appearance;
 - missing visual slot/material bindings use fallback rather than exceptions;
-- warning output is deferred until a Sparkle logger is available.
+- warning output is deferred until Playground consumes the Sparkle logger tracked by [Sparkle #7](https://github.com/EreliaStudio/Sparkle/issues/7).
