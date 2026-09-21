@@ -61,13 +61,16 @@ The operation validates identity, ownership, bounds, and dependency precondition
 - [ ] Create → use → serialize where applicable → unload → restore/recreate → retry preserves stable IDs and does not duplicate the operation.
 - [ ] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
 
-- [ ] One shared WorldPalette renders a one-material cube, distinct top/side/bottom materials, and one per-side override; exact resolved indices are asserted before golden comparison.
+- [ ] One shared WorldPalette renders a one-material cube and distinct semantic Shape-slot bindings; exact resolved indices are asserted before golden comparison.
+- [ ] A Shape with shared `side` slots and a Shape exposing more-specific per-face slots both resolve without `outerSide` precedence logic.
+- [ ] A missing Definition slot mapping and a missing resolver material binding each use the Palette index configured by `setDefault()` and render opaque magenta without aborting meshing.
+- [ ] Warning output for these recoverable visual-binding failures is not required until Playground consumes a Sparkle version that provides the planned logger.
 - [ ] Adjacent voxel internal faces are absent, while visible faces retain the expected WorldPalette elements.
 - [ ] The palette migration intentionally differs from the approved textured baseline; old, actual, and difference images are reviewed before a versioned palette baseline is added.
 
 ### Boundaries and invalid/rejected operations
 
-- [ ] Missing IDs, foreign ownership, malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category.
+- [ ] Missing authoritative IDs, foreign ownership, structurally malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category; OD-028's missing visual material bindings are explicitly recoverable and use the Palette default instead.
 - [ ] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
 
 ### Determinism and lifecycle / retry / persistence
@@ -86,6 +89,7 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 
 ## Open decisions
 
+- [OD-028](../../../open-decisions/OD-028-worldpalette-terrain-mapping-and-precedence.md) — Resolved during H0 review: direct semantic slot binding, Palette-owned default index through `setDefault()`, opaque-magenta fallback, and recoverable missing visual bindings; warning logging is deferred.
 - [OD-018](../../../open-decisions/OD-018-first-material-effects-beyond-palette-color.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
 - [OD-019](../../../open-decisions/OD-019-palette-variation-algorithm-and-sampling-declaration.md) — Status at ticket authoring: Open. The fixed contracts in this ticket may proceed; behavior requiring the final choice remains blocked.
 
