@@ -94,7 +94,7 @@ For every draw, the command validates that a Palette is present and that every m
 - [x] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
 
 - [x] `VoxelRenderCommand` binds one independently owned Palette SSBO for the current renderable; the shader uses flat integer `paletteElementIndex` and has no global PaletteCollection buffer or GPU `paletteId` lookup.
-- [ ] The same cached mesh rendered with `HumanPalette` and `OrcPalette` produces two reviewed images while mesh bytes and mesh-cache identity remain identical.
+- [x] The same cached mesh rendered with `HumanPalette` and `OrcPalette` produces two reviewed images while mesh bytes and mesh-cache identity remain identical.
 - [x] Missing Palette, an empty Palette, and an out-of-range element index fail before draw with no stale prior-Palette binding accepted as success.
 - [x] Chunk and VoxelModel commands use the same vertex semantics and shader; only their bound Palette resources and transforms differ.
 - [x] A command trace proves the binding order: voxel program → vertex/index buffers → selected Palette SSBO → transform/render data → draw.
@@ -109,7 +109,7 @@ For every draw, the command validates that a Palette is present and that every m
 ### Boundaries and invalid/rejected operations
 
 - [ ] Missing IDs, foreign ownership, malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category.
-- [ ] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
+- [x] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
 
 ### Determinism and lifecycle / retry / persistence
 
@@ -118,7 +118,7 @@ For every draw, the command validates that a Palette is present and that every m
 
 ### Rendering / golden images
 
-- [ ] Render the deterministic fixture at `512 × 512`; compare against its reviewed PNG with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the old expected image and publish actual/difference images for review.
+- [x] Render the deterministic Palette fixtures at their approved fixed `640 × 480` viewport; compare against their reviewed PNGs with the tolerance recorded by the Sparkle TestLibrary fixture. On failure, retain the expected images and publish actual/difference images for review.
 - [x] Assert semantic geometry/material/transform values independently of the PNG comparison.
 
 ## Rendering impact
@@ -135,9 +135,10 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 ## Completion evidence
 
 - Implementation commits [`408d379`](https://github.com/EreliaStudio/Playground/commit/408d379a2dbea6358a6496c1da48855cbaac2c01), [`3538309`](https://github.com/EreliaStudio/Playground/commit/35383096d7b3e25f69bd084fe55c8be6d21f4278), and [`b5cbcdc`](https://github.com/EreliaStudio/Playground/commit/b5cbcdc814a608cf493b0cefe4eb9b2592997bf1) are delivered by [PR #9](https://github.com/EreliaStudio/Playground/pull/9).
-- [CI run 35538271204](https://github.com/EreliaStudio/Playground/actions/runs/35538271204) passes both `CPU/headless tests` and `Windows/OpenGL golden candidates` against the pinned Sparkle `0.1.2` package.
+- [CI run 35538640066](https://github.com/EreliaStudio/Playground/actions/runs/35538640066) passes both `CPU/headless tests` and `Windows/OpenGL golden candidates` against the pinned Sparkle `0.1.2` package before baseline promotion.
 - Focused tests cover typed Palette storage/editing and lifetime, integer vertex attributes, resolver context, material-safe compatible-vertex reuse, deterministic Chunk/VoxelModel parity, bounds rejection, rejection atomicity, and no-remesh Palette/transform swaps.
 - The GPU lane compiles the shared shader, draws Human and Orc Palettes sequentially from one mesh, draws a Chunk with WorldPalette, and retains the intentional textured-to-Palette difference image.
-- Existing 32 approved textured references and tolerances are unchanged. Artifact `10614200309` contains actual/difference evidence; artifact `10613791231` contains four Palette baseline candidates only.
-- Palette candidates remain unapproved. The two review-dependent checkboxes above stay open until the project owner reviews them; no generated PNG was promoted to an expected baseline.
+- Existing 32 approved textured references and tolerances are unchanged. Final-run artifact `10613866642` contains actual/difference evidence; artifact `10614355465` contains the four proposed Palette expected images.
+- On 21 September 2026, the project owner approved the four exact `640 × 480` Palette candidates from CI run `35538640066`. They are now checked in under `tests/resources/expectedImages/palette_migration/`, and the candidate-only capture test now compares fresh renders against those immutable references while preserving actual/difference evidence on failure.
+- Approved SHA-256 values are `6cf479148d4cba5748add39f43fada8b926c10c55b6e1dd60138f9211eb5ed7d` (Human), `b3a814cefa25313bb964446eb3e854195309fd6b855a6e55478709869af8809d` (Orc), `da063bdd24ee4da0bc5ce05e6317476a6fd15ac636a30fbd4967f593e230315c` (sequential pair), and `400d2dd0cde766122d865ec9dc62b2af3a827004d0e77243f6365276796f03c0` (WorldPalette Chunk).
 - The barrel/sword wording belongs to later ST-033-02 object-local material content and remains open; ST-003-02 proves the underlying per-draw transform/Palette contract with the deterministic model fixture.

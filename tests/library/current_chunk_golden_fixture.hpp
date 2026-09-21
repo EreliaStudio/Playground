@@ -52,6 +52,6 @@ namespace playground_test::golden
 	[[nodiscard]] bool compareSeededScene();
 	[[nodiscard]] bool compareVoxelMesherModels();
 	[[nodiscard]] bool compareChunkMesherOcclusion();
-	void capturePaletteMigrationCandidates();
+	[[nodiscard]] bool comparePaletteGoldenImages();
 	void proveUvSensitivity();
 }
