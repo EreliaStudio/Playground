@@ -1,81 +1,154 @@
-# OD-028 — WorldPalette terrain mapping and precedence
+# OD-028 — WorldPalette semantic slot binding and visual fallback
 
 ## Status
 
-Open
+Resolved
 
 ## Problem
 
-ST-033-01 needs a deterministic rule that maps each emitted Chunk polygon to one element of the shared `WorldPalette`.
+ST-033-01 needs a deterministic and simple rule that maps each emitted Chunk polygon to one element of the shared `WorldPalette`.
 
-The meshing contract already exposes two independent inputs:
+The Shape already gives each polygon one human-authored semantic `materialSlot`, such as `top`, `bottom`, or `side`. A Voxel Definition must be able to reuse the same Shape while choosing its own human-readable material identifiers, such as `dirt-top`, `dirt-side`, or `stone-top`.
 
-- `Shape::Polygon::materialSlot`, which expresses authored semantic intent such as `top`, `side`, or another Shape-defined slot;
-- `Shape::Polygon::outerSide`, which expresses the polygon's spatial boundary side when applicable.
-
-The architecture also anticipates:
-
-- a per-Definition default mapping;
-- slot-specific mappings;
-- side-specific mappings;
-- exact slot+side mappings.
-
-What remains undefined is how those mappings are represented semantically and which one wins when several match the same polygon.
-
-Without an explicit rule, ST-033-01 would have to invent content behavior and later terrain assets could depend accidentally on an implementation detail.
-
-## Affected epics/tickets
-
-- EP-033 / ST-033-01 directly depends on this decision.
-- Later Chunk material/content-schema work in EP-033 must preserve the selected semantics.
-- EP-030/EP-031 authoring/import work may need to represent the selected mapping without redefining it.
-
-## Already-fixed constraints
-
-- Chunks normally render with one shared `WorldPalette`.
-- `MaterialResolver` receives immutable volume, Definition, transformed polygon, coordinate, and Cell context and returns one `Palette::ElementIndex`.
-- `materialSlot` and `outerSide` are distinct concepts.
-- The mesh/shader contract must not gain a GPU palette ID.
-- Palette/material changes do not alter geometry or require a remesh unless the resolved per-polygon palette element itself changes as part of a rebuild.
-- The broader `Material` / `MaterialCollection` abstraction is not introduced merely to resolve this decision.
-- Procedural palette variation is governed separately by OD-019.
-- Effects beyond base Palette color are governed separately by OD-018.
-
-## Questions to resolve
-
-1. What is the precedence among exact slot+side, slot-only, side-only, and default mappings?
-2. Is the mapping semantically per Voxel Definition, global, or layered in another way?
-3. Is a default mapping mandatory?
-4. How does `Side::None` participate in lookup?
-5. What happens when a requested mapping is absent: fallback or rejection?
-6. Should the selected rule be independent of the eventual serialized schema/API representation?
-
-## Options considered
-
-Pending owner discussion.
+The runtime renderer ultimately needs a `Palette::ElementIndex`, not a string. Missing visual bindings should remain visible to developers without preventing the game from continuing.
 
 ## Decision
 
-Pending.
+### One semantic slot per polygon
+
+Each `Shape::Polygon` continues to expose exactly one semantic `materialSlot`.
+
+A Shape decides how much distinction it needs. A simple cube may give all four lateral faces the same `side` slot. Another Shape may instead expose distinct slots for individual faces.
+
+No automatic material precedence based on `outerSide` is introduced.
+
+A possible future extension may allow an ordered list of alternative slots, with the current string form acting as a one-element list. Multi-slot lookup semantics are deliberately not defined until a concrete content use case requires them.
+
+### Definition maps Shape slot to a human-readable material identifier
+
+A Voxel Definition provides the semantic mapping:
+
+```text
+Shape slot
+    ↓
+Voxel Definition material identifier
+    ↓
+MaterialResolver binding
+    ↓
+Palette::ElementIndex
+```
+
+Example:
+
+```text
+Shape polygon slot: "top"
+
+Grass Definition:
+    "top" -> "dirt-top"
+
+MaterialResolver:
+    "dirt-top" -> 15
+
+WorldPalette:
+    element 15
+```
+
+The authored material identifier remains a string. The runtime mesh/shader receives only `Palette::ElementIndex`.
+
+### MaterialResolver binds authored IDs to Palette indices
+
+The terrain resolver provides explicit bindings equivalent to:
+
+```cpp
+resolver.bind("dirt-top", 15);
+resolver.bind("dirt-side", 16);
+resolver.bind("stone-top", 17);
+```
+
+The concrete resolver may hold or otherwise reference the Palette it resolves against. The existing abstract `MaterialResolver` contract may remain focused on returning one `Palette::ElementIndex`.
+
+### Palette owns the fallback index
+
+`Palette` gains an explicit default/fallback element index selected with a method named:
+
+```cpp
+palette.setDefault(index);
+```
+
+The selected index must address a valid element of that Palette according to the Palette's normal validation contract.
+
+For the H0 terrain prototype, the default element is an opaque plain magenta color so unresolved visual content is immediately visible.
+
+No palette index is universally reserved as a magic fallback value.
+
+### Missing visual bindings are recoverable
+
+Both of these conditions resolve to the Palette default instead of aborting meshing:
+
+1. the Shape polygon references a slot that the Voxel Definition does not map;
+2. the Voxel Definition maps a slot to a material identifier that the MaterialResolver does not bind.
+
+These are visual-content errors, not structural/runtime-fatal errors.
+
+They must not throw merely to stop the game. The unresolved polygon is emitted using `palette.default` / the index configured through `setDefault()`.
+
+Malformed structural data and genuinely invalid runtime state may still use the project's normal `spk::Exception` policy.
+
+### Warning diagnostics are intentionally deferred
+
+Sparkle `0.1.2` has no reusable logger/warning facility.
+
+Once Sparkle provides logging, each recoverable missing visual binding should emit a warning identifying enough context to locate the bad content, while continuing with the Palette default.
+
+Until that logger is available in the Playground-consumed Sparkle package, the fallback behavior is implemented without a console-warning requirement. Missing logging must not block ST-033-01.
+
+A separate Sparkle issue will request the logger for the `0.1.3` line.
 
 ## Rationale
 
-Pending.
+This keeps material lookup data-driven and intentionally small:
+
+- Shapes own semantic polygon slots;
+- Definitions assign human-readable material meaning to those slots;
+- the resolver translates stable authored identifiers to GPU-facing Palette element indices;
+- the Palette owns the visual fallback element.
+
+Directional specialization does not require special resolver rules. Content that needs per-face distinctions can use a Shape exposing distinct per-face slot names.
+
+The magenta fallback keeps missing visual content conspicuous without turning a render-content mistake into a game-stopping exception.
 
 ## Consequences
 
-Until resolved, ST-033-01 must not freeze terrain material-mapping behavior or its content schema.
+- The previously proposed default/slot/side/exact precedence system is removed.
+- `outerSide` remains useful geometry/occlusion metadata but is not part of this material lookup rule.
+- No broader `Material` / `MaterialCollection` abstraction is required by this decision.
+- No procedural Palette variation is defined here; OD-019 remains separate.
+- No Material effect beyond current Palette data is defined here; OD-018 remains separate.
+- A future multi-slot Shape syntax remains possible without changing the single-slot contract already authored today.
+- ST-033-01 may implement direct semantic slot bindings and magenta fallback before Sparkle logging support exists.
 
 ## Validation / evidence
 
-The selected rule should be validated with the smallest deterministic fixture that proves:
+ST-033-01 should prove at minimum:
 
-- one-material fallback;
-- distinct top/side/bottom behavior;
-- one exact per-side override;
-- absence of Chunk-boundary seams caused by lookup semantics;
-- exact resolved Palette indices before golden-image comparison.
+- one Shape reused by multiple Definitions with different human-readable bindings;
+- a simple cube with shared lateral `side` semantics;
+- a Shape may expose more specific face slots without resolver-side directional precedence;
+- exact resolved Palette indices for valid bindings;
+- missing Definition slot mapping resolves to the configured Palette default;
+- missing resolver binding resolves to the configured Palette default;
+- the fallback element renders as plain opaque magenta;
+- no recoverable missing visual binding aborts meshing;
+- once logger support is consumed, the recoverable cases emit warnings.
 
 ## Resolution provenance
 
-Pending project-owner approval on the H0 open-decision review branch.
+Resolved by the project owner during the H0 open-decision review on 21 September 2026:
+
+- one semantic Shape slot per polygon for the current contract;
+- Definition slot -> human-readable material identifier;
+- MaterialResolver identifier -> `Palette::ElementIndex`;
+- `Palette::setDefault(index)` owns the fallback element index;
+- opaque magenta is the H0 fallback appearance;
+- missing visual slot/material bindings use fallback rather than exceptions;
+- warning output is deferred until a Sparkle logger is available.
