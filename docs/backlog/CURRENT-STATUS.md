@@ -8,7 +8,7 @@
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** ST-003-02 is complete, including owner-approved Palette golden images. ST-033-01 is next but remains at its material-mapping decision gate.
+**Current checkpoint:** ST-003-02 is complete, including owner-approved Palette golden images. OD-028 resolves direct WorldPalette semantic slot binding and fallback; ST-033-01 remains gated only where OD-019 procedural variation is required.
 
 This is the living answer to:
 
@@ -76,8 +76,8 @@ VS-001 first playable                              🔭
 
 ### Planning and decisions
 
-- ✅ The backlog contains 34 epics, 137 tickets, and 27 persistent decision records.
-- ✅ Seven decisions are resolved: OD-011, OD-020, OD-023, OD-024, OD-025, OD-026, and OD-027. Twenty remain open.
+- ✅ The backlog contains 34 epics, 137 tickets, and 28 persistent decision records.
+- ✅ Eight decisions are resolved: OD-011, OD-020, OD-023, OD-024, OD-025, OD-026, OD-027, and OD-028. Twenty remain open.
 - ✅ OD-011 selects one concrete vector-owning `VoxelVolume` base and explicitly accepts replacing Chunk's fixed array during ST-001-03.
 - ✅ OD-023 preserves the existing packed Cell orientation/vertical-flip representation until evidence justifies a separate expansion decision.
 
@@ -197,7 +197,7 @@ ST-032-03 and ST-004-02 are superseded by this approved consolidation.
 
 ### ⛔ ST-033-01 — Palette Material terrain prototype decision gate
 
-ST-003-02 is complete after owner approval and promotion of its four reviewed Palette references. Before ST-033-01 implementation can freeze content behavior, resolve the exact `WorldPalette` precedence among default, `materialSlot`, `outerSide`, and exact overrides. OD-019 remains a separate gate for procedural Palette variation; direct element lookup does not require it.
+ST-003-02 is complete after owner approval and promotion of its four reviewed Palette references. OD-028 now resolves direct WorldPalette material lookup: one Shape slot maps through the Definition to a human-readable material identifier, then through MaterialResolver to a Palette element; missing visual bindings use the Palette default configured by `setDefault()` and render opaque magenta. Warning output is deferred until Sparkle provides a logger. OD-019 remains a separate gate only for procedural Palette variation; direct element lookup does not require it.
 
 ## Next implementation sequence
 
@@ -213,7 +213,7 @@ ST-003-02 is complete after owner approval and promotion of its four reviewed Pa
 | 8 | ✅ | Prove unchanged semantic mesh and textured golden-image parity after the consumer transition | Retained semantic fixtures and all 32 unchanged image references pass CI run 35514737157. |
 | 9 | ✅ | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) implementation | Per-Palette SSBO composition, common mesh/shader contract, caller-owned compatibility, value-copy lifetime, semantic tests, and both CI lanes pass. |
 | 10 | ✅ | ST-003-02 Palette golden images | The owner approved the four final-run candidates; exact checked-in references now guard Human, Orc, sequential dual-Palette, and WorldPalette rendering. |
-| 11 | ⛔ DECISION | [ST-033-01](epics/EP-033-material-visual-validation/tickets/ST-033-01-palette-material-terrain-prototype.md) — Palette Material terrain prototype | Next smallest backlog step; exact WorldPalette default/materialSlot/outerSide/exact-override precedence must be approved before implementation. OD-019 separately gates any procedural variation. |
+| 11 | ⛔ DECISION | [ST-033-01](epics/EP-033-material-visual-validation/tickets/ST-033-01-palette-material-terrain-prototype.md) — Palette Material terrain prototype | OD-028 resolves direct slot binding and magenta fallback. OD-019 separately gates procedural variation; non-variation portions may proceed from the resolved lookup contract. |
 | 12 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
 | 13 | ⬜ | [VS-000](milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) | Validates terrain, model, assembly, equipment, Palette, and performance together. |
 | 14 | 🔭 | [VS-001](milestones/VS-001-FIRST-PLAYABLE.md) | Starts the gameplay vertical slice after the visual/runtime foundation. |
@@ -225,7 +225,7 @@ ST-003-02 is complete after owner approval and promotion of its four reviewed Pa
 - OD-026 is resolved: Palette uses RGBA data, SSBO composition/View, explicit validation, the full immutable resolver context, and shared-resource value-copy command lifetime.
 - OD-027 supersedes OD-026's command-input validation only: `VoxelRenderCommand` accepts `const Palette&` and trusts the caller's mesh/Palette compatibility without rescanning vertices.
 - The four ST-003-02 Palette candidates from CI run `35538640066` were explicitly approved by the project owner on 21 September 2026 and promoted without modifying the pre-existing textured references.
-- ST-033-01 must not invent WorldPalette default/materialSlot/outerSide/exact-override precedence. Resolve that mapping from an owner-approved example before freezing the content schema.
+- OD-028 is resolved: one Shape slot maps through the Definition to a human-readable material identifier and through MaterialResolver to one Palette element; `Palette::setDefault(index)` selects the recoverable fallback, which is opaque magenta for H0. Missing visual bindings do not throw merely to stop the game. Warning diagnostics are deferred until Playground consumes a Sparkle logger.
 - OD-019 remains open for any procedural Palette variation; direct element lookup is implemented, but variation must not be invented.
 - The proposed broader `Material`/`MaterialCollection` layer is explicitly deferred and is not part of PR #9.
 - Sparkle SSBO inheritance is deferred to [Sparkle issue #5](https://github.com/EreliaStudio/Sparkle/issues/5); current Palette composition is intentional.
