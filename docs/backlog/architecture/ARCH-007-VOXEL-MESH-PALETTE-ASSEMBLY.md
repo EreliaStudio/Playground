@@ -51,7 +51,7 @@ As resolved by [OD-026](../open-decisions/OD-026-initial-palette-element-resolve
 
 Palette selection belongs to the renderable/part instance, not the pure model asset. Consequently one cached arm mesh can render with Human, Orc, or Undead palettes without remeshing. All referenced indices must exist in the bound Palette; submitting a compatible mesh/Palette pair is the caller's responsibility.
 
-Chunks normally share one relatively large `WorldPalette`. Chunk material resolution may use both the Shape polygon's semantic `materialSlot` and spatial `outerSide`; these concepts remain distinct. A dedicated content-schema ticket defines precedence among default, slot, side, and exact slot+side overrides after a user-approved example. Top, side, bottom, and individual sides can resolve to different elements of the same WorldPalette.
+Chunks normally share one relatively large `WorldPalette`. Per OD-028, each Shape polygon exposes one semantic `materialSlot`; its Voxel Definition maps that slot to a human-readable material identifier, and the concrete MaterialResolver binds that identifier to one `Palette::ElementIndex`. Shapes that need individual face distinctions expose distinct slot names themselves; `outerSide` does not participate in material precedence. `Palette::setDefault(index)` selects the recoverable fallback element, which is opaque magenta for H0. Missing Definition-slot or resolver-ID bindings use that fallback rather than aborting meshing. Warning diagnostics are deferred until Playground consumes a Sparkle logger.
 
 Chunks and VoxelModels use the same VoxelMesh format and voxel shader. Changing the bound Palette changes material output but neither mesh geometry nor mesher invocation count.
 
@@ -64,4 +64,4 @@ Chunks and VoxelModels use the same VoxelMesh format and voxel shader. Changing 
 5. Review expected, produced, and difference images manually.
 6. Only after approval, add a new versioned expected baseline.
 
-Required semantic fixtures cover authored model indices, Chunk slot/side mapping, top/side/bottom and per-side variation, identical geometry across Palette swaps, no remesh on Palette swap, consistent polygon vertex indices, internal-face occlusion, multiple Shapes, and deterministic output. Golden fixtures cover the corresponding visible cases and render one model mesh with two compatible Palettes plus a Chunk through WorldPalette.
+Required semantic fixtures cover authored model indices, Chunk semantic-slot bindings, shared and per-face Shape slots, configured Palette fallback, identical geometry across Palette swaps, no remesh on Palette swap, consistent polygon vertex indices, internal-face occlusion, multiple Shapes, and deterministic output. Golden fixtures cover the corresponding visible cases and render one model mesh with two compatible Palettes plus a Chunk through WorldPalette.
