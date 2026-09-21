@@ -193,8 +193,8 @@ TEST(VoxelMesherPaletteTest, PaletteAndTransformChangesReuseTheSameMeshWithoutRe
 	const voxel::Palette human({{{0.7f, 0.5f, 0.4f, 1.0f}}});
 	const voxel::Palette orc({{{0.2f, 0.5f, 0.1f, 1.0f}}});
 
-	voxel::VoxelRenderCommand(&human, mesh, spk::Matrix4x4::identity());
-	voxel::VoxelRenderCommand(&orc, mesh,
+	voxel::VoxelRenderCommand(human, mesh, spk::Matrix4x4::identity());
+	voxel::VoxelRenderCommand(orc, mesh,
 		spk::Matrix4x4::translation(spk::Vector3{2.0f, 0.0f, 0.0f}));
 
 	EXPECT_EQ(resolver.calls, 6);

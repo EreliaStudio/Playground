@@ -16,13 +16,11 @@ namespace voxel
 		Palette _palette;
 		spk::Matrix4x4 _modelMatrix;
 
-		[[nodiscard]] static Palette _checkedPalette(
-			const Palette *palette, const VoxelMesh &mesh);
 		[[nodiscard]] static spk::Program &_sharedProgram();
 		[[nodiscard]] static spk::UniformBuffer &_sharedModelBuffer();
 
 	public:
-		VoxelRenderCommand(const Palette *palette, VoxelMesh mesh, spk::Matrix4x4 modelMatrix);
+		VoxelRenderCommand(const Palette &palette, VoxelMesh mesh, spk::Matrix4x4 modelMatrix);
 
 		void execute(spk::RenderContext &context) const override;
 	};

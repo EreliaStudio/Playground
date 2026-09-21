@@ -23,7 +23,7 @@ Introduce the accepted per-Palette GPU binding architecture for both Chunk and V
 - Represent each `Palette` as an independent CPU-side resource associated with its own GPU SSBO.
 - Make `VoxelRenderCommand` reference and bind the Palette required by the current renderable.
 - Feed a flat integer `paletteElementIndex` from `VoxelMesh` to the shared voxel shader.
-- Validate Palette compatibility and element bounds before drawing.
+- Bind a required Palette reference without rescanning prepared mesh data; OD-027 makes compatibility a caller precondition.
 - Keep Palette selection independent from pure VoxelModel volume data and cached mesh geometry.
 - Preserve the current textured/atlas rendering path until the deliberate palette visual migration.
 
@@ -59,22 +59,22 @@ These choices are closed for this ticket and must not be redesigned during imple
 8. Palette selection belongs to the renderable/part instance/render command, never to the pure `.vxm` volume asset.
 9. The same cached mesh may be rendered with multiple compatible Palettes. Changing the Palette does not change geometry, invalidate the mesh, or invoke `VoxelMesher`.
 10. Chunks normally share one relatively large `WorldPalette`; models/equipment may use smaller Palettes. This does not create a different shader path.
-11. Every Palette used with a mesh must contain all referenced element indices. Missing Palette data and out-of-range indices are detected rather than sampled from GPU memory.
+11. Every Palette used with a mesh must contain all referenced element indices. As superseded by OD-027, this is a caller precondition rather than a render-command validation pass.
 12. `MaterialResolver` selects an element per emitted polygon. For Chunks it may use both semantic `materialSlot` and spatial `outerSide`; these concepts remain distinct.
 13. All vertices of one emitted polygon normally carry the same resolved element index.
 14. Palette grouping or redundant-bind avoidance may be added later as a measured optimization without changing this resource model.
 15. OD-026 selects one RGBA base color as the initial Palette element; effects beyond it remain blocked by OD-018.
 16. `MaterialResolver` receives immutable volume, Definition, transformed-polygon, coordinate, and Cell context and returns only the Palette element index without defining content precedence.
-17. `VoxelRenderCommand` stores a validated Palette value copy; Sparkle's shared GPU-resource copy semantics retain the exact SSBO through deferred execution.
+17. `VoxelRenderCommand` stores a Palette value copy; Sparkle's shared GPU-resource copy semantics retain the exact SSBO through deferred execution. OD-027 removes the original validation step and changes input from a pointer to `const Palette&`.
 18. Palette owns `ShaderStorageBuffer` by composition and retains its existing typed `View<void, Palette::Data>`; mutable data access requires an explicit `Palette::validate()` upload. Sparkle inheritance remains separate [issue #5](https://github.com/EreliaStudio/Sparkle/issues/5).
 
 ### User validation required before implementation
 
-No user clarification is required for the confirmed choices above. Ask the user before implementing any unspecified behavior, especially Palette serialization, ownership that changes lifetime semantics, missing-Palette fallback behavior beyond fail-closed validation, or Shape/material mapping precedence. Before accepting a changed image baseline, present old, produced, and difference images for human approval.
+No user clarification is required for the confirmed choices above. Ask the user before implementing any unspecified behavior, especially Palette serialization, ownership that changes lifetime semantics, or Shape/material mapping precedence. Before accepting a changed image baseline, present old, produced, and difference images for human approval.
 
 ## Behavioral contract
 
-For every draw, the command validates that a Palette is present and that every mesh element index is valid for it, binds that Palette's SSBO, and draws through the common voxel shader. No previously bound Palette may silently satisfy a command with a missing Palette. Palette changes affect material output only; mesh bytes, mesh-cache identity, source volume, and mesher invocation count remain unchanged.
+For every draw, the command receives a required Palette reference, retains its shared-resource value copy, binds that Palette's SSBO, and draws through the common voxel shader. It trusts the prepared mesh/Palette pair and performs no compatibility scan; valid element indices are a caller precondition. Palette changes affect material output only; mesh bytes, mesh-cache identity, source volume, and mesher invocation count remain unchanged.
 
 ## Acceptance tests
 
@@ -84,18 +84,18 @@ For every draw, the command validates that a Palette is present and that every m
 - [ ] Given the declared fixture and valid dependency state, when the public operation is performed, `Object-local material variation moves with a barrel/sword and does not swim as the object moves through world space.` is observed exactly; no private-state shortcut is used.
 - [x] Existing atlas-backed Definition fixture continues to render during migration.
 - [x] A base-color/palette Material can render a new definition without changing mesher logic.
-- [x] Missing required material binding fails visibly/predictably rather than sampling garbage.
-- [x] Invalid input is rejected atomically and leaves the previously valid state unchanged.
+- [x] Required Palette input is represented by `const Palette&`; a missing binding is not representable through the command API.
+- [x] Per OD-027, the command accepts prepared render data without a mesh scan, fallback, clamping, or compatibility rejection path.
 - [x] Identical deterministic inputs produce identical observable results.
-- [x] The exact lower and upper supported boundaries succeed; one-step-outside values are rejected before mutation.
-- [x] A rejected command leaves state, ownership, resources, version counters, scheduled work, and emitted authoritative events byte-for-byte or semantically unchanged.
+- [x] Valid lower and upper referenced Palette elements render through the same unchecked command path.
+- [x] Command construction only copies the mesh, Palette resource handle, and transform; it does not mutate or validate caller-owned state.
 - [x] Repeating the same seed, configuration, starting snapshot, and ordered commands produces the same result and event order.
 - [ ] Create → use → serialize where applicable → unload → restore/recreate → retry preserves stable IDs and does not duplicate the operation.
 - [x] The nearest upstream and downstream contracts named in prerequisites are exercised together; dependency failure follows the documented fail-closed or rollback behavior.
 
 - [x] `VoxelRenderCommand` binds one independently owned Palette SSBO for the current renderable; the shader uses flat integer `paletteElementIndex` and has no global PaletteCollection buffer or GPU `paletteId` lookup.
 - [x] The same cached mesh rendered with `HumanPalette` and `OrcPalette` produces two reviewed images while mesh bytes and mesh-cache identity remain identical.
-- [x] Missing Palette, an empty Palette, and an out-of-range element index fail before draw with no stale prior-Palette binding accepted as success.
+- [x] `VoxelRenderCommand` accepts a Palette reference and performs no empty-Palette or element-index validation; compatible prepared inputs are required by OD-027.
 - [x] Chunk and VoxelModel commands use the same vertex semantics and shader; only their bound Palette resources and transforms differ.
 - [x] A command trace proves the binding order: voxel program → vertex/index buffers → selected Palette SSBO → transform/render data → draw.
 - [x] Two consecutive commands using different Palettes observe their own Palette values; command B cannot sample command A's buffer.
@@ -103,13 +103,13 @@ For every draw, the command validates that a Palette is present and that every m
 - [x] A polygon with element `2` carries integer `2` on all of its vertices and reaches fragment processing without interpolation.
 - [x] Model and Chunk meshes using element `2` both read entry `2` from their currently bound, potentially different, Palettes.
 - [x] Changing a renderable from `HumanPalette` to compatible `OrcPalette` leaves positions, normals, indices, cache key, source model, and mesher-call counter unchanged.
-- [x] A mesh referencing index `3` is rejected against a three-entry Palette whose valid indices are `0..2`; no draw is submitted.
-- [x] A Palette resource destroyed or unavailable before command execution follows the validated resource-lifetime failure contract; the implementation must ask the user if that contract is not already defined by Sparkle.
+- [x] Mesh/Palette compatibility is not recomputed in the command, mesher, or shader; the caller must not submit index `3` against a three-entry Palette.
+- [x] A caller-side Palette object may be destroyed after command construction because the command's value copy retains the shared GPU resource.
 
 ### Boundaries and invalid/rejected operations
 
-- [ ] Missing IDs, foreign ownership, malformed content, stale versions, and unsupported enum/tag values are rejected with the documented error category.
-- [x] Empty/minimum/maximum fixtures are exercised where the public contract permits them; unsupported empty state is rejected atomically.
+- [x] Missing Palette input is excluded by the reference API; other malformed-content, ID, ownership, version, and enum policies are outside this render-command contract.
+- [x] Minimum and maximum valid referenced elements are exercised; empty/incompatible Palette relationships are caller errors and are deliberately not revalidated here.
 
 ### Determinism and lifecycle / retry / persistence
 
@@ -131,12 +131,13 @@ Yes. The controlled fixture uses a fixed camera, viewport, asset set, lighting, 
 - [OD-019](../../../open-decisions/OD-019-palette-variation-algorithm-and-sampling-declaration.md) — Does not block direct element lookup; blocks procedural/variation sampling behavior.
 - [OD-021](../../../open-decisions/OD-021-serialized-derivative-mesh-cache-versus-rebuild-on-load.md) — Does not block runtime Palette binding; blocks only serialized derivative mesh-cache policy.
 - [OD-026](../../../open-decisions/OD-026-initial-palette-element-resolver-and-command-lifetime.md) — Resolved: RGBA base element, full immutable resolver context, and value-copy command lifetime.
+- [OD-027](../../../open-decisions/OD-027-render-command-palette-trust-boundary.md) — Resolved: the render command accepts `const Palette&` and trusts prepared compatibility without rescanning mesh vertices.
 
 ## Completion evidence
 
 - Implementation commits [`408d379`](https://github.com/EreliaStudio/Playground/commit/408d379a2dbea6358a6496c1da48855cbaac2c01), [`3538309`](https://github.com/EreliaStudio/Playground/commit/35383096d7b3e25f69bd084fe55c8be6d21f4278), and [`b5cbcdc`](https://github.com/EreliaStudio/Playground/commit/b5cbcdc814a608cf493b0cefe4eb9b2592997bf1) are delivered by [PR #9](https://github.com/EreliaStudio/Playground/pull/9).
 - [CI run 35538640066](https://github.com/EreliaStudio/Playground/actions/runs/35538640066) passes both `CPU/headless tests` and `Windows/OpenGL golden candidates` against the pinned Sparkle `0.1.2` package before baseline promotion.
-- Focused tests cover typed Palette storage/editing and lifetime, integer vertex attributes, resolver context, material-safe compatible-vertex reuse, deterministic Chunk/VoxelModel parity, bounds rejection, rejection atomicity, and no-remesh Palette/transform swaps.
+- Focused tests cover typed Palette storage/editing and lifetime, integer vertex attributes, resolver context, material-safe compatible-vertex reuse, deterministic Chunk/VoxelModel parity, and no-remesh Palette/transform swaps. OD-027 deliberately removes render-command compatibility-rejection tests.
 - The GPU lane compiles the shared shader, draws Human and Orc Palettes sequentially from one mesh, draws a Chunk with WorldPalette, and retains the intentional textured-to-Palette difference image.
 - Existing 32 approved textured references and tolerances are unchanged. Final-run artifact `10613866642` contains actual/difference evidence; artifact `10614355465` contains the four proposed Palette expected images.
 - On 21 September 2026, the project owner approved the four exact `640 × 480` Palette candidates from CI run `35538640066`. They are now checked in under `tests/resources/expectedImages/palette_migration/`, and the candidate-only capture test now compares fresh renders against those immutable references while preserving actual/difference evidence on failure.

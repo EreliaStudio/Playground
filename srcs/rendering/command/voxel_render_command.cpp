@@ -1,33 +1,12 @@
 #include "rendering/command/voxel_render_command.hpp"
 
 #include <memory>
-#include <string>
 #include <utility>
-
-#include <exception.hpp>
 
 #include "rendering/command/camera_ubo_render_command.hpp"
 
 namespace voxel
 {
-	Palette VoxelRenderCommand::_checkedPalette(const Palette *palette, const VoxelMesh &mesh)
-	{
-		if (palette == nullptr)
-			throw spk::Exception("Voxel render command requires a Palette");
-		if (palette->empty())
-			throw spk::Exception("Voxel render command Palette cannot be empty");
-		if (mesh.empty()) return *palette;
-		const auto vertices = mesh.layout().vertexBuffer().cast<VoxelVertex>();
-		for (const VoxelVertex &vertex : vertices)
-		{
-			if (!palette->contains(vertex.paletteElementIndex))
-				throw spk::Exception("Voxel mesh palette element index " +
-					std::to_string(vertex.paletteElementIndex) + " is outside Palette size " +
-					std::to_string(palette->size()));
-		}
-		return *palette;
-	}
-
 	spk::Program &VoxelRenderCommand::_sharedProgram()
 	{
 		static auto program = []() {
@@ -49,9 +28,9 @@ namespace voxel
 	}
 
 	VoxelRenderCommand::VoxelRenderCommand(
-		const Palette *palette, VoxelMesh mesh, spk::Matrix4x4 modelMatrix) :
+		const Palette &palette, VoxelMesh mesh, spk::Matrix4x4 modelMatrix) :
 		_mesh(std::move(mesh)),
-		_palette(_checkedPalette(palette, _mesh)),
+		_palette(palette),
 		_modelMatrix(modelMatrix)
 	{
 	}

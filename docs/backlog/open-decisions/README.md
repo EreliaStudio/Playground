@@ -30,3 +30,4 @@ Decision records are persistent architecture/design history. Resolve a decision 
 | [OD-024](OD-024-current-chunk-golden-fixtures-and-runner.md) | Resolved | Current Chunk golden fixtures, capture size, and canonical runner. |
 | [OD-025](OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) | Resolved | One generic VoxelMesher with cached occlusion and a Chunk::Mesher external-neighbor override. |
 | [OD-026](OD-026-initial-palette-element-resolver-and-command-lifetime.md) | Resolved | RGBA Palette data, SSBO composition/view, explicit validation, full resolver context, and value-copy command lifetime. |
+| [OD-027](OD-027-render-command-palette-trust-boundary.md) | Resolved | Render commands accept a Palette reference and trust prepared mesh/Palette compatibility without rescanning vertices. |

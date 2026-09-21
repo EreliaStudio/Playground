@@ -102,7 +102,7 @@ namespace playground_test::golden
 		preparePaletteContext(openGL);
 		auto &context = openGL.renderContext();
 		configurePaletteCamera({{2.3f, 1.7f, 2.7f}, {0.4f, 0.3f, 0.8f}, 0.72f, 0.05f, 20.0f}, context);
-		voxel::VoxelRenderCommand(&palette, mesh, spk::Matrix4x4::identity()).execute(context);
+		voxel::VoxelRenderCommand(palette, mesh, spk::Matrix4x4::identity()).execute(context);
 		openGL.save(path);
 	}
 
@@ -118,8 +118,8 @@ namespace playground_test::golden
 		preparePaletteContext(openGL);
 		auto &context = openGL.renderContext();
 		configurePaletteCamera({{3.4f, 1.8f, 3.2f}, {1.0f, 0.3f, 0.8f}, 0.72f, 0.05f, 25.0f}, context);
-		voxel::VoxelRenderCommand(&human, mesh, spk::Matrix4x4::identity()).execute(context);
-		voxel::VoxelRenderCommand(&orc, mesh,
+		voxel::VoxelRenderCommand(human, mesh, spk::Matrix4x4::identity()).execute(context);
+		voxel::VoxelRenderCommand(orc, mesh,
 			spk::Matrix4x4::translation(spk::Vector3{1.2f, 0.0f, 0.0f})).execute(context);
 		openGL.save(path);
 	}
@@ -139,7 +139,7 @@ namespace playground_test::golden
 		preparePaletteContext(openGL);
 		auto &context = openGL.renderContext();
 		configurePaletteCamera({{10.0f, 8.0f, 12.0f}, {2.5f, 1.0f, 1.5f}, 0.68f, 0.1f, 60.0f}, context);
-		voxel::VoxelRenderCommand(&palette, mesh, spk::Matrix4x4::identity()).execute(context);
+		voxel::VoxelRenderCommand(palette, mesh, spk::Matrix4x4::identity()).execute(context);
 		openGL.save(path);
 	}
 }

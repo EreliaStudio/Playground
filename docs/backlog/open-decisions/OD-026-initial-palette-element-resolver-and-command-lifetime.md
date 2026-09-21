@@ -4,6 +4,10 @@
 
 Resolved
 
+## Supersession note
+
+[OD-027](OD-027-render-command-palette-trust-boundary.md) supersedes only this record's Palette-pointer and render-command compatibility-validation decisions. The RGBA payload, resolver context, SSBO composition/View, explicit upload, Palette value-copy ownership, and deferred-lifetime decisions remain active.
+
 ## Problem
 
 ST-003-02 fixed the per-Palette SSBO and flat integer mesh/shader contract, but three public details remained unspecified: the initial Palette element payload, the information available to `MaterialResolver`, and how a deferred render command preserves its Palette resource.
@@ -30,8 +34,8 @@ ST-003-02 fixed the per-Palette SSBO and flat integer mesh/shader contract, but 
 
 - The initial public payload is `Palette::Data { spk::Color color; }`. `Palette` owns its SSBO by composition and retains a typed `ShaderStorageBuffer::View<void, Data>` over that resource's CPU-side bytes. No effect field governed by OD-018 is introduced.
 - `MaterialResolver` receives an immutable context containing the source volume, Definition, transformed emitted polygon, cell coordinate, and packed Cell. It returns only `paletteElementIndex`; it does not define slot/side precedence or select a Palette.
-- `VoxelRenderCommand` accepts a Palette pointer so missing input can be rejected, then stores the validated Palette by value. Copying a Palette uses Sparkle's shared GPU-resource ownership, so the exact SSBO remains alive through deferred command execution.
-- Empty Palette data and any mesh element index outside `[0, Palette::size())` are rejected before a draw can be submitted.
+- `VoxelRenderCommand` accepts a Palette pointer so missing input can be rejected, then stores the validated Palette by value. Copying a Palette uses Sparkle's shared GPU-resource ownership, so the exact SSBO remains alive through deferred command execution. **Superseded by OD-027:** the command now accepts `const Palette&` and retains the value copy without validation.
+- Empty Palette data and any mesh element index outside `[0, Palette::size())` are rejected before a draw can be submitted. **Superseded by OD-027:** compatibility is now a caller precondition and is not checked by the command.
 - Mutable `Palette::data(index)` access returns a reference into the SSBO view. The caller explicitly invokes `Palette::validate()` after an edit; mutation does not upload automatically.
 
 ## Rationale
