@@ -189,6 +189,7 @@ ST-032-03 and ST-004-02 are superseded by this approved consolidation.
 - ✅ OD-027 records the owner-selected render-command trust boundary: no empty/out-of-range compatibility check in the command, mesher, or shader; compatible inputs are a caller precondition.
 - ✅ [Sparkle issue #5](https://github.com/EreliaStudio/Sparkle/issues/5) tracks a possible later inheritance migration; ST-003-02 uses the pinned Sparkle `0.1.2` package unchanged.
 - ✅ [PR #9 CI run 35538271204](https://github.com/EreliaStudio/Playground/actions/runs/35538271204) passes both complete lanes for commit [`b5cbcdc`](https://github.com/EreliaStudio/Playground/commit/b5cbcdc814a608cf493b0cefe4eb9b2592997bf1).
+- ✅ [PR #9 CI run 35572632309](https://github.com/EreliaStudio/Playground/actions/runs/35572632309) passes both `CPU/headless tests` and `Windows/OpenGL golden tests` after OD-027 removes render-command validation and the approved Palette references become enforced comparisons.
 - ✅ The project owner approved the exact Human, Orc, sequential Human+Orc, and WorldPalette Chunk candidates from final CI run `35538640066` on 21 September 2026. Those four `640 × 480` images are checked in as Palette golden references; the existing textured references remain unchanged.
 - ✅ Final-run artifact `10613866642` preserves the rendered actuals and textured-to-Palette difference; artifact `10614355465` preserves the reviewed proposed baselines.
 

@@ -51,6 +51,7 @@ Render commands are the final submission boundary and should consume already-val
 - All call sites pass a Palette reference.
 - The deferred-lifetime test still proves that the command's Palette value copy retains the shared GPU resource.
 - Palette golden tests exercise compatible Human, Orc, and WorldPalette bindings through the simplified command.
+- [CI run 35572632309](https://github.com/EreliaStudio/Playground/actions/runs/35572632309) passes the CPU/headless and Windows/OpenGL golden-test lanes with this trust boundary.
 
 ## Resolution provenance
 
