@@ -66,7 +66,7 @@ These choices are closed for this ticket and must not be redesigned during imple
 15. OD-026 selects one RGBA base color as the initial Palette element; effects beyond it remain blocked by OD-018.
 16. `MaterialResolver` receives immutable volume, Definition, transformed-polygon, coordinate, and Cell context and returns only the Palette element index without defining content precedence.
 17. `VoxelRenderCommand` stores a Palette value copy; Sparkle's shared GPU-resource copy semantics retain the exact SSBO through deferred execution. OD-027 removes the original validation step and changes input from a pointer to `const Palette&`.
-18. Palette owns `ShaderStorageBuffer` by composition and retains its existing typed `View<void, Palette::Data>`; mutable data access requires an explicit `Palette::validate()` upload. Sparkle inheritance remains separate [issue #5](https://github.com/EreliaStudio/Sparkle/issues/5).
+18. `Palette` owns `ShaderStorageBuffer` by composition and retains its typed `View<void, Palette::Data>`. `Palette` is default-constructible; `resize(count)` establishes its runtime number of `Data` elements, after which entries are edited through `data(index)`. Neither `resize()` nor mutable access implicitly validates the GPU resource; the caller explicitly invokes `Palette::validate()` once the desired CPU-side state is ready. Sparkle inheritance remains separate [issue #5](https://github.com/EreliaStudio/Sparkle/issues/5).
 
 ### User validation required before implementation
 

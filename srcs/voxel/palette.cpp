@@ -9,22 +9,26 @@ namespace voxel
 	static_assert(std::is_trivially_copyable_v<Palette::Data>);
 	static_assert(sizeof(Palette::Data) == sizeof(float) * 4);
 
-	Palette::Palette(std::vector<Data> data) :
+	Palette::Palette() :
 		_buffer(BindingPoint, 0, sizeof(Data))
 	{
-		_buffer.resize(data.size());
-		_buffer.setDynamicData<Data>(std::span<const Data>(data));
-		if (!data.empty()) _view = _buffer.cast<void, Data>();
-		_buffer.validate();
 	}
 
-	Palette::Data &Palette::data(std::size_t index)
+	void Palette::resize(std::size_t size)
+	{
+		_buffer.resize(size);
+		_view = size == 0
+			? DataView{0, nullptr}
+			: _buffer.cast<void, Data>();
+	}
+
+	Palette::Data &Palette::data(ElementIndex index)
 	{
 		if (!contains(index)) throw spk::Exception("Palette data index is out of range");
 		return _view.dynamicArray[index];
 	}
 
-	const Palette::Data &Palette::data(std::size_t index) const
+	const Palette::Data &Palette::data(ElementIndex index) const
 	{
 		if (!contains(index)) throw spk::Exception("Palette data index is out of range");
 		return _view.dynamicArray[index];
@@ -40,7 +44,7 @@ namespace voxel
 		return size() == 0;
 	}
 
-	bool Palette::contains(std::size_t elementIndex) const noexcept
+	bool Palette::contains(ElementIndex elementIndex) const noexcept
 	{
 		return elementIndex < size();
 	}

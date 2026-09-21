@@ -4,11 +4,10 @@
 
 #include <memory>
 #include <utility>
-#include <vector>
 
 namespace
 {
-	voxel::VoxelMesh triangle(voxel::VoxelVertex::PaletteElementIndex elementIndex)
+	voxel::VoxelMesh triangle(voxel::Palette::ElementIndex elementIndex)
 	{
 		voxel::VoxelMesh::Builder builder;
 		const auto first = builder.addVertex({{0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, elementIndex});
@@ -20,7 +19,12 @@ namespace
 
 	voxel::Palette palette(std::size_t size)
 	{
-		return voxel::Palette(std::vector<voxel::Palette::Data>(size, {{1.0f, 1.0f, 1.0f, 1.0f}}));
+		voxel::Palette result;
+		result.resize(size);
+		for (std::size_t index = 0; index < size; ++index)
+			result.data(static_cast<voxel::Palette::ElementIndex>(index)).color = {1.0f, 1.0f, 1.0f, 1.0f};
+		result.validate();
+		return result;
 	}
 }
 

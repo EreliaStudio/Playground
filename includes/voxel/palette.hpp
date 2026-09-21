@@ -10,6 +10,8 @@ namespace voxel
 	class Palette final
 	{
 	public:
+		using ElementIndex = std::uint32_t;
+
 		struct Data
 		{
 			spk::Color color;
@@ -24,13 +26,15 @@ namespace voxel
 		DataView _view{0, nullptr};
 
 	public:
-		explicit Palette(std::vector<Data> data);
+		Palette();
 
-		[[nodiscard]] Data &data(std::size_t index);
-		[[nodiscard]] const Data &data(std::size_t index) const;
+		void resize(std::size_t size);
+
+		[[nodiscard]] Data &data(ElementIndex index);
+		[[nodiscard]] const Data &data(ElementIndex index) const;
 		[[nodiscard]] std::size_t size() const noexcept;
 		[[nodiscard]] bool empty() const noexcept;
-		[[nodiscard]] bool contains(std::size_t elementIndex) const noexcept;
+		[[nodiscard]] bool contains(ElementIndex elementIndex) const noexcept;
 		[[nodiscard]] spk::GPUResource::Identifier resourceIdentifier() const noexcept;
 
 		void validate();

@@ -13,6 +13,7 @@
 #include <GL/glew.h>
 #include <sparkle_test.hpp>
 
+#include <initializer_list>
 #include <memory>
 
 #include <exception.hpp>
@@ -26,15 +27,25 @@ namespace playground_test::golden
 		class DefinitionIndexResolver final : public voxel::MaterialResolver
 		{
 		public:
-			[[nodiscard]] voxel::VoxelVertex::PaletteElementIndex resolve(const Context &context) const override
+			[[nodiscard]] voxel::Palette::ElementIndex resolve(const Context &context) const override
 			{
-				return static_cast<voxel::VoxelVertex::PaletteElementIndex>(context.definition.id - 1);
+				return static_cast<voxel::Palette::ElementIndex>(context.definition.id - 1);
 			}
 		};
 
+		voxel::Palette makePalette(std::initializer_list<voxel::Palette::Data> data)
+		{
+			voxel::Palette palette;
+			palette.resize(data.size());
+			voxel::Palette::ElementIndex index = 0;
+			for (const auto &element : data) palette.data(index++) = element;
+			palette.validate();
+			return palette;
+		}
+
 		voxel::Palette humanPalette()
 		{
-			return voxel::Palette({{{0.35f, 0.58f, 0.22f, 1.0f}}, {{0.35f, 0.20f, 0.12f, 1.0f}},
+			return makePalette({{{0.35f, 0.58f, 0.22f, 1.0f}}, {{0.35f, 0.20f, 0.12f, 1.0f}},
 				{{0.76f, 0.55f, 0.42f, 1.0f}}, {{0.30f, 0.52f, 0.18f, 1.0f}},
 				{{0.42f, 0.30f, 0.20f, 1.0f}}, {{0.64f, 0.50f, 0.30f, 1.0f}},
 				{{0.80f, 0.70f, 0.42f, 1.0f}}});
@@ -42,7 +53,7 @@ namespace playground_test::golden
 
 		voxel::Palette orcPalette()
 		{
-			return voxel::Palette({{{0.20f, 0.42f, 0.12f, 1.0f}}, {{0.24f, 0.15f, 0.08f, 1.0f}},
+			return makePalette({{{0.20f, 0.42f, 0.12f, 1.0f}}, {{0.24f, 0.15f, 0.08f, 1.0f}},
 				{{0.36f, 0.60f, 0.20f, 1.0f}}, {{0.12f, 0.34f, 0.08f, 1.0f}},
 				{{0.30f, 0.22f, 0.14f, 1.0f}}, {{0.46f, 0.36f, 0.18f, 1.0f}},
 				{{0.58f, 0.48f, 0.24f, 1.0f}}});
@@ -50,7 +61,7 @@ namespace playground_test::golden
 
 		voxel::Palette worldPalette()
 		{
-			return voxel::Palette({{{0.24f, 0.58f, 0.16f, 1.0f}}, {{0.38f, 0.22f, 0.10f, 1.0f}},
+			return makePalette({{{0.24f, 0.58f, 0.16f, 1.0f}}, {{0.38f, 0.22f, 0.10f, 1.0f}},
 				{{0.50f, 0.52f, 0.56f, 1.0f}}, {{0.16f, 0.48f, 0.12f, 1.0f}},
 				{{0.58f, 0.46f, 0.30f, 1.0f}}, {{0.65f, 0.52f, 0.32f, 1.0f}},
 				{{0.72f, 0.62f, 0.38f, 1.0f}}});

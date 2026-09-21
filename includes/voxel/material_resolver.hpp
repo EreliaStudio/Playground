@@ -3,6 +3,7 @@
 #include "voxel/voxel_definition.hpp"
 #include "voxel/voxel_mesh.hpp"
 #include "voxel/voxel_volume.hpp"
+#include "voxel/palette.hpp"
 
 namespace voxel
 {
@@ -19,6 +20,6 @@ namespace voxel
 		};
 
 		virtual ~MaterialResolver() = default;
-		[[nodiscard]] virtual VoxelVertex::PaletteElementIndex resolve(const Context &context) const = 0;
+		[[nodiscard]] virtual Palette::ElementIndex resolve(const Context &context) const = 0;
 	};
 }

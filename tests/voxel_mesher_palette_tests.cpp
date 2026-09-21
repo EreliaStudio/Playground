@@ -23,7 +23,7 @@ namespace
 	class SlotResolver final : public voxel::MaterialResolver
 	{
 	public:
-		[[nodiscard]] voxel::VoxelVertex::PaletteElementIndex resolve(const Context &context) const override
+		[[nodiscard]] voxel::Palette::ElementIndex resolve(const Context &context) const override
 		{
 			if (context.polygon.materialSlot == "top") return 2;
 			if (context.polygon.materialSlot == "side") return 1;
@@ -34,9 +34,9 @@ namespace
 	class CoordinateResolver final : public voxel::MaterialResolver
 	{
 	public:
-		[[nodiscard]] voxel::VoxelVertex::PaletteElementIndex resolve(const Context &context) const override
+		[[nodiscard]] voxel::Palette::ElementIndex resolve(const Context &context) const override
 		{
-			return static_cast<voxel::VoxelVertex::PaletteElementIndex>(context.coordinate.x);
+			return static_cast<voxel::Palette::ElementIndex>(context.coordinate.x);
 		}
 	};
 
@@ -47,7 +47,7 @@ namespace
 		mutable std::set<voxel::Voxel::Side> sides;
 		mutable std::size_t calls = 0;
 
-		[[nodiscard]] voxel::VoxelVertex::PaletteElementIndex resolve(const Context &context) const override
+		[[nodiscard]] voxel::Palette::ElementIndex resolve(const Context &context) const override
 		{
 			volume = &context.volume;
 			sides.insert(context.polygon.outerSide);
@@ -64,7 +64,7 @@ namespace
 	public:
 		mutable std::size_t calls = 0;
 
-		[[nodiscard]] voxel::VoxelVertex::PaletteElementIndex resolve(const Context &) const override
+		[[nodiscard]] voxel::Palette::ElementIndex resolve(const Context &) const override
 		{
 			++calls;
 			return 0;
@@ -190,8 +190,14 @@ TEST(VoxelMesherPaletteTest, PaletteAndTransformChangesReuseTheSameMeshWithoutRe
 	const auto indices = std::vector<voxel::VoxelMesh::Index>(
 		mesh.layout().indexBuffer().cast<voxel::VoxelMesh::Index>().begin(),
 		mesh.layout().indexBuffer().cast<voxel::VoxelMesh::Index>().end());
-	const voxel::Palette human({{{0.7f, 0.5f, 0.4f, 1.0f}}});
-	const voxel::Palette orc({{{0.2f, 0.5f, 0.1f, 1.0f}}});
+	voxel::Palette human;
+	human.resize(1);
+	human.data(0).color = {0.7f, 0.5f, 0.4f, 1.0f};
+	human.validate();
+	voxel::Palette orc;
+	orc.resize(1);
+	orc.data(0).color = {0.2f, 0.5f, 0.1f, 1.0f};
+	orc.validate();
 
 	voxel::VoxelRenderCommand(human, mesh, spk::Matrix4x4::identity());
 	voxel::VoxelRenderCommand(orc, mesh,
