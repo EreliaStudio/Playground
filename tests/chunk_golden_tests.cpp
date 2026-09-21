@@ -49,6 +49,11 @@ TEST_F(CurrentChunkGoldenTest, ChunkMesherCrossChunkOcclusion)
 	EXPECT_TRUE(playground_test::golden::compareChunkMesherOcclusion());
 }
 
+TEST_F(CurrentChunkGoldenTest, MatchesApprovedPaletteBaselines)
+{
+	EXPECT_TRUE(playground_test::golden::comparePaletteGoldenImages());
+}
+
 TEST_F(CurrentChunkGoldenTest, DetectsControlledUvRegression)
 {
 	EXPECT_NO_THROW(playground_test::golden::proveUvSensitivity());

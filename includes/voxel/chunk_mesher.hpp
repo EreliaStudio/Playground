@@ -17,5 +17,7 @@ namespace voxel
 		Mesher(const Voxel::Catalog<Voxel::Definition> &catalog, const Collection &chunks);
 
 		[[nodiscard]] spk::TextureMesh3D bake(const Chunk &chunk) const;
+		[[nodiscard]] VoxelMesh bake(
+			const Chunk &chunk, const MaterialResolver &materialResolver) const;
 	};
 }

@@ -45,9 +45,11 @@ The following is the target contract owned by ST-003-02 and later Palette ticket
 
 A CPU-side `PaletteCollection` may manage Palette resources, but it is not uploaded as one global GPU buffer. Each `Palette` is independently associated with its own SSBO. A render command binds the program, mesh vertex/index buffers, the Palette required by that renderable, transform data, and then draws.
 
+As resolved by [OD-026](../open-decisions/OD-026-initial-palette-element-resolver-and-command-lifetime.md), `Palette::Data` initially contains one RGBA color. `Palette` is default-constructible. `resize(count)` defines the number of `Palette::Data` elements and exposes them through `data(index)` for CPU-side editing. Resizing does not implicitly validate/upload the resource; after construction, resize, or data modification, the caller explicitly invokes `validate()` when the Palette is ready for GPU use. `MaterialResolver` receives immutable volume, Definition, transformed-polygon, coordinate, and Cell context and returns only the element index. The render command stores a Palette value copy, which shares and retains Sparkle's underlying GPU resource. [OD-027](../open-decisions/OD-027-render-command-palette-trust-boundary.md) makes compatibility a caller precondition: the command accepts `const Palette&` and does not rescan mesh vertices.
+
 `VoxelMesh` vertices semantically carry at least `position`, `normal`, and integer `paletteElementIndex`. The index is flat/non-interpolated and addresses the currently bound Palette SSBO. It is not a Voxel ID, and no GPU `paletteId` exists in the initial design.
 
-Palette selection belongs to the renderable/part instance, not the pure model asset. Consequently one cached arm mesh can render with Human, Orc, or Undead palettes without remeshing. All referenced indices must exist in the bound Palette; an out-of-range reference is detected and rejected.
+Palette selection belongs to the renderable/part instance, not the pure model asset. Consequently one cached arm mesh can render with Human, Orc, or Undead palettes without remeshing. All referenced indices must exist in the bound Palette; submitting a compatible mesh/Palette pair is the caller's responsibility.
 
 Chunks normally share one relatively large `WorldPalette`. Chunk material resolution may use both the Shape polygon's semantic `materialSlot` and spatial `outerSide`; these concepts remain distinct. A dedicated content-schema ticket defines precedence among default, slot, side, and exact slot+side overrides after a user-approved example. Top, side, bottom, and individual sides can resolve to different elements of the same WorldPalette.
 
@@ -62,4 +64,4 @@ Chunks and VoxelModels use the same VoxelMesh format and voxel shader. Changing 
 5. Review expected, produced, and difference images manually.
 6. Only after approval, add a new versioned expected baseline.
 
-Required semantic fixtures cover authored model indices, Chunk slot/side mapping, top/side/bottom and per-side variation, invalid indices, identical geometry across Palette swaps, no remesh on Palette swap, consistent polygon vertex indices, internal-face occlusion, multiple Shapes, and deterministic output. Golden fixtures cover the corresponding visible cases and render one model mesh with two Palettes plus a Chunk through WorldPalette.
+Required semantic fixtures cover authored model indices, Chunk slot/side mapping, top/side/bottom and per-side variation, identical geometry across Palette swaps, no remesh on Palette swap, consistent polygon vertex indices, internal-face occlusion, multiple Shapes, and deterministic output. Golden fixtures cover the corresponding visible cases and render one model mesh with two compatible Palettes plus a Chunk through WorldPalette.

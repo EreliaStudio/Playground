@@ -1,14 +1,14 @@
 # Erelia Implementation Status
 
-**Last updated:** 20 September 2026
+**Last updated:** 21 September 2026
 
-**Implementation base:** `main` at `67d5471208d7da4188bb1034bc69d32a69eb1441`
+**Implementation base:** `main` at `3cfae1c79e9a9dfeb81e4cd96891ff4fb3510cfd`
 
-**Delivery:** [PR #8](https://github.com/EreliaStudio/Playground/pull/8) from `feature/st-032-04-indexed-voxel-output`
+**Delivery:** [PR #9](https://github.com/EreliaStudio/Playground/pull/9) from `feature/st-003-02-palette-binding`
 
 **Current horizon:** H0 — Foundations and visual validation
 
-**Current checkpoint:** ST-003-02 — Palette resource binding and unified voxel shader contract.
+**Current checkpoint:** ST-003-02 is complete, including owner-approved Palette golden images. ST-033-01 is next but remains at its material-mapping decision gate.
 
 This is the living answer to:
 
@@ -41,7 +41,9 @@ Current Baker semantic fixtures                    ✅
 VoxelMesher + Chunk::Mesher implementation         ✅
 Chunk::Mesher consumer transition                  ✅
 Mesher compatible-vertex reuse (ST-032-04)         ✅
-Palette rendering migration (ST-003-02)            🟡 CURRENT
+Palette rendering contract (ST-003-02)             ✅
+Palette candidate visual review                    ✅
+ST-033-01 Palette terrain prototype                ⛔ DECISION
 VS-000 unified voxel visual validation             ⬜
 VS-001 first playable                              🔭
 ```
@@ -74,8 +76,8 @@ VS-001 first playable                              🔭
 
 ### Planning and decisions
 
-- ✅ The backlog contains 34 epics, 137 tickets, and 25 persistent decision records.
-- ✅ Five decisions are resolved: OD-011, OD-020, OD-023, OD-024, and OD-025. Twenty remain open.
+- ✅ The backlog contains 34 epics, 137 tickets, and 27 persistent decision records.
+- ✅ Seven decisions are resolved: OD-011, OD-020, OD-023, OD-024, OD-025, OD-026, and OD-027. Twenty remain open.
 - ✅ OD-011 selects one concrete vector-owning `VoxelVolume` base and explicitly accepts replacing Chunk's fixed array during ST-001-03.
 - ✅ OD-023 preserves the existing packed Cell orientation/vertical-flip representation until evidence justifies a separate expansion decision.
 
@@ -174,11 +176,28 @@ ST-032-03 and ST-004-02 are superseded by this approved consolidation.
 - ✅ [CI run 35521204431](https://github.com/EreliaStudio/Playground/actions/runs/35521204431) passes both complete lanes; all 20 original Chunk and 12 consolidated-mesher `640 × 480` references pass unchanged.
 - ✅ No timing claim is made because the available hosted runner is not a controlled benchmark environment; no unstable timing assertion was added.
 
+### ST-003-02 — Palette resource binding and unified voxel shader contract
+
+- ✅ `Palette` owns one independently bindable Sparkle SSBO by composition and keeps a typed `ShaderStorageBuffer::View<void, Palette::Data>` over its RGBA entries; reference edits require explicit `validate()`.
+- ✅ `VoxelMesh` carries position, hard flat normal, and integer `paletteElementIndex`; the attribute and both shader stages preserve its integer, flat/non-interpolated contract.
+- ✅ `MaterialResolver` receives immutable volume, Definition, transformed emitted polygon, coordinate, and Cell context and returns only the currently bound Palette element index.
+- ✅ Generic `VoxelMesher` and `Chunk::Mesher` emit the same deterministic Palette mesh representation. Palette element identity participates in compatible-vertex reuse, so material seams cannot collapse while existing polygons and hard normals remain intact.
+- ✅ `VoxelRenderCommand` accepts a required Palette reference, retains a shared-resource Palette value copy, and binds program → mesh → Palette → camera/model data → draw. Per OD-027 it trusts prepared mesh/Palette compatibility and does not rescan vertices.
+- ✅ Palette/transform swaps reuse identical vertex/index bytes and do not invoke the mesher again. Sequential Human/Orc commands bind different resources; Chunk and VoxelModel use the same mesh/shader path.
+- ✅ The existing TextureMesh3D atlas path, all 32 approved textured references, tolerances, and ST-032-04 no-merge policy remain unchanged.
+- ✅ OD-026 records the approved RGBA payload, full resolver context, value-copy lifetime, SSBO composition/View, and explicit validation policy.
+- ✅ OD-027 records the owner-selected render-command trust boundary: no empty/out-of-range compatibility check in the command, mesher, or shader; compatible inputs are a caller precondition.
+- ✅ [Sparkle issue #5](https://github.com/EreliaStudio/Sparkle/issues/5) tracks a possible later inheritance migration; ST-003-02 uses the pinned Sparkle `0.1.2` package unchanged.
+- ✅ [PR #9 CI run 35538271204](https://github.com/EreliaStudio/Playground/actions/runs/35538271204) passes both complete lanes for commit [`b5cbcdc`](https://github.com/EreliaStudio/Playground/commit/b5cbcdc814a608cf493b0cefe4eb9b2592997bf1).
+- ✅ [PR #9 CI run 35572632309](https://github.com/EreliaStudio/Playground/actions/runs/35572632309) passes both `CPU/headless tests` and `Windows/OpenGL golden tests` after OD-027 removes render-command validation and the approved Palette references become enforced comparisons.
+- ✅ The project owner approved the exact Human, Orc, sequential Human+Orc, and WorldPalette Chunk candidates from final CI run `35538640066` on 21 September 2026. Those four `640 × 480` images are checked in as Palette golden references; the existing textured references remain unchanged.
+- ✅ Final-run artifact `10613866642` preserves the rendered actuals and textured-to-Palette difference; artifact `10614355465` preserves the reviewed proposed baselines.
+
 ## Current implementation checkpoint
 
-### 🟡 ST-003-02 — Palette resource binding and unified voxel shader contract
+### ⛔ ST-033-01 — Palette Material terrain prototype decision gate
 
-Introduce the separately owned Palette resource, palette-element mesh data, per-draw Palette SSBO binding, and common voxel shader contract. The completed ST-032-04 textured output remains the structural baseline; Palette behavior was not pulled into mesher indexing work.
+ST-003-02 is complete after owner approval and promotion of its four reviewed Palette references. Before ST-033-01 implementation can freeze content behavior, resolve the exact `WorldPalette` precedence among default, `materialSlot`, `outerSide`, and exact overrides. OD-019 remains a separate gate for procedural Palette variation; direct element lookup does not require it.
 
 ## Next implementation sequence
 
@@ -192,16 +211,24 @@ Introduce the separately owned Palette resource, palette-element mesh data, per-
 | 6 | ✅ | [ST-004-01](epics/EP-004-chunk-world-generation/tickets/ST-004-01-chunk-mesher-integration.md) — transition Chunk consumers | Application, scheduler, tests, and golden renderer use the nested `Chunk::Mesher`; obsolete Baker code is removed. |
 | 7 | ✅ | [ST-032-04](epics/EP-032-unified-voxel-mesher/tickets/ST-032-04-optimization-and-indexed-output.md) — deterministic compatible-vertex reuse | OD-020 is resolved; exact first-seen position/normal/UV reuse preserves polygons, hard normals, semantics, and all 32 references. |
 | 8 | ✅ | Prove unchanged semantic mesh and textured golden-image parity after the consumer transition | Retained semantic fixtures and all 32 unchanged image references pass CI run 35514737157. |
-| 9 | 🟡 CURRENT | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) | Introduces the accepted per-Palette SSBO/common-shader contract after structural parity. |
-| 10 | ⬜ | EP-033 palette/multi-scale visual fixtures | Intentionally changes the visual pipeline and creates reviewed versioned baselines. |
-| 11 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
-| 12 | ⬜ | [VS-000](milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) | Validates terrain, model, assembly, equipment, Palette, and performance together. |
-| 13 | 🔭 | [VS-001](milestones/VS-001-FIRST-PLAYABLE.md) | Starts the gameplay vertical slice after the visual/runtime foundation. |
+| 9 | ✅ | [ST-003-02](epics/EP-003-runtime-rendering-mesh-cache/tickets/ST-003-02-palette-resource-binding-and-voxel-shader-contract.md) implementation | Per-Palette SSBO composition, common mesh/shader contract, caller-owned compatibility, value-copy lifetime, semantic tests, and both CI lanes pass. |
+| 10 | ✅ | ST-003-02 Palette golden images | The owner approved the four final-run candidates; exact checked-in references now guard Human, Orc, sequential dual-Palette, and WorldPalette rendering. |
+| 11 | ⛔ DECISION | [ST-033-01](epics/EP-033-material-visual-validation/tickets/ST-033-01-palette-material-terrain-prototype.md) — Palette Material terrain prototype | Next smallest backlog step; exact WorldPalette default/materialSlot/outerSide/exact-override precedence must be approved before implementation. OD-019 separately gates any procedural variation. |
+| 12 | ⬜ | EP-030 → EP-002 → EP-031 asset import, runtime assembly, and authored character workflow | Builds model/assembly content on validated runtime contracts. |
+| 13 | ⬜ | [VS-000](milestones/VS-000-UNIFIED-VOXEL-VISUAL-VALIDATION.md) | Validates terrain, model, assembly, equipment, Palette, and performance together. |
+| 14 | 🔭 | [VS-001](milestones/VS-001-FIRST-PLAYABLE.md) | Starts the gameplay vertical slice after the visual/runtime foundation. |
 
 ## Known user gates
 
 - OD-020 is resolved: do not merge polygons; share only exact position/normal/UV matches in deterministic first-seen order and preserve hard flat normals.
 - OD-025 is resolved: VoxelMesher owns the common cached algorithm; Chunk::Mesher overrides only outside-volume neighbor lookup.
+- OD-026 is resolved: Palette uses RGBA data, SSBO composition/View, explicit validation, the full immutable resolver context, and shared-resource value-copy command lifetime.
+- OD-027 supersedes OD-026's command-input validation only: `VoxelRenderCommand` accepts `const Palette&` and trusts the caller's mesh/Palette compatibility without rescanning vertices.
+- The four ST-003-02 Palette candidates from CI run `35538640066` were explicitly approved by the project owner on 21 September 2026 and promoted without modifying the pre-existing textured references.
+- ST-033-01 must not invent WorldPalette default/materialSlot/outerSide/exact-override precedence. Resolve that mapping from an owner-approved example before freezing the content schema.
+- OD-019 remains open for any procedural Palette variation; direct element lookup is implemented, but variation must not be invented.
+- The proposed broader `Material`/`MaterialCollection` layer is explicitly deferred and is not part of PR #9.
+- Sparkle SSBO inheritance is deferred to [Sparkle issue #5](https://github.com/EreliaStudio/Sparkle/issues/5); current Palette composition is intentional.
 - Approval of any model, assembly, animation, equipment, import, or material-mapping schema before it is frozen.
 - Review of expected, produced, and difference images before accepting the later Palette migration baseline.
 
