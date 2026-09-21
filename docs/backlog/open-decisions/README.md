@@ -31,4 +31,4 @@ Decision records are persistent architecture/design history. Resolve a decision 
 | [OD-025](OD-025-voxelmesher-chunk-specialization-and-occlusion-cache.md) | Resolved | One generic VoxelMesher with cached occlusion and a Chunk::Mesher external-neighbor override. |
 | [OD-026](OD-026-initial-palette-element-resolver-and-command-lifetime.md) | Resolved | RGBA Palette data, SSBO composition/view, explicit validation, full resolver context, and value-copy command lifetime. |
 | [OD-027](OD-027-render-command-palette-trust-boundary.md) | Resolved | Render commands accept a Palette reference and trust prepared mesh/Palette compatibility without rescanning vertices. |
-| [OD-028](OD-028-worldpalette-terrain-mapping-and-precedence.md) | Open | WorldPalette terrain mapping and precedence. |
+| [OD-028](OD-028-worldpalette-terrain-mapping-and-precedence.md) | Resolved | One Shape slot per polygon; Definition string binding -> Palette element through MaterialResolver; Palette-owned magenta fallback via `setDefault()`. |
